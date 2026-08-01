@@ -1,0 +1,16 @@
+name: core_ui
+description: 모든 앱이 공유하는 시각 언어 — 디자인 토큰, 테마, 범용 위젯.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

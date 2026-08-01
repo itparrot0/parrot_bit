@@ -1,0 +1,17 @@
+name: core_storage
+description: key-value 로컬 저장의 추상 인터페이스와 구현. 키 이름·스키마는 앱이 소유한다.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  shared_preferences: ^2.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

@@ -1,0 +1,41 @@
+name: parrot_bit_workspace
+description: Melos + pub workspace monorepo for Parrot Bit apps.
+publish_to: none
+
+environment:
+  sdk: ^3.12.2
+
+workspace:
+  - packages/core_utils
+  - packages/core_ui
+  - packages/core_network
+  - packages/core_storage
+  - packages/core_analytics
+
+dev_dependencies:
+  melos: ^7.0.0
+  flutter_lints: ^6.0.0
+
+melos:
+  scripts:
+    analyze:
+      description: 워크스페이스 전체 정적 분석
+      run: dart analyze .
+    test:
+      description: 모든 패키지 테스트 (dart + flutter)
+      run: melos run test:dart && melos run test:flutter
+    test:dart:
+      description: 순수 Dart 패키지 테스트
+      exec: dart test
+      packageFilters:
+        dirExists: test
+        flutter: false
+    test:flutter:
+      description: Flutter 패키지 테스트
+      exec: flutter test
+      packageFilters:
+        dirExists: test
+        flutter: true
+    format:
+      description: 워크스페이스 전체 포맷 검사
+      run: dart format --set-exit-if-changed .

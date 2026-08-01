@@ -1,0 +1,14 @@
+name: core_network
+description: HTTP 통신과 그 실패를 정규화하는 계층. dio는 내부 구현으로 캡슐화한다.
+version: 0.1.0
+publish_to: none
+resolution: workspace
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  dio: ^5.7.0
+
+dev_dependencies:
+  test: ^1.25.0
