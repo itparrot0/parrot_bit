@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:proto_merge/domain/board_model.dart';
 import 'package:proto_merge/game/components/generator_component.dart';
 import 'package:proto_merge/game/components/item_component.dart';
 import 'package:proto_merge/game/merge_game.dart';
@@ -46,7 +47,10 @@ void main() {
     final screen = tester.getSize(find.byType(GameWidget<MergeGame>));
 
     await tester.tapAt(
-      worldToScreen(game.cellCenter(game.model.generatorCell), screen),
+      worldToScreen(
+        game.cellCenter(game.model.generators.first.cell),
+        screen,
+      ),
     );
     await tester.pump(const Duration(milliseconds: 300));
 
@@ -70,7 +74,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(game.model.mergeCount, 1);
-    expect(game.model.levelAt(to), 2);
+    expect(game.model.itemAt(to), const Item(basicChain, 2));
     expect(game.world.children.whereType<ItemComponent>().length, 1);
   });
 
@@ -78,7 +82,8 @@ void main() {
     final game = await pumpGame(tester);
     final screen = tester.getSize(find.byType(GameWidget<MergeGame>));
     const other = (col: 0, row: 0);
-    game.model.placeItem(other, 2); // 모델에만 있어도 판정 검증에는 충분
+    // 모델에만 있어도 판정 검증에는 충분
+    game.model.placeItem(other, const Item(basicChain, 2));
     const from = (col: 1, row: 2);
 
     final start = worldToScreen(game.cellCenter(from), screen);
@@ -91,7 +96,11 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
 
     expect(game.model.mergeCount, 0);
-    expect(game.model.levelAt(from), 1, reason: '스냅백으로 원래 칸 유지');
-    expect(game.model.levelAt(other), 2);
+    expect(
+      game.model.itemAt(from),
+      const Item(basicChain, 1),
+      reason: '스냅백으로 원래 칸 유지',
+    );
+    expect(game.model.itemAt(other), const Item(basicChain, 2));
   });
 }

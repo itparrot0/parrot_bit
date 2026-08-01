@@ -6,19 +6,19 @@ import 'package:flutter/material.dart';
 import '../../domain/board_model.dart';
 import '../merge_game.dart';
 
-/// 아이템 생성기. 탭하면 무작위 빈 칸에 레벨 1 아이템을 만든다.
+/// 아이템 생성기. 탭하면 무작위 빈 칸에 [Generator] 정의대로 아이템을 만든다.
 /// 이동/머지 불가, 빈 칸이 없으면 흔들림 피드백만 준다.
 class GeneratorComponent extends PositionComponent
     with TapCallbacks, HasGameReference<MergeGame> {
-  GeneratorComponent({required this.cell});
+  GeneratorComponent({required this.generator});
 
-  final CellPos cell;
+  final Generator generator;
 
   @override
   Future<void> onLoad() async {
     size = Vector2.all(kCellSize * 0.86);
     anchor = Anchor.center;
-    position = game.cellCenter(cell);
+    position = game.cellCenter(generator.cell);
     priority = 5;
 
     add(
@@ -45,7 +45,7 @@ class GeneratorComponent extends PositionComponent
 
   @override
   void onTapUp(TapUpEvent event) {
-    final spawned = game.spawnFromGenerator();
+    final spawned = game.spawnFromGenerator(generator);
     if (!spawned) {
       _shake();
     }

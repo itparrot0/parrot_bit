@@ -6,14 +6,19 @@ import 'package:flutter/material.dart';
 import '../../domain/board_model.dart';
 import '../merge_game.dart';
 
-/// 레벨 1~5의 원 배경색.
-const List<Color> _levelColors = [
-  Color(0xFF4CAF50),
-  Color(0xFF2196F3),
-  Color(0xFF9C27B0),
-  Color(0xFFFF9800),
-  Color(0xFFF44336),
-];
+/// 체인별 레벨 색 팔레트. 새 체인 추가 시 여기에 항목을 더한다.
+const Map<String, List<Color>> _chainColors = {
+  'basic': [
+    Color(0xFF4CAF50),
+    Color(0xFF2196F3),
+    Color(0xFF9C27B0),
+    Color(0xFFFF9800),
+    Color(0xFFF44336),
+  ],
+};
+
+/// 팔레트에 없는 체인의 대체 색.
+const List<Color> _fallbackColors = [Color(0xFF78909C)];
 
 /// 등장 연출 종류.
 enum ItemEntrance { none, spawn, merge }
@@ -24,12 +29,12 @@ class ItemComponent extends PositionComponent
     with DragCallbacks, HasGameReference<MergeGame> {
   ItemComponent({
     required this.cell,
-    required this.level,
+    required this.item,
     this.entrance = ItemEntrance.none,
   });
 
   CellPos cell;
-  final int level;
+  final Item item;
   final ItemEntrance entrance;
 
   /// 드래그 확대·펄스 연출용 내부 컨테이너.
@@ -37,6 +42,11 @@ class ItemComponent extends PositionComponent
   late final PositionComponent _visual;
 
   bool _dragging = false;
+
+  Color get _color {
+    final palette = _chainColors[item.chain.id] ?? _fallbackColors;
+    return palette[(item.level - 1) % palette.length];
+  }
 
   @override
   Future<void> onLoad() async {
@@ -51,14 +61,11 @@ class ItemComponent extends PositionComponent
       anchor: Anchor.center,
     );
     _visual.add(
-      CircleComponent(
-        radius: size.x / 2,
-        paint: Paint()..color = _levelColors[(level - 1) % _levelColors.length],
-      ),
+      CircleComponent(radius: size.x / 2, paint: Paint()..color = _color),
     );
     _visual.add(
       TextComponent(
-        text: '$level',
+        text: '${item.level}',
         anchor: Anchor.center,
         position: size / 2,
         textRenderer: TextPaint(

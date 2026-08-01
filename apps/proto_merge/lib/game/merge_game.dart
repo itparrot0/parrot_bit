@@ -40,7 +40,9 @@ class MergeGame extends FlameGame {
   @override
   Future<void> onLoad() async {
     _buildTiles();
-    world.add(GeneratorComponent(cell: model.generatorCell));
+    for (final generator in model.generators) {
+      world.add(GeneratorComponent(generator: generator));
+    }
     _syncItems();
   }
 
@@ -59,13 +61,13 @@ class MergeGame extends FlameGame {
     return model.isInside(pos) ? pos : null;
   }
 
-  /// 생성기 탭 처리. 생성에 성공하면 true.
-  bool spawnFromGenerator() {
-    final pos = model.spawn();
+  /// [generator] 탭 처리. 생성에 성공하면 true.
+  bool spawnFromGenerator(Generator generator) {
+    final pos = model.spawnFrom(generator);
     if (pos == null) {
       return false;
     }
-    _addItem(pos, 1, entrance: ItemEntrance.spawn);
+    _addItem(pos, model.itemAt(pos)!, entrance: ItemEntrance.spawn);
     _publishStats();
     return true;
   }
@@ -87,7 +89,7 @@ class MergeGame extends FlameGame {
         _itemComponents.remove(item.cell);
         consumed?.removeFromParent();
         item.removeFromParent();
-        _addItem(target, model.levelAt(target)!, entrance: ItemEntrance.merge);
+        _addItem(target, model.itemAt(target)!, entrance: ItemEntrance.merge);
         _publishStats();
       case MoveOutcome.rejected:
         item.settleTo(cellCenter(item.cell));
@@ -127,12 +129,12 @@ class MergeGame extends FlameGame {
 
   void _addItem(
     CellPos pos,
-    int level, {
+    Item item, {
     ItemEntrance entrance = ItemEntrance.none,
   }) {
-    final item = ItemComponent(cell: pos, level: level, entrance: entrance);
-    _itemComponents[pos] = item;
-    world.add(item);
+    final component = ItemComponent(cell: pos, item: item, entrance: entrance);
+    _itemComponents[pos] = component;
+    world.add(component);
   }
 
   void _publishStats() {
