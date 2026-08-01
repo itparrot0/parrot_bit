@@ -6,6 +6,7 @@ environment:
   sdk: ^3.12.2
 
 workspace:
+  - apps/proto_merge
   - packages/core_utils
   - packages/core_ui
   - packages/core_network

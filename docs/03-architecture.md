@@ -115,4 +115,4 @@ core_game ──→ core_utils     (허용; Flame 의존은 core_game과 게임 
 
 1. ~~루트의 `flutter create` 앱 잔재 폐기, 루트를 워크스페이스 전용으로 전환~~ ✔
 2. ~~`packages/core_*` 5종 스캐폴딩 + bootstrap (melos 7.8.2, analyze/test 통과)~~ ✔
-3. 첫 앱(또는 첫 `proto_*`) 생성 — **다음 단계**. `flutter create`로 `apps/` 아래에 생성 후 루트 `pubspec.yaml`의 `workspace:` 목록에 추가하고, 앱 pubspec에 `resolution: workspace`를 선언한다.
+3. ~~첫 앱 생성~~ ✔ — `apps/proto_merge` (머지 게임 프로토타입, `docs/prd/proto_merge.md`). 이후 앱 추가 시 같은 절차: `flutter create`로 `apps/` 아래 생성 → 루트 `workspace:` 목록에 추가 → 앱 pubspec에 `resolution: workspace` 선언.
