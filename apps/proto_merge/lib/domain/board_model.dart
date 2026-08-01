@@ -136,8 +136,9 @@ class BoardModel {
 
   /// [from]의 조각(아이템·생성기)을 [to]에 드롭했을 때의 판정과 상태 반영.
   ///
-  /// 머지는 같은 종류끼리만(아이템↔아이템, 생성기↔생성기),
-  /// 서로 다른 종류가 만나면 자리를 교체한다.
+  /// 머지는 같은 종류끼리만(아이템↔아이템, 생성기↔생성기).
+  /// 머지 조건이 아닌 점유 칸에 드롭하면 자리를 교체하고,
+  /// 거부는 보드 밖·제자리 드롭뿐이다.
   MoveOutcome tryMove(CellPos from, CellPos to) {
     final source = _cells[from];
     if (source == null || !isInside(to) || to == from) {
@@ -174,14 +175,10 @@ class BoardModel {
         mergeCount++;
         return MoveOutcome.merged;
 
-      case (ItemContent(), GeneratorContent()) ||
-            (GeneratorContent(), ItemContent()):
+      case _:
         _cells[from] = target!;
         _cells[to] = source;
         return MoveOutcome.swapped;
-
-      case _:
-        return MoveOutcome.rejected;
     }
   }
 }

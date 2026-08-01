@@ -58,25 +58,27 @@ void main() {
       expect(board.highestLevel, 2);
     });
 
-    test('같은 체인이라도 레벨이 다르면 거부된다', () {
+    test('같은 체인이라도 레벨이 다르면 자리를 교체한다', () {
       final board = BoardModel();
       board.placeItem((col: 0, row: 0), const Item(basicChain, 2));
 
       final outcome = board.tryMove((col: 1, row: 2), (col: 0, row: 0));
 
-      expect(outcome, MoveOutcome.rejected);
-      expect(board.itemAt((col: 1, row: 2)), const Item(basicChain, 1));
-      expect(board.itemAt((col: 0, row: 0)), const Item(basicChain, 2));
+      expect(outcome, MoveOutcome.swapped);
+      expect(board.itemAt((col: 1, row: 2)), const Item(basicChain, 2));
+      expect(board.itemAt((col: 0, row: 0)), const Item(basicChain, 1));
+      expect(board.mergeCount, 0);
     });
 
-    test('레벨이 같아도 체인이 다르면 거부된다', () {
+    test('레벨이 같아도 체인이 다르면 자리를 교체한다', () {
       final board = BoardModel();
       board.placeItem((col: 0, row: 0), const Item(otherChain, 1));
 
       final outcome = board.tryMove((col: 1, row: 2), (col: 0, row: 0));
 
-      expect(outcome, MoveOutcome.rejected);
-      expect(board.itemAt((col: 0, row: 0)), const Item(otherChain, 1));
+      expect(outcome, MoveOutcome.swapped);
+      expect(board.itemAt((col: 0, row: 0)), const Item(basicChain, 1));
+      expect(board.itemAt((col: 1, row: 2)), const Item(otherChain, 1));
     });
 
     test('아이템을 생성기 위에 드롭하면 자리를 교체한다', () {
@@ -104,14 +106,16 @@ void main() {
       expect(board.tryMove(from, from), MoveOutcome.rejected);
     });
 
-    test('체인별 최고 레벨끼리는 머지되지 않는다', () {
+    test('체인별 최고 레벨끼리는 머지 대신 자리를 교체한다', () {
       final board = BoardModel();
       board.placeItem((col: 0, row: 0), const Item(otherChain, 3));
       board.placeItem((col: 1, row: 0), const Item(otherChain, 3));
 
       final outcome = board.tryMove((col: 0, row: 0), (col: 1, row: 0));
 
-      expect(outcome, MoveOutcome.rejected, reason: 'otherChain의 maxLevel은 3');
+      expect(outcome, MoveOutcome.swapped, reason: 'otherChain의 maxLevel은 3');
+      expect(board.itemAt((col: 1, row: 0)), const Item(otherChain, 3));
+      expect(board.mergeCount, 0);
     });
 
     test('아이템 없는 칸에서 출발하면 거부된다', () {
@@ -158,7 +162,7 @@ void main() {
       expect(board.mergeCount, 1);
     });
 
-    test('레벨이 다른 생성기끼리는 거부된다', () {
+    test('레벨이 다른 생성기끼리는 자리를 교체한다', () {
       final board = BoardModel(
         generators: {
           (col: 0, row: 0): const Generator(spawnChain: basicChain),
@@ -166,13 +170,20 @@ void main() {
         },
       );
 
+      final outcome = board.tryMove((col: 0, row: 0), (col: 1, row: 0));
+
+      expect(outcome, MoveOutcome.swapped);
       expect(
-        board.tryMove((col: 0, row: 0), (col: 1, row: 0)),
-        MoveOutcome.rejected,
+        board.generatorAt((col: 0, row: 0)),
+        const Generator(spawnChain: basicChain, level: 2),
+      );
+      expect(
+        board.generatorAt((col: 1, row: 0)),
+        const Generator(spawnChain: basicChain),
       );
     });
 
-    test('최대 레벨 생성기끼리는 머지되지 않는다', () {
+    test('최대 레벨 생성기끼리는 머지 대신 자리를 교체한다', () {
       final board = BoardModel(
         generators: {
           (col: 0, row: 0): const Generator(spawnChain: basicChain, level: 3),
@@ -180,11 +191,14 @@ void main() {
         },
       );
 
+      final outcome = board.tryMove((col: 0, row: 0), (col: 1, row: 0));
+
+      expect(outcome, MoveOutcome.swapped, reason: '생성기 maxLevel 기본값은 3');
       expect(
-        board.tryMove((col: 0, row: 0), (col: 1, row: 0)),
-        MoveOutcome.rejected,
-        reason: '생성기 maxLevel 기본값은 3',
+        board.generatorAt((col: 1, row: 0)),
+        const Generator(spawnChain: basicChain, level: 3),
       );
+      expect(board.mergeCount, 0);
     });
 
     test('생성기를 아이템 위에 드롭하면 자리를 교체한다', () {

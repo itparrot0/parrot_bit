@@ -87,7 +87,7 @@ void main() {
     expect(game.world.children.whereType<ItemComponent>().length, 1);
   });
 
-  testWidgets('다른 레벨 위에 드롭하면 원래 칸으로 돌아온다', (tester) async {
+  testWidgets('다른 레벨 위에 드롭하면 서로 자리를 바꾼다', (tester) async {
     final game = await pumpGame(tester);
     const other = (col: 0, row: 0);
     // 모델에만 있어도 판정 검증에는 충분
@@ -97,12 +97,8 @@ void main() {
     await dragCell(tester, game, from, other);
 
     expect(game.model.mergeCount, 0);
-    expect(
-      game.model.itemAt(from),
-      const Item(basicChain, 1),
-      reason: '스냅백으로 원래 칸 유지',
-    );
-    expect(game.model.itemAt(other), const Item(basicChain, 2));
+    expect(game.model.itemAt(from), const Item(basicChain, 2));
+    expect(game.model.itemAt(other), const Item(basicChain, 1));
   });
 
   testWidgets('생성기를 드래그하면 빈 칸으로 이동한다', (tester) async {
