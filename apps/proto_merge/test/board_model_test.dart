@@ -79,15 +79,20 @@ void main() {
       expect(board.itemAt((col: 0, row: 0)), const Item(otherChain, 1));
     });
 
-    test('아이템을 생성기 위에 드롭하면 거부된다', () {
+    test('아이템을 생성기 위에 드롭하면 자리를 교체한다', () {
       final board = BoardModel();
       const from = (col: 1, row: 2);
+      final generatorCell = board.generators.keys.first;
 
+      final outcome = board.tryMove(from, generatorCell);
+
+      expect(outcome, MoveOutcome.swapped);
+      expect(board.itemAt(generatorCell), const Item(basicChain, 1));
       expect(
-        board.tryMove(from, board.generators.keys.first),
-        MoveOutcome.rejected,
+        board.generatorAt(from),
+        const Generator(spawnChain: basicChain),
       );
-      expect(board.itemAt(from), const Item(basicChain, 1));
+      expect(board.mergeCount, 0);
     });
 
     test('보드 밖·제자리 드롭은 거부된다', () {
@@ -182,12 +187,19 @@ void main() {
       );
     });
 
-    test('생성기를 아이템 위에 드롭하면 거부된다', () {
+    test('생성기를 아이템 위에 드롭하면 자리를 교체한다', () {
       final board = BoardModel();
       final from = board.generators.keys.first;
+      const itemCell = (col: 1, row: 2);
 
-      expect(board.tryMove(from, (col: 1, row: 2)), MoveOutcome.rejected);
-      expect(board.generatorAt(from), isNotNull);
+      final outcome = board.tryMove(from, itemCell);
+
+      expect(outcome, MoveOutcome.swapped);
+      expect(
+        board.generatorAt(itemCell),
+        const Generator(spawnChain: basicChain),
+      );
+      expect(board.itemAt(from), const Item(basicChain, 1));
     });
 
     test('업그레이드된 생성기는 자기 레벨의 아이템을 스폰한다', () {

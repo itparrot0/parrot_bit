@@ -11,7 +11,7 @@ export 'generator.dart';
 export 'item.dart';
 
 /// 드롭 판정 결과.
-enum MoveOutcome { merged, moved, rejected }
+enum MoveOutcome { merged, moved, swapped, rejected }
 
 /// 머지 보드의 순수 Dart 모델. Flame 없이 단위 테스트한다.
 ///
@@ -136,14 +136,16 @@ class BoardModel {
 
   /// [from]의 조각(아이템·생성기)을 [to]에 드롭했을 때의 판정과 상태 반영.
   ///
-  /// 머지는 같은 종류끼리만: 아이템↔아이템, 생성기↔생성기.
+  /// 머지는 같은 종류끼리만(아이템↔아이템, 생성기↔생성기),
+  /// 서로 다른 종류가 만나면 자리를 교체한다.
   MoveOutcome tryMove(CellPos from, CellPos to) {
     final source = _cells[from];
     if (source == null || !isInside(to) || to == from) {
       return MoveOutcome.rejected;
     }
 
-    switch ((source, _cells[to])) {
+    final target = _cells[to];
+    switch ((source, target)) {
       case (_, null):
         _cells.remove(from);
         _cells[to] = source;
@@ -171,6 +173,12 @@ class BoardModel {
         _cells[to] = GeneratorContent(moving.upgraded);
         mergeCount++;
         return MoveOutcome.merged;
+
+      case (ItemContent(), GeneratorContent()) ||
+            (GeneratorContent(), ItemContent()):
+        _cells[from] = target!;
+        _cells[to] = source;
+        return MoveOutcome.swapped;
 
       case _:
         return MoveOutcome.rejected;

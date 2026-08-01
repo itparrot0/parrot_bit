@@ -116,6 +116,18 @@ void main() {
     expect(game.model.contentAt(from), isNull);
   });
 
+  testWidgets('생성기를 아이템 위에 드래그하면 서로 자리를 바꾼다', (tester) async {
+    final game = await pumpGame(tester);
+    final generatorCell = game.model.generators.keys.first;
+    const itemCell = (col: 1, row: 2);
+
+    await dragCell(tester, game, generatorCell, itemCell);
+
+    expect(game.model.generatorAt(itemCell), isNotNull);
+    expect(game.model.itemAt(generatorCell), const Item(basicChain, 1));
+    expect(game.model.mergeCount, 0);
+  });
+
   testWidgets('생성기끼리 드래그드롭으로 머지하면 G2가 된다', (tester) async {
     const left = (col: 1, row: 5);
     const right = (col: 3, row: 5);

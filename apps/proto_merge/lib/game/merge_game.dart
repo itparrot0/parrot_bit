@@ -82,6 +82,16 @@ class MergeGame extends FlameGame {
         piece.cell = target!;
         _pieces[target] = piece;
         piece.settleTo(cellCenter(target));
+      case MoveOutcome.swapped:
+        final origin = piece.cell;
+        final other = _pieces.remove(target!)!;
+        _pieces.remove(origin);
+        other.cell = origin;
+        _pieces[origin] = other;
+        other.settleTo(cellCenter(origin));
+        piece.cell = target;
+        _pieces[target] = piece;
+        piece.settleTo(cellCenter(target));
       case MoveOutcome.merged:
         final consumed = _pieces.remove(target!);
         _pieces.remove(piece.cell);
