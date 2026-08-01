@@ -1,20 +1,47 @@
-import 'cell_pos.dart';
+import 'dart:math';
+
 import 'item.dart';
 
-/// 보드 위 생성기: 자기 칸에 고정되고, 탭하면 정의된 아이템을 만든다.
+/// 보드 위 생성기 정의: 탭하면 자기 레벨과 같은 레벨의 아이템을 만든다.
 ///
-/// 생성기 추가 = [BoardModel] 생성 시 generators 목록에 인스턴스 추가.
-/// 체인별 생성기, 상위 레벨 생성기 모두 이 정의만으로 표현된다.
+/// 아이템처럼 드래그로 이동하고, 같은 체인·같은 레벨끼리 머지해
+/// 레벨을 올릴 수 있다. 위치는 [BoardModel]의 칸 점유 상태가 소유한다.
 final class Generator {
   const Generator({
-    required this.cell,
     required this.spawnChain,
-    this.spawnLevel = 1,
+    this.level = 1,
+    this.maxLevel = 3,
   });
 
-  final CellPos cell;
   final ItemChain spawnChain;
-  final int spawnLevel;
+  final int level;
+  final int maxLevel;
 
-  Item produce() => Item(spawnChain, spawnLevel);
+  bool get isMaxLevel => level >= maxLevel;
+
+  Generator get upgraded =>
+      Generator(spawnChain: spawnChain, level: level + 1, maxLevel: maxLevel);
+
+  /// 같은 체인·같은 레벨이고 최고 레벨이 아니면 머지 가능.
+  bool canMergeWith(Generator other) =>
+      spawnChain == other.spawnChain &&
+      level == other.level &&
+      maxLevel == other.maxLevel &&
+      !isMaxLevel;
+
+  /// 생성기 레벨 = 스폰 아이템 레벨 (체인 최고 레벨을 넘지 않게).
+  Item produce() => Item(spawnChain, min(level, spawnChain.maxLevel));
+
+  @override
+  bool operator ==(Object other) =>
+      other is Generator &&
+      other.spawnChain == spawnChain &&
+      other.level == level &&
+      other.maxLevel == maxLevel;
+
+  @override
+  int get hashCode => Object.hash(spawnChain, level, maxLevel);
+
+  @override
+  String toString() => 'Generator(${spawnChain.id} G$level)';
 }

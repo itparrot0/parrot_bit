@@ -26,12 +26,29 @@ Offset worldToScreen(Vector2 world, Size screen) {
       );
 }
 
-Future<MergeGame> pumpGame(WidgetTester tester) async {
-  final game = MergeGame();
+Future<MergeGame> pumpGame(WidgetTester tester, {BoardModel? model}) async {
+  final game = MergeGame(model: model);
   await tester.pumpWidget(GameWidget(game: game));
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 32));
   return game;
+}
+
+Future<void> dragCell(
+  WidgetTester tester,
+  MergeGame game,
+  CellPos from,
+  CellPos to,
+) async {
+  final screen = tester.getSize(find.byType(GameWidget<MergeGame>));
+  final start = worldToScreen(game.cellCenter(from), screen);
+  final end = worldToScreen(game.cellCenter(to), screen);
+  await tester.timedDragFrom(
+    start,
+    end - start,
+    const Duration(milliseconds: 300),
+  );
+  await tester.pump(const Duration(milliseconds: 500));
 }
 
 void main() {
@@ -48,7 +65,7 @@ void main() {
 
     await tester.tapAt(
       worldToScreen(
-        game.cellCenter(game.model.generators.first.cell),
+        game.cellCenter(game.model.generators.keys.first),
         screen,
       ),
     );
@@ -60,18 +77,10 @@ void main() {
 
   testWidgets('드래그드롭으로 같은 레벨을 합치면 레벨 2가 된다', (tester) async {
     final game = await pumpGame(tester);
-    final screen = tester.getSize(find.byType(GameWidget<MergeGame>));
     const from = (col: 1, row: 2);
     const to = (col: 3, row: 2);
 
-    final start = worldToScreen(game.cellCenter(from), screen);
-    final end = worldToScreen(game.cellCenter(to), screen);
-    await tester.timedDragFrom(
-      start,
-      end - start,
-      const Duration(milliseconds: 300),
-    );
-    await tester.pump(const Duration(milliseconds: 300));
+    await dragCell(tester, game, from, to);
 
     expect(game.model.mergeCount, 1);
     expect(game.model.itemAt(to), const Item(basicChain, 2));
@@ -80,20 +89,12 @@ void main() {
 
   testWidgets('다른 레벨 위에 드롭하면 원래 칸으로 돌아온다', (tester) async {
     final game = await pumpGame(tester);
-    final screen = tester.getSize(find.byType(GameWidget<MergeGame>));
     const other = (col: 0, row: 0);
     // 모델에만 있어도 판정 검증에는 충분
     game.model.placeItem(other, const Item(basicChain, 2));
     const from = (col: 1, row: 2);
 
-    final start = worldToScreen(game.cellCenter(from), screen);
-    final end = worldToScreen(game.cellCenter(other), screen);
-    await tester.timedDragFrom(
-      start,
-      end - start,
-      const Duration(milliseconds: 300),
-    );
-    await tester.pump(const Duration(milliseconds: 500));
+    await dragCell(tester, game, from, other);
 
     expect(game.model.mergeCount, 0);
     expect(
@@ -102,5 +103,40 @@ void main() {
       reason: '스냅백으로 원래 칸 유지',
     );
     expect(game.model.itemAt(other), const Item(basicChain, 2));
+  });
+
+  testWidgets('생성기를 드래그하면 빈 칸으로 이동한다', (tester) async {
+    final game = await pumpGame(tester);
+    final from = game.model.generators.keys.first;
+    const to = (col: 0, row: 5);
+
+    await dragCell(tester, game, from, to);
+
+    expect(game.model.generatorAt(to), isNotNull);
+    expect(game.model.contentAt(from), isNull);
+  });
+
+  testWidgets('생성기끼리 드래그드롭으로 머지하면 G2가 된다', (tester) async {
+    const left = (col: 1, row: 5);
+    const right = (col: 3, row: 5);
+    final game = await pumpGame(
+      tester,
+      model: BoardModel(
+        generators: {
+          left: const Generator(spawnChain: basicChain),
+          right: const Generator(spawnChain: basicChain),
+        },
+        initialItems: const {},
+      ),
+    );
+
+    await dragCell(tester, game, left, right);
+
+    expect(game.model.mergeCount, 1);
+    expect(
+      game.model.generatorAt(right),
+      const Generator(spawnChain: basicChain, level: 2),
+    );
+    expect(game.world.children.whereType<GeneratorComponent>().length, 1);
   });
 }

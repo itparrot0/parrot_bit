@@ -20,24 +20,22 @@ enum MoveOutcome { merged, moved, rejected }
 ///
 /// 확장 지점:
 /// - 아이템셋 추가 → [ItemChain] const 추가
-/// - 생성기 추가/변경 → 생성자의 [generators] 목록
+/// - 생성기 추가/변경 → 생성자의 [generators] 초기 배치
 /// - 새 보드 요소 → [CellContent] 하위 타입 + [tryMove] 분기
 class BoardModel {
   BoardModel({
     this.columns = 5,
     this.rows = 6,
-    List<Generator>? generators,
+    Map<CellPos, Generator>? generators,
     Map<CellPos, Item>? initialItems,
     Random? random,
   }) : _random = random ?? Random() {
-    this.generators = List.unmodifiable(
+    _initialGenerators = Map.unmodifiable(
       generators ??
-          [
-            Generator(
-              cell: (col: columns ~/ 2, row: rows - 1),
-              spawnChain: basicChain,
-            ),
-          ],
+          {
+            (col: columns ~/ 2, row: rows - 1):
+                const Generator(spawnChain: basicChain),
+          },
     );
     _initialItems = Map.unmodifiable(
       initialItems ??
@@ -53,10 +51,8 @@ class BoardModel {
   final int rows;
   final Random _random;
 
-  /// 보드 위 생성기 목록 (생성 시 확정, 불변).
-  late final List<Generator> generators;
-
-  /// reset 시 되돌아갈 초기 아이템 배치.
+  /// reset 시 되돌아갈 초기 배치.
+  late final Map<CellPos, Generator> _initialGenerators;
   late final Map<CellPos, Item> _initialItems;
 
   final Map<CellPos, CellContent> _cells = {};
@@ -64,10 +60,19 @@ class BoardModel {
   int mergeCount = 0;
   int highestLevel = 1;
 
+  /// 현재 칸 점유 상태 스냅샷.
+  Map<CellPos, CellContent> get cells => Map.unmodifiable(_cells);
+
   /// 현재 배치된 아이템 (칸 → 아이템). 스냅샷.
   Map<CellPos, Item> get items => {
         for (final MapEntry(:key, :value) in _cells.entries)
           if (value is ItemContent) key: value.item,
+      };
+
+  /// 현재 배치된 생성기 (칸 → 생성기). 스냅샷.
+  Map<CellPos, Generator> get generators => {
+        for (final MapEntry(:key, :value) in _cells.entries)
+          if (value is GeneratorContent) key: value.generator,
       };
 
   bool isInside(CellPos pos) =>
@@ -80,7 +85,12 @@ class BoardModel {
         _ => null,
       };
 
-  /// 아이템을 놓을 수 있는 빈 칸인가 (보드 안 + 아무 점유물 없음).
+  Generator? generatorAt(CellPos pos) => switch (_cells[pos]) {
+        GeneratorContent(:final generator) => generator,
+        _ => null,
+      };
+
+  /// 조각을 놓을 수 있는 빈 칸인가 (보드 안 + 아무 점유물 없음).
   bool isEmptyCell(CellPos pos) => isInside(pos) && !_cells.containsKey(pos);
 
   List<CellPos> get emptyCells => [
@@ -89,16 +99,16 @@ class BoardModel {
             if (isEmptyCell((col: col, row: row))) (col: col, row: row),
       ];
 
-  /// 초기 배치로 되돌린다: 생성기들을 자기 칸에 놓고 초기 아이템을 배치한다.
+  /// 초기 배치로 되돌린다: 생성기와 초기 아이템을 정의된 칸에 놓는다.
   void reset() {
     _cells.clear();
     mergeCount = 0;
     highestLevel = 1;
-    for (final generator in generators) {
-      if (isInside(generator.cell) && !_cells.containsKey(generator.cell)) {
-        _cells[generator.cell] = GeneratorContent(generator);
+    _initialGenerators.forEach((pos, generator) {
+      if (isEmptyCell(pos)) {
+        _cells[pos] = GeneratorContent(generator);
       }
-    }
+    });
     _initialItems.forEach(placeItem);
   }
 
@@ -124,20 +134,26 @@ class BoardModel {
     return pos;
   }
 
-  /// [from]의 아이템을 [to]에 드롭했을 때의 판정과 상태 반영.
+  /// [from]의 조각(아이템·생성기)을 [to]에 드롭했을 때의 판정과 상태 반영.
+  ///
+  /// 머지는 같은 종류끼리만: 아이템↔아이템, 생성기↔생성기.
   MoveOutcome tryMove(CellPos from, CellPos to) {
     final source = _cells[from];
-    if (source is! ItemContent || !isInside(to) || to == from) {
+    if (source == null || !isInside(to) || to == from) {
       return MoveOutcome.rejected;
     }
 
-    final moving = source.item;
-    switch (_cells[to]) {
-      case null:
+    switch ((source, _cells[to])) {
+      case (_, null):
         _cells.remove(from);
         _cells[to] = source;
         return MoveOutcome.moved;
-      case ItemContent(:final item) when moving.canMergeWith(item):
+
+      case (
+            ItemContent(item: final moving),
+            ItemContent(item: final resting),
+          )
+          when moving.canMergeWith(resting):
         _cells.remove(from);
         _cells[to] = ItemContent(moving.upgraded);
         mergeCount++;
@@ -145,6 +161,17 @@ class BoardModel {
           highestLevel = moving.level + 1;
         }
         return MoveOutcome.merged;
+
+      case (
+            GeneratorContent(generator: final moving),
+            GeneratorContent(generator: final resting),
+          )
+          when moving.canMergeWith(resting):
+        _cells.remove(from);
+        _cells[to] = GeneratorContent(moving.upgraded);
+        mergeCount++;
+        return MoveOutcome.merged;
+
       case _:
         return MoveOutcome.rejected;
     }

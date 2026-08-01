@@ -11,12 +11,9 @@ void main() {
     test('기본 생성기 1개와 레벨 1 아이템 2개가 배치된다', () {
       final board = BoardModel();
 
-      expect(board.generators, hasLength(1));
-      expect(board.generators.first.cell, (col: 2, row: 5));
-      expect(
-        board.contentAt(board.generators.first.cell),
-        isA<GeneratorContent>(),
-      );
+      expect(board.generators, {
+        (col: 2, row: 5): const Generator(spawnChain: basicChain),
+      });
       expect(board.items.length, 2);
       expect(board.items.values, everyElement(const Item(basicChain, 1)));
       expect(board.highestLevel, 1);
@@ -26,20 +23,19 @@ void main() {
     test('reset은 진행 상태를 초기 배치로 되돌린다', () {
       final board = BoardModel();
       board.tryMove((col: 1, row: 2), (col: 3, row: 2));
+      board.tryMove((col: 2, row: 5), (col: 2, row: 4)); // 생성기 이동
 
       board.reset();
 
       expect(board.items.length, 2);
       expect(board.mergeCount, 0);
       expect(board.highestLevel, 1);
-      expect(
-        board.contentAt(board.generators.first.cell),
-        isA<GeneratorContent>(),
-      );
+      expect(board.generatorAt((col: 2, row: 5)), isNotNull);
+      expect(board.generatorAt((col: 2, row: 4)), isNull);
     });
   });
 
-  group('tryMove', () {
+  group('아이템 tryMove', () {
     test('빈 칸으로는 이동한다', () {
       final board = BoardModel();
 
@@ -83,18 +79,24 @@ void main() {
       expect(board.itemAt((col: 0, row: 0)), const Item(otherChain, 1));
     });
 
-    test('생성기 칸·보드 밖·제자리 드롭은 거부된다', () {
+    test('아이템을 생성기 위에 드롭하면 거부된다', () {
       final board = BoardModel();
       const from = (col: 1, row: 2);
 
       expect(
-        board.tryMove(from, board.generators.first.cell),
+        board.tryMove(from, board.generators.keys.first),
         MoveOutcome.rejected,
       );
+      expect(board.itemAt(from), const Item(basicChain, 1));
+    });
+
+    test('보드 밖·제자리 드롭은 거부된다', () {
+      final board = BoardModel();
+      const from = (col: 1, row: 2);
+
       expect(board.tryMove(from, (col: -1, row: 0)), MoveOutcome.rejected);
       expect(board.tryMove(from, (col: 0, row: 99)), MoveOutcome.rejected);
       expect(board.tryMove(from, from), MoveOutcome.rejected);
-      expect(board.itemAt(from), const Item(basicChain, 1));
     });
 
     test('체인별 최고 레벨끼리는 머지되지 않는다', () {
@@ -105,7 +107,6 @@ void main() {
       final outcome = board.tryMove((col: 0, row: 0), (col: 1, row: 0));
 
       expect(outcome, MoveOutcome.rejected, reason: 'otherChain의 maxLevel은 3');
-      expect(board.itemAt((col: 0, row: 0)), const Item(otherChain, 3));
     });
 
     test('아이템 없는 칸에서 출발하면 거부된다', () {
@@ -118,11 +119,93 @@ void main() {
     });
   });
 
-  group('생성기', () {
+  group('생성기 이동/머지', () {
+    test('생성기는 빈 칸으로 이동한다', () {
+      final board = BoardModel();
+      final from = board.generators.keys.first;
+
+      final outcome = board.tryMove(from, (col: 0, row: 0));
+
+      expect(outcome, MoveOutcome.moved);
+      expect(
+        board.generatorAt((col: 0, row: 0)),
+        const Generator(spawnChain: basicChain),
+      );
+      expect(board.contentAt(from), isNull);
+    });
+
+    test('같은 체인·같은 레벨 생성기끼리 머지하면 레벨+1이 된다', () {
+      final board = BoardModel(
+        generators: {
+          (col: 0, row: 0): const Generator(spawnChain: basicChain),
+          (col: 1, row: 0): const Generator(spawnChain: basicChain),
+        },
+      );
+
+      final outcome = board.tryMove((col: 0, row: 0), (col: 1, row: 0));
+
+      expect(outcome, MoveOutcome.merged);
+      expect(
+        board.generatorAt((col: 1, row: 0)),
+        const Generator(spawnChain: basicChain, level: 2),
+      );
+      expect(board.contentAt((col: 0, row: 0)), isNull);
+      expect(board.mergeCount, 1);
+    });
+
+    test('레벨이 다른 생성기끼리는 거부된다', () {
+      final board = BoardModel(
+        generators: {
+          (col: 0, row: 0): const Generator(spawnChain: basicChain),
+          (col: 1, row: 0): const Generator(spawnChain: basicChain, level: 2),
+        },
+      );
+
+      expect(
+        board.tryMove((col: 0, row: 0), (col: 1, row: 0)),
+        MoveOutcome.rejected,
+      );
+    });
+
+    test('최대 레벨 생성기끼리는 머지되지 않는다', () {
+      final board = BoardModel(
+        generators: {
+          (col: 0, row: 0): const Generator(spawnChain: basicChain, level: 3),
+          (col: 1, row: 0): const Generator(spawnChain: basicChain, level: 3),
+        },
+      );
+
+      expect(
+        board.tryMove((col: 0, row: 0), (col: 1, row: 0)),
+        MoveOutcome.rejected,
+        reason: '생성기 maxLevel 기본값은 3',
+      );
+    });
+
+    test('생성기를 아이템 위에 드롭하면 거부된다', () {
+      final board = BoardModel();
+      final from = board.generators.keys.first;
+
+      expect(board.tryMove(from, (col: 1, row: 2)), MoveOutcome.rejected);
+      expect(board.generatorAt(from), isNotNull);
+    });
+
+    test('업그레이드된 생성기는 자기 레벨의 아이템을 스폰한다', () {
+      const g2 = Generator(spawnChain: basicChain, level: 2);
+      final board = BoardModel(random: Random(42));
+
+      final pos = board.spawnFrom(g2);
+
+      expect(board.itemAt(pos!), const Item(basicChain, 2));
+      expect(board.highestLevel, 2);
+    });
+  });
+
+  group('스폰', () {
     test('spawnFrom은 무작위 빈 칸에 생성기의 아이템을 놓는다', () {
       final board = BoardModel(random: Random(42));
 
-      final pos = board.spawnFrom(board.generators.first);
+      final pos = board.spawnFrom(board.generators.values.first);
 
       expect(pos, isNotNull);
       expect(board.itemAt(pos!), const Item(basicChain, 1));
@@ -136,22 +219,21 @@ void main() {
       }
 
       expect(board.emptyCells, isEmpty);
-      expect(board.spawnFrom(board.generators.first), isNull);
+      expect(board.spawnFrom(board.generators.values.first), isNull);
     });
 
     test('생성기 여러 개를 각자의 스폰 정의로 둘 수 있다', () {
-      const left = Generator(cell: (col: 0, row: 5), spawnChain: basicChain);
-      const right =
-          Generator(cell: (col: 4, row: 5), spawnChain: otherChain, spawnLevel: 2);
       final board = BoardModel(
-        generators: const [left, right],
+        generators: {
+          (col: 0, row: 5): const Generator(spawnChain: basicChain),
+          (col: 4, row: 5): const Generator(spawnChain: otherChain, level: 2),
+        },
         random: Random(7),
       );
 
-      expect(board.contentAt((col: 0, row: 5)), isA<GeneratorContent>());
-      expect(board.contentAt((col: 4, row: 5)), isA<GeneratorContent>());
+      expect(board.generators, hasLength(2));
 
-      final pos = board.spawnFrom(right);
+      final pos = board.spawnFrom(board.generatorAt((col: 4, row: 5))!);
 
       expect(board.itemAt(pos!), const Item(otherChain, 2));
     });
@@ -159,15 +241,16 @@ void main() {
 
   test('placeItem은 점유된 칸과 체인 범위 밖 레벨을 무시한다', () {
     final board = BoardModel();
+    final generatorCell = board.generators.keys.first;
 
     board.placeItem((col: 1, row: 2), const Item(basicChain, 3)); // 이미 아이템 있음
-    board.placeItem(board.generators.first.cell, const Item(basicChain, 1));
+    board.placeItem(generatorCell, const Item(basicChain, 1));
     board.placeItem((col: 0, row: 0), const Item(basicChain, 0));
     board.placeItem((col: 0, row: 0), const Item(basicChain, 6));
     board.placeItem((col: 0, row: 0), const Item(otherChain, 4)); // maxLevel 3 초과
 
     expect(board.itemAt((col: 1, row: 2)), const Item(basicChain, 1));
-    expect(board.itemAt(board.generators.first.cell), isNull);
+    expect(board.itemAt(generatorCell), isNull);
     expect(board.itemAt((col: 0, row: 0)), isNull);
   });
 
@@ -182,5 +265,16 @@ void main() {
       isFalse,
     );
     expect(a.upgraded, const Item(basicChain, 3));
+  });
+
+  test('Generator.produce는 체인 최고 레벨을 넘지 않는다', () {
+    const g3 = Generator(spawnChain: otherChain, level: 3, maxLevel: 5);
+
+    expect(g3.produce(), const Item(otherChain, 3));
+    expect(
+      const Generator(spawnChain: otherChain, level: 5, maxLevel: 5).produce(),
+      const Item(otherChain, 3),
+      reason: 'otherChain maxLevel(3)로 잘린다',
+    );
   });
 }

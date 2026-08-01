@@ -3,6 +3,7 @@ import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
 import '../domain/board_model.dart';
+import 'components/board_piece_component.dart';
 import 'components/generator_component.dart';
 import 'components/item_component.dart';
 
@@ -27,7 +28,7 @@ class MergeGame extends FlameGame {
   final ValueNotifier<BoardStats> stats =
       ValueNotifier((highestLevel: 1, mergeCount: 0));
 
-  final Map<CellPos, ItemComponent> _itemComponents = {};
+  final Map<CellPos, BoardPieceComponent> _pieces = {};
 
   Vector2 get _boardOrigin => Vector2(
         -model.columns * kCellSize / 2,
@@ -40,10 +41,7 @@ class MergeGame extends FlameGame {
   @override
   Future<void> onLoad() async {
     _buildTiles();
-    for (final generator in model.generators) {
-      world.add(GeneratorComponent(generator: generator));
-    }
-    _syncItems();
+    _syncPieces();
   }
 
   /// 칸의 중심 월드 좌표.
@@ -67,39 +65,40 @@ class MergeGame extends FlameGame {
     if (pos == null) {
       return false;
     }
-    _addItem(pos, model.itemAt(pos)!, entrance: ItemEntrance.spawn);
+    _addContent(pos, model.contentAt(pos)!, entrance: PieceEntrance.spawn);
     _publishStats();
     return true;
   }
 
   /// 드래그 종료 판정: 모델 결과에 따라 머지/이동/스냅백을 적용한다.
-  void resolveDrop(ItemComponent item) {
-    final target = cellAt(item.position);
+  void resolveDrop(BoardPieceComponent piece) {
+    final target = cellAt(piece.position);
     final outcome =
-        target == null ? MoveOutcome.rejected : model.tryMove(item.cell, target);
+        target == null ? MoveOutcome.rejected : model.tryMove(piece.cell, target);
 
     switch (outcome) {
       case MoveOutcome.moved:
-        _itemComponents.remove(item.cell);
-        item.cell = target!;
-        _itemComponents[target] = item;
-        item.settleTo(cellCenter(target));
+        _pieces.remove(piece.cell);
+        piece.cell = target!;
+        _pieces[target] = piece;
+        piece.settleTo(cellCenter(target));
       case MoveOutcome.merged:
-        final consumed = _itemComponents.remove(target!);
-        _itemComponents.remove(item.cell);
+        final consumed = _pieces.remove(target!);
+        _pieces.remove(piece.cell);
         consumed?.removeFromParent();
-        item.removeFromParent();
-        _addItem(target, model.itemAt(target)!, entrance: ItemEntrance.merge);
+        piece.removeFromParent();
+        _addContent(target, model.contentAt(target)!,
+            entrance: PieceEntrance.merge);
         _publishStats();
       case MoveOutcome.rejected:
-        item.settleTo(cellCenter(item.cell));
+        piece.settleTo(cellCenter(piece.cell));
     }
   }
 
   /// 보드를 초기 배치로 되돌린다 (HUD Reset 버튼).
   void resetGame() {
     model.reset();
-    _syncItems();
+    _syncPieces();
   }
 
   void _buildTiles() {
@@ -117,24 +116,29 @@ class MergeGame extends FlameGame {
     }
   }
 
-  /// 모델의 아이템 상태대로 컴포넌트를 다시 만든다 (초기 로드/리셋).
-  void _syncItems() {
-    for (final component in _itemComponents.values) {
-      component.removeFromParent();
+  /// 모델의 칸 점유 상태대로 조각 컴포넌트를 다시 만든다 (초기 로드/리셋).
+  void _syncPieces() {
+    for (final piece in _pieces.values) {
+      piece.removeFromParent();
     }
-    _itemComponents.clear();
-    model.items.forEach(_addItem);
+    _pieces.clear();
+    model.cells.forEach(_addContent);
     _publishStats();
   }
 
-  void _addItem(
+  void _addContent(
     CellPos pos,
-    Item item, {
-    ItemEntrance entrance = ItemEntrance.none,
+    CellContent content, {
+    PieceEntrance entrance = PieceEntrance.none,
   }) {
-    final component = ItemComponent(cell: pos, item: item, entrance: entrance);
-    _itemComponents[pos] = component;
-    world.add(component);
+    final piece = switch (content) {
+      ItemContent(:final item) =>
+        ItemComponent(cell: pos, item: item, entrance: entrance),
+      GeneratorContent(:final generator) =>
+        GeneratorComponent(cell: pos, generator: generator, entrance: entrance),
+    };
+    _pieces[pos] = piece;
+    world.add(piece);
   }
 
   void _publishStats() {
