@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../../domain/board_model.dart';
 import '../merge_game.dart';
+import '../skins/piece_skin.dart';
 
 /// 등장 연출 종류.
 enum PieceEntrance { none, spawn, merge }
@@ -12,7 +13,8 @@ enum PieceEntrance { none, spawn, merge }
 /// 드래그로 옮길 수 있는 보드 조각(아이템·생성기)의 공통 동작.
 ///
 /// 드래그 이동과 드롭 요청만 담당하고 판정은 [MergeGame.resolveDrop]에
-/// 위임한다. 하위 클래스는 [buildVisual]로 생김새만 정의한다.
+/// 위임한다. 생김새는 하위 클래스가 지정한 [skin]이 상태별로 만들고,
+/// 이 클래스는 상태가 바뀌는 시점(집었다/놓았다)만 알려준다.
 abstract class BoardPieceComponent extends PositionComponent
     with DragCallbacks, HasGameReference<MergeGame> {
   BoardPieceComponent({required this.cell, this.entrance = PieceEntrance.none});
@@ -26,11 +28,15 @@ abstract class BoardPieceComponent extends PositionComponent
 
   bool _dragging = false;
 
+  /// 현재 그려져 있는 시각 상태와 그 생김새.
+  PieceVisualState _visualState = PieceVisualState.resting;
+  Component? _skinPart;
+
   /// 정지 상태 렌더 우선순위.
   int get restingPriority;
 
-  /// [visual] 안에 이 조각의 생김새를 구성한다.
-  void buildVisual(PositionComponent visual);
+  /// 이 조각의 생김새 정의. 상태가 바뀔 때마다 여기서 새 생김새를 받는다.
+  PieceSkin get skin;
 
   @override
   Future<void> onLoad() async {
@@ -44,8 +50,8 @@ abstract class BoardPieceComponent extends PositionComponent
       position: size / 2,
       anchor: Anchor.center,
     );
-    buildVisual(visual);
     add(visual);
+    _showState(PieceVisualState.resting);
 
     switch (entrance) {
       case PieceEntrance.spawn:
@@ -74,6 +80,7 @@ abstract class BoardPieceComponent extends PositionComponent
     _dragging = true;
     priority = 100;
     visual.scale = Vector2.all(1.1);
+    _showState(PieceVisualState.dragging);
     // 스냅백 애니메이션 도중 다시 집으면 이전 이동 효과를 끊는다.
     children.whereType<MoveToEffect>().toList().forEach(
           (effect) => effect.removeFromParent(),
@@ -113,14 +120,32 @@ abstract class BoardPieceComponent extends PositionComponent
   }
 
   /// [target] 좌표로 정착 애니메이션 후 드래그 상태를 정리한다.
+  ///
+  /// 이동·교체·스냅백·탭이 전부 여기를 지나므로, 손에서 놓였을 때의
+  /// 생김새 복구는 이 한 곳에서만 한다. (머지는 컴포넌트 자체가 사라진다)
   void settleTo(Vector2 target) {
     priority = restingPriority;
     visual.scale = Vector2.all(1);
+    _showState(PieceVisualState.resting);
     add(
       MoveToEffect(
         target,
         EffectController(duration: 0.12, curve: Curves.easeOut),
       ),
     );
+  }
+
+  /// 시각 상태를 [state]로 바꾸고 생김새를 스킨이 만든 것으로 교체한다.
+  ///
+  /// 등장·펄스 효과는 [visual]에 직접 붙어 있고 스킨이 만든 부분만
+  /// 갈아끼우므로, 상태 전환이 연출을 지우지 않는다.
+  void _showState(PieceVisualState state) {
+    if (state == _visualState && _skinPart != null) {
+      return;
+    }
+    _visualState = state;
+    _skinPart?.removeFromParent();
+    _skinPart = skin.build(state, size);
+    visual.add(_skinPart!);
   }
 }
