@@ -7,7 +7,8 @@
 
 ## 현재 상태
 
-스캐폴딩 완료 — 라우트 골격과 빈 화면 5개만 있다. 기능은 미구현.
+**도메인 구현 완료** — 규칙과 판정은 전부 있고 테스트로 덮여 있다.
+화면은 아직 placeholder 5개, 저장 계층은 없다.
 
 ## 구조
 
@@ -15,6 +16,14 @@
 lib/
 ├── main.dart              # ProviderScope + MaterialApp.router
 ├── app/router.dart        # go_router — 라우트 이름 = 화면흐름 문서의 화면 ID
+├── domain/                # 순수 Dart. Flutter 없이 테스트된다
+│   ├── diary_date.dart        # 시각 없는 날짜 타입
+│   ├── sleep_session.dart     # 취침·기상 → 수면시간 (자정 넘김)
+│   ├── sleep_mark.dart        # 목표 수면시간과 z 4단계 판정
+│   ├── mood_tag.dart          # 태그 + 묶음 + 기본 팔레트 15개
+│   ├── diary_entry.dart       # 하루 기록
+│   ├── safety_check.dart      # 안전 안내 2단계 판정
+│   └── tag_sleep_report.dart  # 태그별 평균 수면시간
 └── screens/               # 화면 5개 (전부 placeholder)
 ```
 
@@ -22,9 +31,11 @@ lib/
 
 ```
 lib/
-├── domain/                # 순수 Dart 모델 (수면 기록, z 단계 판정, 감정 태그)
-└── data/                  # drift DB + Repository
+├── data/                  # drift DB + Repository
+└── widgets/               # 달력 (월 그리드를 직접 만든다 — 패키지 미사용)
 ```
+
+**임계값·팔레트는 전부 `domain/`의 상수다.** 조정은 문서가 아니라 코드에서 한다.
 
 ## 앱별 결정 (저장소 공통 규칙과 다른 점)
 
