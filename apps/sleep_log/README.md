@@ -7,8 +7,9 @@
 
 ## 현재 상태
 
-**도메인 구현 완료** — 규칙과 판정은 전부 있고 테스트로 덮여 있다.
-화면은 아직 placeholder 5개, 저장 계층은 없다.
+**도메인 + 달력 위젯 구현 완료.** 달력은 실제로 뜨고 날짜를 탭하면 기록 화면으로
+넘어가지만, **저장 계층이 없어 모든 날이 "기록 없음"으로 그려진다.**
+나머지 화면 4개는 placeholder.
 
 ## 구조
 
@@ -24,16 +25,14 @@ lib/
 │   ├── diary_entry.dart       # 하루 기록
 │   ├── safety_check.dart      # 안전 안내 2단계 판정
 │   └── tag_sleep_report.dart  # 태그별 평균 수면시간
-└── screens/               # 화면 5개 (전부 placeholder)
+├── widgets/calendar/      # 달력. 패키지를 쓰지 않고 직접 만든다
+│   ├── calendar_month.dart    # 한 달 + 그리드 배치 (순수 Dart)
+│   ├── month_grid.dart        # 한 달의 날짜 그리드 + z 표시
+│   └── month_calendar.dart    # 좌우로 넘기는 월간 달력
+└── screens/               # calendar만 구현, 나머지 4개는 placeholder
 ```
 
-앞으로 추가될 곳:
-
-```
-lib/
-├── data/                  # drift DB + Repository
-└── widgets/               # 달력 (월 그리드를 직접 만든다 — 패키지 미사용)
-```
+앞으로 추가될 곳: `lib/data/` — drift DB + Repository.
 
 **임계값·팔레트는 전부 `domain/`의 상수다.** 조정은 문서가 아니라 코드에서 한다.
 
