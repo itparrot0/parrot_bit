@@ -64,10 +64,7 @@ void main() {
     final screen = tester.getSize(find.byType(GameWidget<MergeGame>));
 
     await tester.tapAt(
-      worldToScreen(
-        game.cellCenter(game.model.generators.keys.first),
-        screen,
-      ),
+      worldToScreen(game.cellCenter(game.model.generators.keys.first), screen),
     );
     await tester.pump(const Duration(milliseconds: 300));
 

@@ -23,7 +23,7 @@ final class NetworkConnectionException extends NetworkException {
 /// 서버가 4xx/5xx 상태 코드로 응답.
 final class NetworkBadResponseException extends NetworkException {
   const NetworkBadResponseException(this.statusCode)
-      : super('bad response ($statusCode)');
+    : super('bad response ($statusCode)');
 
   final int statusCode;
 
@@ -40,5 +40,5 @@ final class NetworkCancelledException extends NetworkException {
 /// 위 분류에 속하지 않는 실패.
 final class NetworkUnknownException extends NetworkException {
   const NetworkUnknownException([String? detail])
-      : super(detail ?? 'unknown network error');
+    : super(detail ?? 'unknown network error');
 }

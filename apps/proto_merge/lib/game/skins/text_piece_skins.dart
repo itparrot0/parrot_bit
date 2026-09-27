@@ -34,17 +34,17 @@ final class TextItemSkin implements PieceSkin {
 
   @override
   Component build(PieceVisualState state, Vector2 size) => PositionComponent(
-        size: size,
-        children: [
-          CircleComponent(radius: size.x / 2, paint: Paint()..color = _color),
-          _PieceLabel(
-            text: '${item.level}',
-            style: _labelStyle(40, FontWeight.w700),
-            blinking: state == PieceVisualState.dragging,
-            parentSize: size,
-          ),
-        ],
-      );
+    size: size,
+    children: [
+      CircleComponent(radius: size.x / 2, paint: Paint()..color = _color),
+      _PieceLabel(
+        text: '${item.level}',
+        style: _labelStyle(40, FontWeight.w700),
+        blinking: state == PieceVisualState.dragging,
+        parentSize: size,
+      ),
+    ],
+  );
 }
 
 /// 사각형 + "G+레벨"로 그리는 생성기 스킨 (프로토타입 기본 그래픽).
@@ -76,11 +76,8 @@ final class TextGeneratorSkin implements PieceSkin {
   }
 }
 
-TextStyle _labelStyle(double fontSize, FontWeight weight) => TextStyle(
-      fontSize: fontSize,
-      fontWeight: weight,
-      color: Colors.white,
-    );
+TextStyle _labelStyle(double fontSize, FontWeight weight) =>
+    TextStyle(fontSize: fontSize, fontWeight: weight, color: Colors.white);
 
 /// 조각 중앙 라벨. [blinking]이면 깜빡여 "잡고 있다"를 알린다.
 ///
@@ -98,10 +95,10 @@ final class _PieceLabel extends TextComponent<TextPaint> {
     required this.blinking,
     required Vector2 parentSize,
   }) : super(
-          textRenderer: TextPaint(style: style),
-          anchor: Anchor.center,
-          position: parentSize / 2,
-        );
+         textRenderer: TextPaint(style: style),
+         anchor: Anchor.center,
+         position: parentSize / 2,
+       );
 
   /// 깜빡임 한 주기(초).
   static const double _period = 0.44;

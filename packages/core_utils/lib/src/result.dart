@@ -14,24 +14,25 @@ sealed class Result<T> {
   bool get isFailure => this is Failure<T>;
 
   T? get valueOrNull => switch (this) {
-        Success(:final value) => value,
-        Failure() => null,
-      };
+    Success(:final value) => value,
+    Failure() => null,
+  };
 
   R when<R>({
     required R Function(T value) success,
     required R Function(Object error, StackTrace? stackTrace) failure,
-  }) =>
-      switch (this) {
-        Success(:final value) => success(value),
-        Failure(:final error, :final stackTrace) => failure(error, stackTrace),
-      };
+  }) => switch (this) {
+    Success(:final value) => success(value),
+    Failure(:final error, :final stackTrace) => failure(error, stackTrace),
+  };
 
   Result<R> map<R>(R Function(T value) transform) => switch (this) {
-        Success(:final value) => Result.success(transform(value)),
-        Failure(:final error, :final stackTrace) =>
-          Result.failure(error, stackTrace),
-      };
+    Success(:final value) => Result.success(transform(value)),
+    Failure(:final error, :final stackTrace) => Result.failure(
+      error,
+      stackTrace,
+    ),
+  };
 }
 
 final class Success<T> extends Result<T> {

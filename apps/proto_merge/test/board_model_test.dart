@@ -90,10 +90,7 @@ void main() {
 
       expect(outcome, MoveOutcome.swapped);
       expect(board.itemAt(generatorCell), const Item(basicChain, 1));
-      expect(
-        board.generatorAt(from),
-        const Generator(spawnChain: basicChain),
-      );
+      expect(board.generatorAt(from), const Generator(spawnChain: basicChain));
       expect(board.mergeCount, 0);
     });
 
@@ -273,7 +270,10 @@ void main() {
     board.placeItem(generatorCell, const Item(basicChain, 1));
     board.placeItem((col: 0, row: 0), const Item(basicChain, 0));
     board.placeItem((col: 0, row: 0), const Item(basicChain, 6));
-    board.placeItem((col: 0, row: 0), const Item(otherChain, 4)); // maxLevel 3 초과
+    board.placeItem((
+      col: 0,
+      row: 0,
+    ), const Item(otherChain, 4)); // maxLevel 3 초과
 
     expect(board.itemAt((col: 1, row: 2)), const Item(basicChain, 1));
     expect(board.itemAt(generatorCell), isNull);

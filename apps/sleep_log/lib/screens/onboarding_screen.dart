@@ -9,8 +9,6 @@ class OnboardingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: const Center(child: Text('목표 수면시간 설정 — 구현 예정')),
-    );
+    return Scaffold(body: const Center(child: Text('목표 수면시간 설정 — 구현 예정')));
   }
 }

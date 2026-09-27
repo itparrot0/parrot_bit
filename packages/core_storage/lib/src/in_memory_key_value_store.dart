@@ -3,7 +3,7 @@ import 'key_value_store.dart';
 /// 메모리 기반 구현. 테스트 및 프로토타입에서 사용한다.
 final class InMemoryKeyValueStore implements KeyValueStore {
   InMemoryKeyValueStore([Map<String, Object>? initial])
-      : _values = {...?initial};
+    : _values = {...?initial};
 
   final Map<String, Object> _values;
 
@@ -20,7 +20,8 @@ final class InMemoryKeyValueStore implements KeyValueStore {
   Future<double?> getDouble(String key) async => _values[key] as double?;
 
   @override
-  Future<void> setString(String key, String value) async => _values[key] = value;
+  Future<void> setString(String key, String value) async =>
+      _values[key] = value;
 
   @override
   Future<void> setBool(String key, bool value) async => _values[key] = value;
@@ -29,7 +30,8 @@ final class InMemoryKeyValueStore implements KeyValueStore {
   Future<void> setInt(String key, int value) async => _values[key] = value;
 
   @override
-  Future<void> setDouble(String key, double value) async => _values[key] = value;
+  Future<void> setDouble(String key, double value) async =>
+      _values[key] = value;
 
   @override
   Future<void> remove(String key) async => _values.remove(key);

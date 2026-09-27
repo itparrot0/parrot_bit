@@ -12,24 +12,32 @@ final class ApiClient {
     Duration timeout = const Duration(seconds: 15),
     Map<String, String> defaultHeaders = const {},
   }) : _dio = Dio(
-          BaseOptions(
-            baseUrl: baseUrl,
-            connectTimeout: timeout,
-            sendTimeout: timeout,
-            receiveTimeout: timeout,
-            headers: defaultHeaders,
-          ),
-        );
+         BaseOptions(
+           baseUrl: baseUrl,
+           connectTimeout: timeout,
+           sendTimeout: timeout,
+           receiveTimeout: timeout,
+           headers: defaultHeaders,
+         ),
+       );
 
   final Dio _dio;
 
   Future<Object?> get(String path, {Map<String, Object?>? query}) =>
       _send(() => _dio.get<Object?>(path, queryParameters: query));
 
-  Future<Object?> post(String path, {Object? body, Map<String, Object?>? query}) =>
+  Future<Object?> post(
+    String path, {
+    Object? body,
+    Map<String, Object?>? query,
+  }) =>
       _send(() => _dio.post<Object?>(path, data: body, queryParameters: query));
 
-  Future<Object?> put(String path, {Object? body, Map<String, Object?>? query}) =>
+  Future<Object?> put(
+    String path, {
+    Object? body,
+    Map<String, Object?>? query,
+  }) =>
       _send(() => _dio.put<Object?>(path, data: body, queryParameters: query));
 
   Future<Object?> delete(String path, {Map<String, Object?>? query}) =>

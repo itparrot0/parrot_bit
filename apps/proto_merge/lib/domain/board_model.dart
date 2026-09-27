@@ -33,8 +33,9 @@ class BoardModel {
     _initialGenerators = Map.unmodifiable(
       generators ??
           {
-            (col: columns ~/ 2, row: rows - 1):
-                const Generator(spawnChain: basicChain),
+            (col: columns ~/ 2, row: rows - 1): const Generator(
+              spawnChain: basicChain,
+            ),
           },
     );
     _initialItems = Map.unmodifiable(
@@ -65,15 +66,15 @@ class BoardModel {
 
   /// 현재 배치된 아이템 (칸 → 아이템). 스냅샷.
   Map<CellPos, Item> get items => {
-        for (final MapEntry(:key, :value) in _cells.entries)
-          if (value is ItemContent) key: value.item,
-      };
+    for (final MapEntry(:key, :value) in _cells.entries)
+      if (value is ItemContent) key: value.item,
+  };
 
   /// 현재 배치된 생성기 (칸 → 생성기). 스냅샷.
   Map<CellPos, Generator> get generators => {
-        for (final MapEntry(:key, :value) in _cells.entries)
-          if (value is GeneratorContent) key: value.generator,
-      };
+    for (final MapEntry(:key, :value) in _cells.entries)
+      if (value is GeneratorContent) key: value.generator,
+  };
 
   bool isInside(CellPos pos) =>
       pos.col >= 0 && pos.col < columns && pos.row >= 0 && pos.row < rows;
@@ -81,23 +82,23 @@ class BoardModel {
   CellContent? contentAt(CellPos pos) => _cells[pos];
 
   Item? itemAt(CellPos pos) => switch (_cells[pos]) {
-        ItemContent(:final item) => item,
-        _ => null,
-      };
+    ItemContent(:final item) => item,
+    _ => null,
+  };
 
   Generator? generatorAt(CellPos pos) => switch (_cells[pos]) {
-        GeneratorContent(:final generator) => generator,
-        _ => null,
-      };
+    GeneratorContent(:final generator) => generator,
+    _ => null,
+  };
 
   /// 조각을 놓을 수 있는 빈 칸인가 (보드 안 + 아무 점유물 없음).
   bool isEmptyCell(CellPos pos) => isInside(pos) && !_cells.containsKey(pos);
 
   List<CellPos> get emptyCells => [
-        for (var row = 0; row < rows; row++)
-          for (var col = 0; col < columns; col++)
-            if (isEmptyCell((col: col, row: row))) (col: col, row: row),
-      ];
+    for (var row = 0; row < rows; row++)
+      for (var col = 0; col < columns; col++)
+        if (isEmptyCell((col: col, row: row))) (col: col, row: row),
+  ];
 
   /// 초기 배치로 되돌린다: 생성기와 초기 아이템을 정의된 칸에 놓는다.
   void reset() {
@@ -114,7 +115,9 @@ class BoardModel {
 
   /// 직접 배치 (초기 배치·테스트용). 놓을 수 없는 칸/레벨이면 무시한다.
   void placeItem(CellPos pos, Item item) {
-    if (!isEmptyCell(pos) || item.level < 1 || item.level > item.chain.maxLevel) {
+    if (!isEmptyCell(pos) ||
+        item.level < 1 ||
+        item.level > item.chain.maxLevel) {
       return;
     }
     _cells[pos] = ItemContent(item);
@@ -152,10 +155,7 @@ class BoardModel {
         _cells[to] = source;
         return MoveOutcome.moved;
 
-      case (
-            ItemContent(item: final moving),
-            ItemContent(item: final resting),
-          )
+      case (ItemContent(item: final moving), ItemContent(item: final resting))
           when moving.canMergeWith(resting):
         _cells.remove(from);
         _cells[to] = ItemContent(moving.upgraded);

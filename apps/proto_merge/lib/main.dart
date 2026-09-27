@@ -88,10 +88,9 @@ class _StatChip extends StatelessWidget {
       ),
       child: Text(
         '$label $value',
-        style: Theme.of(context)
-            .textTheme
-            .labelLarge
-            ?.copyWith(color: colorScheme.onSecondaryContainer),
+        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+          color: colorScheme.onSecondaryContainer,
+        ),
       ),
     );
   }

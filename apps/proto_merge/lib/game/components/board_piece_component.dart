@@ -83,8 +83,8 @@ abstract class BoardPieceComponent extends PositionComponent
     _showState(PieceVisualState.dragging);
     // 스냅백 애니메이션 도중 다시 집으면 이전 이동 효과를 끊는다.
     children.whereType<MoveToEffect>().toList().forEach(
-          (effect) => effect.removeFromParent(),
-        );
+      (effect) => effect.removeFromParent(),
+    );
   }
 
   @override

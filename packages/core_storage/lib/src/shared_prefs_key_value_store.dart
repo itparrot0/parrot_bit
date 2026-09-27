@@ -6,12 +6,13 @@ import 'storage_exception.dart';
 /// shared_preferences 기반 구현.
 final class SharedPrefsKeyValueStore implements KeyValueStore {
   SharedPrefsKeyValueStore([SharedPreferencesAsync? preferences])
-      : _preferences = preferences ?? SharedPreferencesAsync();
+    : _preferences = preferences ?? SharedPreferencesAsync();
 
   final SharedPreferencesAsync _preferences;
 
   @override
-  Future<String?> getString(String key) => _guard(() => _preferences.getString(key));
+  Future<String?> getString(String key) =>
+      _guard(() => _preferences.getString(key));
 
   @override
   Future<bool?> getBool(String key) => _guard(() => _preferences.getBool(key));
@@ -20,7 +21,8 @@ final class SharedPrefsKeyValueStore implements KeyValueStore {
   Future<int?> getInt(String key) => _guard(() => _preferences.getInt(key));
 
   @override
-  Future<double?> getDouble(String key) => _guard(() => _preferences.getDouble(key));
+  Future<double?> getDouble(String key) =>
+      _guard(() => _preferences.getDouble(key));
 
   @override
   Future<void> setString(String key, String value) =>

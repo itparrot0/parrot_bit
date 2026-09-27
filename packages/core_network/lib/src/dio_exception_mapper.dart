@@ -10,15 +10,13 @@ NetworkException mapDioException(DioException exception) {
     DioExceptionType.connectionTimeout ||
     DioExceptionType.sendTimeout ||
     DioExceptionType.receiveTimeout ||
-    DioExceptionType.transformTimeout =>
-      const NetworkTimeoutException(),
+    DioExceptionType.transformTimeout => const NetworkTimeoutException(),
     DioExceptionType.connectionError => const NetworkConnectionException(),
     DioExceptionType.badResponse => NetworkBadResponseException(
-        exception.response?.statusCode ?? 0,
-      ),
+      exception.response?.statusCode ?? 0,
+    ),
     DioExceptionType.cancel => const NetworkCancelledException(),
     DioExceptionType.badCertificate ||
-    DioExceptionType.unknown =>
-      NetworkUnknownException(exception.message),
+    DioExceptionType.unknown => NetworkUnknownException(exception.message),
   };
 }

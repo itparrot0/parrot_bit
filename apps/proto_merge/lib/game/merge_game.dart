@@ -17,23 +17,23 @@ const double kCellSize = 100;
 /// 여기서는 컴포넌트 생성/제거와 좌표 변환만 담당한다.
 class MergeGame extends FlameGame {
   MergeGame({BoardModel? model})
-      : model = model ?? BoardModel(),
-        super(
-          camera: CameraComponent.withFixedResolution(width: 540, height: 700),
-        );
+    : model = model ?? BoardModel(),
+      super(
+        camera: CameraComponent.withFixedResolution(width: 540, height: 700),
+      );
 
   final BoardModel model;
 
   /// HUD가 구독하는 통계. 머지/생성/리셋 시 갱신된다.
-  final ValueNotifier<BoardStats> stats =
-      ValueNotifier((highestLevel: 1, mergeCount: 0));
+  final ValueNotifier<BoardStats> stats = ValueNotifier((
+    highestLevel: 1,
+    mergeCount: 0,
+  ));
 
   final Map<CellPos, BoardPieceComponent> _pieces = {};
 
-  Vector2 get _boardOrigin => Vector2(
-        -model.columns * kCellSize / 2,
-        -model.rows * kCellSize / 2,
-      );
+  Vector2 get _boardOrigin =>
+      Vector2(-model.columns * kCellSize / 2, -model.rows * kCellSize / 2);
 
   @override
   Color backgroundColor() => const Color(0xFF171B21);
@@ -73,8 +73,9 @@ class MergeGame extends FlameGame {
   /// 드래그 종료 판정: 모델 결과에 따라 머지/이동/스냅백을 적용한다.
   void resolveDrop(BoardPieceComponent piece) {
     final target = cellAt(piece.position);
-    final outcome =
-        target == null ? MoveOutcome.rejected : model.tryMove(piece.cell, target);
+    final outcome = target == null
+        ? MoveOutcome.rejected
+        : model.tryMove(piece.cell, target);
 
     switch (outcome) {
       case MoveOutcome.moved:
@@ -99,8 +100,11 @@ class MergeGame extends FlameGame {
         _pieces.remove(piece.cell);
         consumed?.removeFromParent();
         piece.removeFromParent();
-        _addContent(target, model.contentAt(target)!,
-            entrance: PieceEntrance.merge);
+        _addContent(
+          target,
+          model.contentAt(target)!,
+          entrance: PieceEntrance.merge,
+        );
         _publishStats();
       case MoveOutcome.rejected:
         piece.settleTo(cellCenter(piece.cell));
@@ -144,10 +148,16 @@ class MergeGame extends FlameGame {
     PieceEntrance entrance = PieceEntrance.none,
   }) {
     final piece = switch (content) {
-      ItemContent(:final item) =>
-        ItemComponent(cell: pos, item: item, entrance: entrance),
-      GeneratorContent(:final generator) =>
-        GeneratorComponent(cell: pos, generator: generator, entrance: entrance),
+      ItemContent(:final item) => ItemComponent(
+        cell: pos,
+        item: item,
+        entrance: entrance,
+      ),
+      GeneratorContent(:final generator) => GeneratorComponent(
+        cell: pos,
+        generator: generator,
+        entrance: entrance,
+      ),
     };
     _pieces[pos] = piece;
     world.add(piece);
