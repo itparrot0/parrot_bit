@@ -143,6 +143,69 @@ void main() {
     });
   });
 
+  group('고착 재정렬 — 바깥 고리 우선', () {
+    test('물뿌리개가 멈추면 큐가 바깥 고리 우선으로 재정렬된다', () {
+      // 기획 확인 예시 그대로: 3x3, x4가 중앙·하·좌·우를 피운 뒤
+      // 다음 수는 (오래 기다린) 상이 아니라 하좌에서 이어져야 한다.
+      final board = BloomBoard(
+        monoLevel(
+          columns: 3,
+          rows: 3,
+          start: (col: 1, row: 1),
+          canCounts: const [4, 5],
+        ),
+      );
+
+      final first = board.takeFromLane(0);
+      expect(first, [
+        (col: 1, row: 1), // 중앙
+        (col: 1, row: 2), // 하
+        (col: 0, row: 1), // 좌
+        (col: 2, row: 1), // 우
+      ]);
+
+      // 재정렬: 고리 2(가장자리)가 앞으로, 고리 1의 상이 맨 뒤로.
+      // 같은 고리 안에서는 발아 순서가 유지된다.
+      expect(board.queue, [
+        (col: 0, row: 2), // 하좌 (d2)
+        (col: 2, row: 2), // 하우 (d2)
+        (col: 0, row: 0), // 좌상 (d2)
+        (col: 2, row: 0), // 우상 (d2)
+        (col: 1, row: 0), // 상   (d1) — 맨 뒤
+      ]);
+    });
+
+    test('다음 물뿌리개는 꽃무리 가장자리에서 이어서 피운다', () {
+      final board = BloomBoard(
+        monoLevel(
+          columns: 3,
+          rows: 3,
+          start: (col: 1, row: 1),
+          canCounts: const [4, 5],
+        ),
+      );
+
+      board.takeFromLane(0);
+      final second = board.takeFromLane(1);
+
+      expect(second.first, (col: 0, row: 2)); // 하좌부터
+      expect(second.last, (col: 1, row: 0)); // 상이 맨 마지막
+      expect(board.isWon, isTrue);
+    });
+
+    test('재생 중에는 재정렬하지 않는다 — 한 물뿌리개 안에서는 안쪽 고리부터', () {
+      // x6 한 번이면 재정렬 없이 하2가 6번째다 (기존 확정과 동일).
+      final board = BloomBoard(
+        monoLevel(start: (col: 2, row: 2), canCounts: const [6, 19]),
+      );
+
+      final bloomed = board.takeFromLane(0);
+
+      expect(bloomed[4], (col: 2, row: 1)); // 5번째 = 상 (고리 1 마무리)
+      expect(bloomed[5], (col: 2, row: 4)); // 6번째 = 하2 (고리 2 진입)
+    });
+  });
+
   group('레인에서 꺼내기', () {
     test('꺼낸 물뿌리개는 바로 재생되고 소진되면 슬롯이 빈다', () {
       final board = BloomBoard(HandmadeLevels.cross);

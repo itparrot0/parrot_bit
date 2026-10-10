@@ -47,6 +47,11 @@ final class _BoardSnapshot {
 /// - **활성화 슬롯** — 꺼낸 물뿌리개가 재생되는 자리. 대상이 없어 멈추면
 ///   **남은 횟수를 든 채 여기 주차**되고, 소진돼야 비워진다. 주차가 슬롯을
 ///   막는 것이 이 게임의 긴장이다.
+///
+/// 개화 순서 (2026-10-11 확정):
+/// - 재생 중에는 FIFO — 안쪽 고리에서 바깥 고리로 번진다.
+/// - **물뿌리개가 멈추면(고착) 큐를 바깥 고리 우선으로 재정렬한다**
+///   ([_settleFrontier]) — 다음 수는 꽃무리 가장자리에서 이어진다.
 class BloomBoard {
   BloomBoard(this.level) {
     _reset();
@@ -275,7 +280,31 @@ class BloomBoard {
     if (can.isEmpty) {
       _active[slot] = null;
     }
+    _settleFrontier();
     return bloomed;
+  }
+
+  /// 물뿌리개가 멈출 때(고착)마다 큐를 **바깥 고리 우선**으로 재정렬한다.
+  ///
+  /// 재생 중에는 FIFO(안쪽 고리 → 바깥 고리)로 돌지만, 멈춘 뒤의 다음 수는
+  /// **꽃무리의 가장자리에서 이어져야** 한다 — 시작점 옆에 오래 남은 발아가
+  /// 새로 번진 가장자리보다 앞서 있으면 파동이 안쪽으로 되돌아가는 것처럼
+  /// 보인다. 같은 고리 안에서는 기존 발아 순서를 유지한다(안정 정렬).
+  ///
+  /// 주의: "개화된 꽃무리를 개화 순서로 훑는" 재계산은 지금 큐와 항상
+  /// 동일하다 — 발아는 가장 먼저 개화한 이웃의 스캔 때 들어갔기 때문이다.
+  /// 그래서 재계산의 실질은 이 바깥-우선 정렬이다.
+  void _settleFrontier() {
+    final indexed = [
+      for (var i = 0; i < _queue.length; i++) (index: i, pos: _queue[i]),
+    ];
+    indexed.sort((a, b) {
+      final byDepth = (_depth[b.pos] ?? 0).compareTo(_depth[a.pos] ?? 0);
+      return byDepth != 0 ? byDepth : a.index.compareTo(b.index);
+    });
+    _queue
+      ..clear()
+      ..addAll(indexed.map((entry) => entry.pos));
   }
 
   /// [pos]를 개화시키고 이웃 씨앗을 깨워 큐에 넣는다.
