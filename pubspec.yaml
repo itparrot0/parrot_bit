@@ -7,6 +7,7 @@ environment:
 
 workspace:
   - apps/proto_merge
+  - apps/proto_full_bloom
   - apps/sleep_log
   - packages/core_utils
   - packages/core_ui
