@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:core_ui/core_ui.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
@@ -33,18 +35,35 @@ class GamePage extends StatefulWidget {
 
 class _GamePageState extends State<GamePage> {
   int _levelIndex = 0;
-  late BloomGame _game = BloomGame(level: HandmadeLevels.all[_levelIndex]);
+
+  /// 마지막으로 생성한 랜덤 레벨. 목록 맨 뒤에 붙는다.
+  BloomLevel? _randomLevel;
+
+  late BloomGame _game = BloomGame(level: _levels[_levelIndex]);
+
+  List<BloomLevel> get _levels => [...HandmadeLevels.all, ?_randomLevel];
 
   void _loadLevel(int index) {
     setState(() {
       _levelIndex = index;
-      _game = BloomGame(level: HandmadeLevels.all[index]);
+      _game = BloomGame(level: _levels[index]);
+    });
+  }
+
+  void _generateRandom() {
+    // 시드만 비결정적이고 생성 자체는 시드에 결정적이다 — 이름의 #시드로
+    // 같은 레벨을 재현할 수 있다.
+    final generated = BloomGenerator.generate(seed: Random().nextInt(100000));
+    setState(() {
+      _randomLevel = generated.level;
+      _levelIndex = _levels.length - 1;
+      _game = BloomGame(level: _randomLevel!);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final level = HandmadeLevels.all[_levelIndex];
+    final level = _levels[_levelIndex];
 
     return Scaffold(
       backgroundColor: BloomPalette.background,
@@ -52,9 +71,10 @@ class _GamePageState extends State<GamePage> {
         child: Column(
           children: [
             _LevelBar(
-              levels: HandmadeLevels.all,
+              levels: _levels,
               selected: _levelIndex,
               onSelect: _loadLevel,
+              onRandom: _generateRandom,
             ),
             ValueListenableBuilder<BloomStats>(
               valueListenable: _game.stats,
@@ -88,11 +108,15 @@ class _LevelBar extends StatelessWidget {
     required this.levels,
     required this.selected,
     required this.onSelect,
+    required this.onRandom,
   });
 
   final List<BloomLevel> levels;
   final int selected;
   final ValueChanged<int> onSelect;
+
+  /// 새 랜덤 레벨을 생성해 로드한다.
+  final VoidCallback onRandom;
 
   @override
   Widget build(BuildContext context) {
@@ -113,6 +137,7 @@ class _LevelBar extends StatelessWidget {
                 onSelected: (_) => onSelect(index),
               ),
             ),
+          ActionChip(label: const Text('랜덤'), onPressed: onRandom),
         ],
       ),
     );

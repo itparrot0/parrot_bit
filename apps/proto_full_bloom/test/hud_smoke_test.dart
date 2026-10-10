@@ -53,6 +53,18 @@ void main() {
     expect(undoButton().onPressed, isNotNull);
   });
 
+  testWidgets('랜덤 버튼이 생성된 레벨을 바로 로드한다', (tester) async {
+    await tester.pumpWidget(const GardenGrowApp());
+    await tester.pump(const Duration(milliseconds: 32));
+
+    await tester.tap(find.text('랜덤'));
+    await tester.pump(const Duration(milliseconds: 32));
+
+    // 기본 파라미터는 5x6 꽉 찬 보드 = 30칸.
+    expect(find.textContaining('랜덤 #'), findsOneWidget);
+    expect(find.text('0 / 30칸'), findsOneWidget);
+  });
+
   testWidgets('레벨을 바꾸면 그 레벨의 레인이 보인다', (tester) async {
     await tester.pumpWidget(const GardenGrowApp());
     await tester.pump(const Duration(milliseconds: 32));

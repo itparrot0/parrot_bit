@@ -6,6 +6,7 @@ library;
 
 export 'bloom_board.dart';
 export 'bloom_color.dart';
+export 'bloom_generator.dart';
 export 'bloom_level.dart';
 export 'bloom_solver.dart';
 export 'cell.dart';

@@ -14,7 +14,7 @@
 
 | | |
 |---|---|
-| 코드 | `apps/proto_full_bloom` (동작함, 테스트 75개) — **디렉터리 리네임 보류** (IDE 락) |
+| 코드 | `apps/proto_full_bloom` (동작함, 테스트 81개) — **디렉터리 리네임 보류** (IDE 락) |
 | 문서 | `docs/prd/garden_grow.md` = **기획서 Garden Grow v0.1 원문 그대로** (2026-10-10 교체) |
 
 색상 연쇄 개화 퍼즐. 씨앗 🌱 → 발아 🌿 → 개화 🌸 3단계로, 색상별 물뿌리개를
@@ -64,7 +64,9 @@ v0.1 원문으로 전면 교체**됐다. 이전 PRD에만 있던 결정들 — �
 **다음 할 일**:
 1. 코드 ↔ 기획서 §43 미확정 항목의 기준 정리 (위 문단).
 2. 직접 플레이해서 재미 판정 — 기획서 §44 Phase 1~2가 사실상 끝나 있다.
-3. 재미 확인 후 Phase 3(역생성 레벨 생성기 + Solution Count 등 지표 확장).
+3. ~~레벨 생성기(단순 변형)~~ ✔ `BloomGenerator` — 색 영역 키우기 + 역산 +
+   레인 분배 + 솔버 검증, 시드 결정적. HUD "랜덤" 버튼으로 생성·로드.
+   남은 것: 기획서 §14 역생성(연쇄 먼저 설계) + Solution Count 등 지표 확장.
 4. 디렉터리 리네임: IDE 닫고 `git mv apps/proto_full_bloom apps/proto_garden_grow`
    → pubspec 이름·import·Android namespace 수정.
 
