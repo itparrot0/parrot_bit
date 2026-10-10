@@ -41,8 +41,11 @@ class BloomGame extends FlameGame {
   /// 같은 값을 다시 넣으면 알림이 가지 않는다.
   late final ValueNotifier<BloomStats> stats = ValueNotifier(_currentStats());
 
-  /// HUD가 슬롯을 눌러보고 있는 색. 미리보기 테두리에만 쓴다.
-  BloomColor? previewColor;
+  /// HUD가 눌러보고 있는 **슬롯 번호**. 미리보기 번호에만 쓴다.
+  ///
+  /// 색이 아니라 슬롯이어야 한다 — 같은 색 물뿌리개가 여러 슬롯에 있으면
+  /// (튜토리얼은 셋 다 빨강) 색으로 묶으면 x1을 눌러도 9칸까지 번호가 붙는다.
+  int? previewSlot;
 
   final List<CellComponent> _cells = [];
 
@@ -84,17 +87,11 @@ class BloomGame extends FlameGame {
     _sync();
   }
 
-  /// 지금 슬롯에 있는 [color] 물뿌리개의 남은 횟수 합.
-  int _remainingFor(BloomColor color) => board.slots
-      .whereType<WateringCan>()
-      .where((can) => can.color == color)
-      .fold(0, (sum, can) => sum + can.remaining);
-
-  void setPreview(BloomColor? color) {
-    if (previewColor == color) {
+  void setPreview(int? slotIndex) {
+    if (previewSlot == slotIndex) {
       return;
     }
-    previewColor = color;
+    previewSlot = slotIndex;
     _sync();
   }
 
@@ -107,10 +104,14 @@ class BloomGame extends FlameGame {
 
     // 번호는 "지금 누른 물뿌리개가 몇 번째로 피울 칸인가"다. 누른 것이 없으면
     // 번호를 아예 안 띄운다 — 전체 큐 순번은 색이 섞여 읽히지 않는다.
+    //
+    // **그 슬롯의 남은 횟수만큼만** 번호를 붙인다. 그래서 x1을 누르면 1칸,
+    // x4를 누르면 4칸이 보이고 "이 한 수가 어디까지 가나"가 그대로 읽힌다.
     final order = <CellPos, int>{};
-    final color = previewColor;
-    if (color != null) {
-      final targets = board.previewTargets(color, _remainingFor(color));
+    final slotIndex = previewSlot;
+    final can = slotIndex == null ? null : board.slots[slotIndex];
+    if (can != null) {
+      final targets = board.previewTargets(can.color, can.remaining);
       for (var index = 0; index < targets.length; index++) {
         order[targets[index]] = index + 1;
       }

@@ -43,7 +43,7 @@ void main() {
     game.useSlot(0); // 빨강 x2 — 중앙과 하를 피운다
     await tester.pump();
 
-    game.setPreview(BloomColor.blue); // 파랑 x4, 큐에 파랑 둘
+    game.setPreview(1); // 슬롯1 = 파랑 x4, 큐에 파랑 둘
     await tester.pump();
 
     final numbered = {
@@ -56,10 +56,11 @@ void main() {
 
   testWidgets('번호는 물뿌리개의 남은 횟수까지만 붙는다', (tester) async {
     final game = await pumpGame(tester, HandmadeLevels.cross);
-    game.useSlot(0); // 빨강 x2 소진 → 슬롯이 빨강 x3으로 충원된다
+    game.useSlot(0); // 빨강 x2 소진 — 대기열이 비어 슬롯0은 빈 채로 남는다
     await tester.pump();
 
-    game.setPreview(BloomColor.red);
+    expect(game.board.slots[0], isNull);
+    game.setPreview(2); // 슬롯2 = 빨강 x3
     await tester.pump();
 
     // 빨강 x3이지만 큐에 남은 빨강은 상·하2 둘뿐이다.
@@ -121,7 +122,7 @@ void main() {
   testWidgets('미리보기를 켜면 다음에 피울 칸이 집힌다', (tester) async {
     final game = await pumpGame(tester, HandmadeLevels.cross);
 
-    game.setPreview(BloomColor.red);
+    game.setPreview(0);
     await tester.pump();
 
     final highlighted = cellsOf(game).where((cell) => cell.isNextTarget);

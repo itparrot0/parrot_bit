@@ -205,7 +205,8 @@ class _SlotBar extends StatelessWidget {
                       can: board.slots[index],
                       enabled: board.canUseSlot(index),
                       onTap: () => game.useSlot(index),
-                      onPreview: (color) => game.setPreview(color),
+                      onPreview: (pressed) =>
+                          game.setPreview(pressed ? index : null),
                     ),
                   ),
                 ),
@@ -230,7 +231,9 @@ class _SlotButton extends StatelessWidget {
   final WateringCan? can;
   final bool enabled;
   final VoidCallback onTap;
-  final ValueChanged<BloomColor?> onPreview;
+
+  /// 누르고 있는 동안 true. 보드에 이 물뿌리개가 피울 칸을 번호로 띄운다.
+  final ValueChanged<bool> onPreview;
 
   @override
   Widget build(BuildContext context) {
@@ -248,10 +251,10 @@ class _SlotButton extends StatelessWidget {
     final color = BloomPalette.of(current.color);
     return GestureDetector(
       // 누르고 있는 동안 어느 칸이 피는지 보드에 표시한다.
-      onTapDown: (_) => onPreview(current.color),
-      onTapCancel: () => onPreview(null),
+      onTapDown: (_) => onPreview(true),
+      onTapCancel: () => onPreview(false),
       onTap: () {
-        onPreview(null);
+        onPreview(false);
         if (enabled) {
           onTap();
         }
