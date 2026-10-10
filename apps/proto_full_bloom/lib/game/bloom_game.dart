@@ -126,11 +126,10 @@ class BloomGame extends FlameGame {
       }
     }
 
-    // 연출은 **고리 단위**로 묶어 터뜨린다 — 하·좌·우·상 한 싸이클이 한 고리다.
-    final pulseDepths = {for (final pos in pulse) pos: board.depthOf(pos) ?? 0};
-    final firstDepth = pulseDepths.values.isEmpty
-        ? 0
-        : pulseDepths.values.reduce((a, b) => a < b ? a : b);
+    // 연출은 **개화된 순서 그대로** 한 칸씩 터뜨린다. [pulse]가 그 순서다 —
+    // 물이 큐를 따라 흐른 경로와 눈에 보이는 순서가 일치해야 예측이 산다.
+    // 자동 재개로 여러 물뿌리개가 이어져도 전체가 한 줄로 흐른다.
+    final pulseIndex = {for (var i = 0; i < pulse.length; i++) pulse[i]: i};
 
     board.cells.forEach((pos, cell) {
       final component = CellComponent(
@@ -142,15 +141,15 @@ class BloomGame extends FlameGame {
       _cells.add(component);
       world.add(component);
 
-      final depth = pulseDepths[pos];
-      if (depth != null) {
+      final index = pulseIndex[pos];
+      if (index != null) {
         component.scale = Vector2.all(0.55);
         component.add(
           ScaleEffect.to(
             Vector2.all(1),
             DelayedEffectController(
               EffectController(duration: 0.16, curve: Curves.easeOutBack),
-              delay: (depth - firstDepth) * 0.13,
+              delay: index * 0.09,
             ),
           ),
         );
