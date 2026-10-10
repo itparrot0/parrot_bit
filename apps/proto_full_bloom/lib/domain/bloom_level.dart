@@ -13,8 +13,9 @@ final class BloomLevel {
     required this.rows,
     required this.colors,
     required this.startPoints,
-    required this.cans,
-    this.slotCount = 3,
+    required this.lanes,
+    this.activeSlotCount = 2,
+    this.laneRevealCount = 2,
   }) {
     _validate();
   }
@@ -26,16 +27,23 @@ final class BloomLevel {
   /// 칸 색 배치. **키가 없는 좌표는 빈칸**이다 (그림의 바깥).
   final Map<CellPos, BloomColor> colors;
 
-  /// 발아로 시작하는 칸들. 큐의 초기 내용이 된다 (PRD §3.3).
+  /// 발아로 시작하는 칸들. 보드 큐의 초기 내용이 된다.
   final List<CellPos> startPoints;
 
-  /// 대기열 순서. 앞에서부터 슬롯에 올라간다.
-  final List<CanSpec> cans;
+  /// 물뿌리개 레인들. **각 레인은 맨 앞만 꺼낼 수 있는 줄**이고,
+  /// 어떤 색을 어느 레인에 얼마나 깊이 묻는가가 레벨 디자인이다 (기획서 §8·§9).
+  final List<List<CanSpec>> lanes;
 
-  /// 활성화 슬롯 수 (PRD §3.6).
-  final int slotCount;
+  /// 활성화 슬롯 수. 꺼낸 물뿌리개는 소진될 때까지 여기 주차된다.
+  final int activeSlotCount;
+
+  /// 레인마다 앞에서 몇 개까지 보여주는가. 난이도 다이얼이다.
+  final int laneRevealCount;
 
   int get cellCount => colors.length;
+
+  /// 모든 레인의 물뿌리개를 펼친 목록.
+  Iterable<CanSpec> get allCans => lanes.expand((lane) => lane);
 
   /// 색깔별 칸 수.
   Map<BloomColor, int> get cellCountByColor {
@@ -49,21 +57,17 @@ final class BloomLevel {
   /// 색깔별 물뿌리개 횟수 합.
   Map<BloomColor, int> get waterCountByColor {
     final counts = <BloomColor, int>{};
-    for (final can in cans) {
+    for (final can in allCans) {
       counts[can.color] = (counts[can.color] ?? 0) + can.count;
     }
     return counts;
   }
 
-  List<WateringCan> createCans() => [
-    for (final spec in cans) WateringCan(color: spec.color, count: spec.count),
-  ];
-
-  /// PRD §3.7 불변식 검사.
+  /// 색깔별 물 횟수 = 색깔별 칸 수 불변식 검사.
   ///
-  /// **색깔별 물뿌리개 횟수 합 = 색깔별 칸 수**여야 한다. 물 한 번이 정확히
-  /// 그 색 한 칸을 피우므로 산수로 강제되고, 어긋나면 레벨이 절대 풀리지
-  /// 않는다. 플레이 중에 발견하면 늦으므로 생성 시점에 던진다 (PRD §10).
+  /// 물 한 번이 정확히 그 색 한 칸을 피우므로 산수로 강제되고, 어긋나면
+  /// 레벨이 절대 풀리지 않는다. 플레이 중에 발견하면 늦으므로 생성 시점에
+  /// 던진다.
   void _validate() {
     if (columns < 1 || rows < 1) {
       throw ArgumentError('격자 크기가 잘못됐다: $columns x $rows');
@@ -84,8 +88,22 @@ final class BloomLevel {
     if (startPoints.toSet().length != startPoints.length) {
       throw ArgumentError('시작 지점이 중복됐다 ($name)');
     }
-    if (slotCount < 1) {
-      throw ArgumentError.value(slotCount, 'slotCount', '1 이상이어야 한다');
+    if (activeSlotCount < 1) {
+      throw ArgumentError.value(
+        activeSlotCount,
+        'activeSlotCount',
+        '1 이상이어야 한다',
+      );
+    }
+    if (laneRevealCount < 1) {
+      throw ArgumentError.value(
+        laneRevealCount,
+        'laneRevealCount',
+        '1 이상이어야 한다',
+      );
+    }
+    if (lanes.isEmpty || lanes.any((lane) => lane.isEmpty)) {
+      throw ArgumentError('빈 레인이 있다 ($name) — 레인은 최소 1개의 물뿌리개를 갖는다');
     }
 
     final cells = cellCountByColor;
@@ -96,7 +114,7 @@ final class BloomLevel {
         '색깔별 물뿌리개 횟수가 칸 수와 맞지 않는다 ($name).\n'
         '  칸:       $cells\n'
         '  물뿌리개: $water\n'
-        '  PRD §3.7 — 색마다 정확히 일치해야 한다.',
+        '  색마다 정확히 일치해야 한다.',
       );
     }
   }

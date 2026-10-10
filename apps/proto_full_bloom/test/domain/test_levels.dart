@@ -1,6 +1,7 @@
 import 'package:proto_full_bloom/domain/domain.dart';
 
-/// [columns]x[rows] 전체를 한 색으로 채운 레벨.
+/// [columns]x[rows] 전체를 한 색으로 채운 레벨. [canCounts]의 각 횟수가
+/// **레인 하나**가 된다 (앞이 곧 전부라 꺼내는 순서만 남는다).
 ///
 /// 색이 하나면 큐의 모든 칸이 대상이라 색 매칭이 끼어들지 않는다 —
 /// 큐 순서만 보고 싶을 때 쓴다.
@@ -9,7 +10,7 @@ BloomLevel monoLevel({
   required List<int> canCounts,
   int columns = 5,
   int rows = 5,
-  int slotCount = 3,
+  int activeSlotCount = 2,
 }) => BloomLevel(
   name: '단색 ${columns}x$rows',
   columns: columns,
@@ -20,16 +21,18 @@ BloomLevel monoLevel({
         (col: col, row: row): BloomColor.red,
   },
   startPoints: [start],
-  cans: [for (final count in canCounts) (color: BloomColor.red, count: count)],
-  slotCount: slotCount,
+  lanes: [
+    for (final count in canCounts) [(color: BloomColor.red, count: count)],
+  ],
+  activeSlotCount: activeSlotCount,
 );
 
-/// 한 줄 레벨. `colors`를 왼쪽부터 늘어놓는다.
+/// 한 줄 보드 레벨. `cells`를 왼쪽부터 늘어놓고 맨 왼쪽에서 시작한다.
 BloomLevel lineLevel({
   required String name,
   required List<BloomColor> cells,
-  required List<CanSpec> cans,
-  int slotCount = 3,
+  required List<List<CanSpec>> lanes,
+  int activeSlotCount = 2,
 }) => BloomLevel(
   name: name,
   columns: cells.length,
@@ -38,8 +41,8 @@ BloomLevel lineLevel({
     for (var col = 0; col < cells.length; col++) (col: col, row: 0): cells[col],
   },
   startPoints: const [(col: 0, row: 0)],
-  cans: cans,
-  slotCount: slotCount,
+  lanes: lanes,
+  activeSlotCount: activeSlotCount,
 );
 
 /// 테스트 전용 레벨들. 플레이용이 아니라 특정 상황을 만들기 위한 것이다.
@@ -55,47 +58,73 @@ abstract final class TestLevels {
       (col: 2, row: 0): BloomColor.red,
     },
     startPoints: const [(col: 0, row: 0), (col: 2, row: 0)],
-    cans: const [(color: BloomColor.red, count: 3)],
+    lanes: const [
+      [(color: BloomColor.red, count: 3)],
+    ],
   );
 
-  /// 빨강 x3을 쓰지만 **그 순간 닿을 수 있는 빨강이 2칸뿐**이라 1이 남는다.
+  /// 빨강 x3이 **그 순간 닿을 수 있는 빨강 2칸**만 피우고 x1을 든 채
+  /// 주차되는 레벨.
   ///
-  /// `빨 빨 파 빨` — 세 번째 빨강은 파랑을 지나야 깨어난다.
-  /// §3.7은 지켜진다(빨강 3칸 = x3): 남은 1은 버려지지 않고 슬롯에서 기다린다.
+  /// `빨 빨 파 빨` — 세 번째 빨강은 파랑을 지나야 깨어난다. 주차된 x1은
+  /// 파랑이 핀 뒤 재개할 수 있다.
   static BloomLevel get stalls => lineLevel(
-    name: '멈춤',
+    name: '주차',
     cells: const [
       BloomColor.red,
       BloomColor.red,
       BloomColor.blue,
       BloomColor.red,
     ],
-    cans: const [
-      (color: BloomColor.red, count: 3),
-      (color: BloomColor.blue, count: 1),
+    lanes: const [
+      [(color: BloomColor.red, count: 3)],
+      [(color: BloomColor.blue, count: 1)],
     ],
   );
 
-  /// 한 수 뒤에 교착이 나는 레벨.
+  /// 교착 분기가 있지만 풀리기도 하는 레벨.
   ///
-  /// `빨 빨 파 파`, 슬롯 2개, 대기열 `빨1 → 파1 → 파1 → 빨1`.
-  /// 첫 수는 빨강밖에 쓸 수 없고(큐에 빨강만 있다), 그걸 쓰면 슬롯이
-  /// `파1·파1`로 채워지는데 큐에는 빨강만 남아 **모든 슬롯이 막힌다.**
-  /// 남은 빨강은 파랑 뒤에 갇혀 영원히 올라오지 못한다 (PRD §3.8).
+  /// `빨 빨 파 파`, 활성화 슬롯 1개.
+  /// 정답: R1 → R1 → B1 → B1 (레인 3을 두 번 파고 파랑으로).
+  /// 함정: 파랑을 먼저 꺼내면 대상이 없어 주차되고, 슬롯 1개가 막혀
+  /// **둘 수 있는 수가 사라진다** = 교착.
   static BloomLevel get deadlockable => lineLevel(
-    name: '교착',
+    name: '교착 가능',
     cells: const [
       BloomColor.red,
       BloomColor.red,
       BloomColor.blue,
       BloomColor.blue,
     ],
-    cans: const [
-      (color: BloomColor.red, count: 1),
-      (color: BloomColor.blue, count: 1),
-      (color: BloomColor.blue, count: 1),
-      (color: BloomColor.red, count: 1),
+    lanes: const [
+      [(color: BloomColor.blue, count: 1)],
+      [(color: BloomColor.blue, count: 1)],
+      [(color: BloomColor.red, count: 1), (color: BloomColor.red, count: 1)],
     ],
-    slotCount: 2,
+    activeSlotCount: 1,
+  );
+
+  /// 절대 풀리지 않는 레벨.
+  ///
+  /// `빨 빨 파 파`, 레인 1줄 `파→파→빨→빨`, 슬롯 1개. 첫 수가 파랑 꺼내기뿐이고
+  /// 그 즉시 주차돼 슬롯이 막힌다. 정확 일치는 지켜도 순서가 막으면 못 푼다 —
+  /// 생성기가 이런 배치를 걸러내야 하는 이유다.
+  static BloomLevel get unsolvable => lineLevel(
+    name: '불가능',
+    cells: const [
+      BloomColor.red,
+      BloomColor.red,
+      BloomColor.blue,
+      BloomColor.blue,
+    ],
+    lanes: const [
+      [
+        (color: BloomColor.blue, count: 1),
+        (color: BloomColor.blue, count: 1),
+        (color: BloomColor.red, count: 1),
+        (color: BloomColor.red, count: 1),
+      ],
+    ],
+    activeSlotCount: 1,
   );
 }

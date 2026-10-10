@@ -4,36 +4,49 @@ import 'cell.dart';
 import 'cell_pos.dart';
 import 'watering_can.dart';
 
+/// 한 수.
+///
+/// [fromLane]이 true면 레인 [index]의 맨 앞을 꺼내 빈 활성화 슬롯에 올린다
+/// (올라가며 바로 재생된다). false면 주차돼 있던 활성화 슬롯 [index]의
+/// 물뿌리개를 재개한다.
+typedef BloomMove = ({bool fromLane, int index});
+
 /// 되돌리기용 상태 사본.
 final class _BoardSnapshot {
   _BoardSnapshot({
     required this.cells,
     required this.depth,
     required this.queue,
-    required this.slots,
-    required this.pendingIndex,
-    required int watered,
-  }) {
-    wateredCount = watered;
-  }
+    required this.active,
+    required this.laneIndices,
+    required this.wateredCount,
+  });
 
   final Map<CellPos, Cell> cells;
   final Map<CellPos, int> depth;
   final List<CellPos> queue;
-  final List<WateringCan?> slots;
-  final int pendingIndex;
-  late final int wateredCount;
+  final List<WateringCan?> active;
+  final List<int> laneIndices;
+  final int wateredCount;
 }
 
-/// 만개 보드의 플레이 상태와 규칙. **Flame 없이 단위 테스트한다.**
+/// Garden Grow 보드의 플레이 상태와 규칙. **Flame 없이 단위 테스트한다.**
 ///
-/// 규칙의 출처는 docs/prd/full_bloom.md §3이고, 이 클래스가 그 유일한 구현이다
-/// — 솔버와 생성기도 이걸 그대로 쓴다 (PRD §10).
+/// 규칙의 유일한 구현이다 — 솔버와 생성기도 이걸 그대로 쓴다 (기획서 §38·§39).
 ///
-/// 핵심 불변식 둘:
-/// - **발아 ⟺ 큐에 들어 있다.** 씨앗은 개화한 이웃이 생길 때 단 한 번
-///   발아가 되며 그때 큐에 들어가고, 개화할 때 큐에서 나온다.
-/// - **색깔별 물 횟수 = 색깔별 칸 수** (PRD §3.7, [BloomLevel]이 검사).
+/// 핵심 불변식:
+/// - **발아 ⟺ 보드 큐에 들어 있다.** 씨앗은 개화한 이웃이 생길 때 단 한 번
+///   발아하며 그때 큐에 들어가고, 개화할 때 큐에서 나온다.
+/// - **색깔별 물 횟수 = 색깔별 칸 수** ([BloomLevel]이 검사). 그래서 물이
+///   모자라 지는 길은 없고, 지는 길은 교착(둘 수 있는 수가 없음) 하나뿐이다.
+///
+/// 물뿌리개 선택 구조 (2026-10-10 확정):
+/// - **레인 여러 줄** — 각 레인은 맨 앞만 꺼낼 수 있다. 묻힌 물뿌리개를
+///   꺼내려면 앞을 먼저 써야 한다 (기획서 §8의 자유 선택 + Colony Flow의
+///   줄 세우기).
+/// - **활성화 슬롯** — 꺼낸 물뿌리개가 재생되는 자리. 대상이 없어 멈추면
+///   **남은 횟수를 든 채 여기 주차**되고, 소진돼야 비워진다. 주차가 슬롯을
+///   막는 것이 이 게임의 긴장이다.
 class BloomBoard {
   BloomBoard(this.level) {
     _reset();
@@ -53,17 +66,17 @@ class BloomBoard {
   final List<CellPos> _queue = [];
 
   /// 활성화 슬롯. null은 빈 슬롯.
-  final List<WateringCan?> _slots = [];
+  final List<WateringCan?> _active = [];
 
-  /// 대기열에서 다음에 올라올 물뿌리개의 인덱스.
-  int _pendingIndex = 0;
+  /// 레인별로 몇 개를 꺼냈나.
+  final List<int> _laneIndices = [];
 
   final List<_BoardSnapshot> _history = [];
 
   /// 쓴 물의 총 횟수. 통계 표시용.
   int wateredCount = 0;
 
-  // ── 조회 ──────────────────────────────────────────────────────────────
+  // ── 조회: 보드 ────────────────────────────────────────────────────────
 
   Cell? cellAt(CellPos pos) => _cells[pos];
 
@@ -85,22 +98,79 @@ class BloomBoard {
   /// 칸 상태 스냅샷.
   Map<CellPos, Cell> get cells => Map.unmodifiable(_cells);
 
-  /// 큐 내용 (앞이 다음 차례). **화면에 그대로 보여준다** — 예측 가능성이
-  /// 이 게임의 전부다 (PRD §5-3).
+  /// 발아 큐 (앞이 다음 차례).
   List<CellPos> get queue => List.unmodifiable(_queue);
 
-  List<WateringCan?> get slots => List.unmodifiable(_slots);
+  // ── 조회: 물뿌리개 ────────────────────────────────────────────────────
 
-  /// 아직 슬롯에 올라오지 않은 대기열.
-  List<CanSpec> get pendingCans =>
-      List.unmodifiable(level.cans.sublist(_pendingIndex));
+  List<WateringCan?> get activeSlots => List.unmodifiable(_active);
+
+  int get laneCount => level.lanes.length;
+
+  /// 레인 [lane]에 남은 물뿌리개 (앞이 다음 차례).
+  List<CanSpec> remainingLane(int lane) =>
+      List.unmodifiable(level.lanes[lane].sublist(_laneIndices[lane]));
+
+  CanSpec? laneFront(int lane) {
+    final remaining = level.lanes[lane];
+    final index = _laneIndices[lane];
+    return index < remaining.length ? remaining[index] : null;
+  }
+
+  /// 레인 [lane]에서 **보이는** 앞부분 (laneRevealCount개까지).
+  List<CanSpec> visibleLane(int lane) =>
+      remainingLane(lane).take(level.laneRevealCount).toList();
+
+  /// 레인 [lane]에서 가려진 물뿌리개 수.
+  int hiddenLaneCount(int lane) {
+    final hidden = remainingLane(lane).length - level.laneRevealCount;
+    return hidden > 0 ? hidden : 0;
+  }
+
+  bool get hasFreeActiveSlot => _active.contains(null);
+
+  /// 레인 [lane]의 앞을 꺼낼 수 있는가 — 레인이 비지 않았고 빈 슬롯이 있다.
+  ///
+  /// **색이 당장 쓸 수 없어도 꺼낼 수 있다.** 꺼내면 주차되고 레인이
+  /// 전진하므로, 묻힌 물뿌리개를 파내는 수가 된다.
+  bool canTakeFromLane(int lane) =>
+      lane >= 0 &&
+      lane < laneCount &&
+      laneFront(lane) != null &&
+      hasFreeActiveSlot;
+
+  /// 활성화 슬롯 [slot]의 물뿌리개를 재개할 수 있는가 — 큐에 같은 색 발아가 있다.
+  bool canUseActive(int slot) {
+    if (slot < 0 || slot >= _active.length) {
+      return false;
+    }
+    final can = _active[slot];
+    return can != null && nextTargetFor(can.color) != null;
+  }
+
+  /// 지금 둘 수 있는 모든 수.
+  List<BloomMove> get availableMoves => [
+    for (var slot = 0; slot < _active.length; slot++)
+      if (canUseActive(slot)) (fromLane: false, index: slot),
+    for (var lane = 0; lane < laneCount; lane++)
+      if (canTakeFromLane(lane)) (fromLane: true, index: lane),
+  ];
 
   bool get canUndo => _history.isNotEmpty;
 
-  /// 솔버의 메모이제이션 키 (PRD §4.3).
+  bool get isWon => _cells.values.every((cell) => cell.isBloomed);
+
+  /// 교착 — 둘 수 있는 수가 하나도 없다.
+  ///
+  /// 색깔별 정확 일치 덕에 물이 모자라 지는 길은 없다. 주차된 물뿌리개가
+  /// 전부 대상이 없고, 빈 슬롯이 없거나 레인이 다 비어 레인도 못 꺼내는
+  /// 상태 — **지는 길은 이것 하나뿐이다.**
+  bool get isDeadlocked => !isWon && availableMoves.isEmpty;
+
+  /// 솔버의 메모이제이션 키.
   ///
   /// 색 배치는 레벨이 고정하므로 변하는 것만 담는다 — 개화한 칸, 큐 **순서**,
-  /// 슬롯 내용, 대기열 포인터. 큐는 순서가 다르면 다른 상태다.
+  /// 활성화 슬롯 내용(슬롯끼리는 대칭이라 정렬해 동치를 묶는다), 레인 진행도.
   String get stateKey {
     final bloomed =
         (_cells.entries
@@ -110,44 +180,22 @@ class BloomBoard {
               ..sort())
             .join(';');
     final queued = _queue.map((pos) => '${pos.col},${pos.row}').join(';');
-    final slotted = _slots
-        .map((can) => can == null ? '-' : '${can.color.index}x${can.remaining}')
-        .join(';');
-    return '$bloomed|$queued|$slotted|$_pendingIndex';
-  }
-
-  bool get isWon => _cells.values.every((cell) => cell.isBloomed);
-
-  /// 교착 — 쓸 수 있는 슬롯이 하나도 없다.
-  ///
-  /// 슬롯은 물뿌리개가 소진될 때만 비므로(§3.5), 쓸 수 있는 슬롯이 없으면
-  /// 대기열도 영원히 나아가지 못한다. §3.7 덕에 "물 부족"으로 지는 길은 없고
-  /// **지는 길은 이것 하나뿐이다** (PRD §3.8).
-  bool get isDeadlocked {
-    if (isWon) {
-      return false;
-    }
-    for (var index = 0; index < _slots.length; index++) {
-      if (canUseSlot(index)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /// 슬롯 [index]의 물뿌리개를 쓸 수 있는가 — 큐에 같은 색 발아가 있는가.
-  bool canUseSlot(int index) {
-    if (index < 0 || index >= _slots.length) {
-      return false;
-    }
-    final can = _slots[index];
-    return can != null && !can.isEmpty && nextTargetFor(can.color) != null;
+    final parked =
+        (_active
+                .map(
+                  (can) =>
+                      can == null ? '-' : '${can.color.index}x${can.remaining}',
+                )
+                .toList()
+              ..sort())
+            .join(';');
+    return '$bloomed|$queued|$parked|${_laneIndices.join(',')}';
   }
 
   /// [color] 물뿌리개가 다음에 피울 칸. 없으면 null.
   ///
   /// **큐를 앞에서 훑어 처음 만나는 같은 색**을 고른다 — 색이 안 맞는 칸은
-  /// 건너뛰므로 색마다 자기 순서가 따로 보인다 (PRD §3.4).
+  /// 건너뛰므로 색마다 자기 순서가 따로 보인다.
   CellPos? nextTargetFor(BloomColor color) {
     for (final pos in _queue) {
       if (_cells[pos]?.color == color) {
@@ -165,38 +213,34 @@ class BloomBoard {
 
   // ── 조작 ──────────────────────────────────────────────────────────────
 
-  /// 슬롯 [index]의 물뿌리개를 쓴다. **개화한 칸을 순서대로** 반환한다
-  /// (연출이 순차 애니메이션을 하려면 순서가 필요하다).
-  ///
-  /// 남은 횟수가 0이 되거나 큐에 같은 색이 없어지면 멈춘다. 멈췄을 때 남은
-  /// 횟수는 **버려지지 않고 슬롯에 남는다** (PRD §3.5).
-  List<CellPos> useSlot(int index) {
-    if (!canUseSlot(index)) {
+  /// 레인 [lane]의 맨 앞을 꺼내 빈 활성화 슬롯에 올리고 바로 재생한다.
+  /// **개화한 칸을 순서대로** 반환한다 (대상이 없어 바로 주차되면 빈 목록).
+  List<CellPos> takeFromLane(int lane) {
+    if (!canTakeFromLane(lane)) {
       return const [];
     }
     _pushHistory();
 
-    final can = _slots[index]!;
-    final bloomed = <CellPos>[];
-    while (!can.isEmpty) {
-      final target = nextTargetFor(can.color);
-      if (target == null) {
-        break;
-      }
-      _bloom(target);
-      can.spendOne();
-      wateredCount++;
-      bloomed.add(target);
-    }
-
-    // 소진된 물뿌리개만 슬롯을 비운다.
-    if (can.isEmpty) {
-      _slots[index] = _drawPending();
-    }
-    return bloomed;
+    final spec = laneFront(lane)!;
+    _laneIndices[lane]++;
+    final slot = _active.indexOf(null);
+    _active[slot] = WateringCan(color: spec.color, count: spec.count);
+    return _play(slot);
   }
 
-  /// 한 수 되돌리기 (PRD §3.8).
+  /// 주차된 활성화 슬롯 [slot]의 물뿌리개를 재개한다.
+  List<CellPos> useActive(int slot) {
+    if (!canUseActive(slot)) {
+      return const [];
+    }
+    _pushHistory();
+    return _play(slot);
+  }
+
+  List<CellPos> applyMove(BloomMove move) =>
+      move.fromLane ? takeFromLane(move.index) : useActive(move.index);
+
+  /// 한 수 되돌리기 (프로토타입은 무제한).
   bool undo() {
     if (_history.isEmpty) {
       return false;
@@ -210,6 +254,29 @@ class BloomBoard {
   }
 
   // ── 내부 ──────────────────────────────────────────────────────────────
+
+  /// 슬롯 [slot]의 물뿌리개를 쓸 수 있는 동안 계속 쓴다.
+  ///
+  /// 남은 횟수가 0이 되면 슬롯을 비우고, 대상이 없어 멈추면 **남은 횟수를
+  /// 든 채 주차**시킨다 — 버려지는 물은 없다.
+  List<CellPos> _play(int slot) {
+    final can = _active[slot]!;
+    final bloomed = <CellPos>[];
+    while (!can.isEmpty) {
+      final target = nextTargetFor(can.color);
+      if (target == null) {
+        break;
+      }
+      _bloom(target);
+      can.spendOne();
+      wateredCount++;
+      bloomed.add(target);
+    }
+    if (can.isEmpty) {
+      _active[slot] = null;
+    }
+    return bloomed;
+  }
 
   /// [pos]를 개화시키고 이웃 씨앗을 깨워 큐에 넣는다.
   void _bloom(CellPos pos) {
@@ -229,14 +296,6 @@ class BloomBoard {
     }
   }
 
-  WateringCan? _drawPending() {
-    if (_pendingIndex >= level.cans.length) {
-      return null;
-    }
-    final spec = level.cans[_pendingIndex++];
-    return WateringCan(color: spec.color, count: spec.count);
-  }
-
   void _reset() {
     _cells
       ..clear()
@@ -246,19 +305,20 @@ class BloomBoard {
       });
     _depth.clear();
     _queue.clear();
-    _slots.clear();
     _history.clear();
-    _pendingIndex = 0;
     wateredCount = 0;
+    _laneIndices
+      ..clear()
+      ..addAll(List.filled(level.lanes.length, 0));
+    _active
+      ..clear()
+      ..addAll(List.filled(level.activeSlotCount, null));
 
     // 시작 지점만 발아로 시작하고, 그 순서가 큐의 초기 내용이 된다.
     for (final start in level.startPoints) {
       _cells[start] = Cell.sprout(level.colors[start]!);
       _depth[start] = 0;
       _queue.add(start);
-    }
-    for (var index = 0; index < level.slotCount; index++) {
-      _slots.add(_drawPending());
     }
   }
 
@@ -268,9 +328,9 @@ class BloomBoard {
         cells: Map.of(_cells),
         depth: Map.of(_depth),
         queue: List.of(_queue),
-        slots: [for (final can in _slots) can?.copy()],
-        pendingIndex: _pendingIndex,
-        watered: wateredCount,
+        active: [for (final can in _active) can?.copy()],
+        laneIndices: List.of(_laneIndices),
+        wateredCount: wateredCount,
       ),
     );
   }
@@ -285,10 +345,12 @@ class BloomBoard {
     _queue
       ..clear()
       ..addAll(snapshot.queue);
-    _slots
+    _active
       ..clear()
-      ..addAll(snapshot.slots);
-    _pendingIndex = snapshot.pendingIndex;
+      ..addAll(snapshot.active);
+    _laneIndices
+      ..clear()
+      ..addAll(snapshot.laneIndices);
     wateredCount = snapshot.wateredCount;
   }
 }

@@ -40,10 +40,11 @@ void main() {
 
   testWidgets('누른 물뿌리개가 피울 순서대로 1부터 번호가 붙는다', (tester) async {
     final game = await pumpGame(tester, HandmadeLevels.cross);
-    game.useSlot(0); // 빨강 x2 — 중앙과 하를 피운다
+    game.takeFromLane(0); // 빨강 x2 — 중앙과 하를 피운다
     await tester.pump();
 
-    game.setPreview(1); // 슬롯1 = 파랑 x4, 큐에 파랑 둘
+    // 레인 0의 다음 앞 = 파랑 x4. 큐에 파랑이 둘뿐이다.
+    game.setPreview((color: BloomColor.blue, remaining: 4));
     await tester.pump();
 
     final numbered = {
@@ -56,27 +57,24 @@ void main() {
 
   testWidgets('번호는 물뿌리개의 남은 횟수까지만 붙는다', (tester) async {
     final game = await pumpGame(tester, HandmadeLevels.cross);
-    game.useSlot(0); // 빨강 x2 소진 — 대기열이 비어 슬롯0은 빈 채로 남는다
+    game.takeFromLane(0); // 빨강 x2 소진
     await tester.pump();
 
-    expect(game.board.slots[0], isNull);
-    game.setPreview(2); // 슬롯2 = 빨강 x3
+    // 빨강 x1을 누른 셈 치면, 큐에 빨강이 둘(상·하2) 있어도 번호는 1개다.
+    game.setPreview((color: BloomColor.red, remaining: 1));
     await tester.pump();
 
-    // 빨강 x3이지만 큐에 남은 빨강은 상·하2 둘뿐이다.
-    final orders =
-        cellsOf(game)
-            .where((cell) => cell.waterOrder != null)
-            .map((cell) => cell.waterOrder!)
-            .toList()
-          ..sort();
-    expect(orders, [1, 2]);
+    final orders = cellsOf(game)
+        .where((cell) => cell.waterOrder != null)
+        .map((cell) => cell.waterOrder!)
+        .toList();
+    expect(orders, [1]);
   });
 
-  testWidgets('슬롯을 쓰면 보드가 피고 화면이 따라간다', (tester) async {
+  testWidgets('레인에서 꺼내면 보드가 피고 화면이 따라간다', (tester) async {
     final game = await pumpGame(tester, HandmadeLevels.cross);
 
-    game.useSlot(0); // 빨강 x2
+    game.takeFromLane(0); // 빨강 x2
     await tester.pump();
 
     expect(game.board.wateredCount, 2);
@@ -88,7 +86,7 @@ void main() {
     // 하·좌·우·상 한 싸이클이 한 고리다 — 연출이 이 단위로 묶여 터진다.
     final game = await pumpGame(tester, HandmadeLevels.cross);
 
-    game.useSlot(0);
+    game.takeFromLane(0);
     await tester.pump();
 
     expect(game.board.depthOf((col: 2, row: 2)), 0); // 시작 지점
@@ -98,11 +96,10 @@ void main() {
     expect(game.board.chainDepth, 1); // 개화는 아직 고리 1까지
   });
 
-  testWidgets('쓸 수 없는 슬롯을 눌러도 아무 일이 없다', (tester) async {
+  testWidgets('없는 레인을 눌러도 아무 일이 없다', (tester) async {
     final game = await pumpGame(tester, HandmadeLevels.cross);
 
-    game.useSlot(1); // 파랑 — 큐에 파랑이 없다
-    await tester.pump();
+    game.takeFromLane(5);
 
     expect(game.board.wateredCount, 0);
   });
@@ -110,7 +107,7 @@ void main() {
   testWidgets('되돌리기가 화면까지 되돌린다', (tester) async {
     final game = await pumpGame(tester, HandmadeLevels.cross);
 
-    game.useSlot(0);
+    game.takeFromLane(0);
     await tester.pump();
     game.undo();
     await tester.pump();
@@ -122,7 +119,7 @@ void main() {
   testWidgets('미리보기를 켜면 다음에 피울 칸이 집힌다', (tester) async {
     final game = await pumpGame(tester, HandmadeLevels.cross);
 
-    game.setPreview(0);
+    game.setPreview((color: BloomColor.red, remaining: 2));
     await tester.pump();
 
     final highlighted = cellsOf(game).where((cell) => cell.isNextTarget);
@@ -134,8 +131,12 @@ void main() {
     final game = await pumpGame(tester, HandmadeLevels.tutorial);
     final report = BloomSolver.solve(HandmadeLevels.tutorial);
 
-    for (final slotIndex in report.solution!) {
-      game.useSlot(slotIndex);
+    for (final move in report.solution!) {
+      if (move.fromLane) {
+        game.takeFromLane(move.index);
+      } else {
+        game.useActive(move.index);
+      }
       await tester.pump();
     }
 

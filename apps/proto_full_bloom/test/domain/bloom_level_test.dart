@@ -2,14 +2,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:proto_full_bloom/domain/domain.dart';
 import 'package:proto_full_bloom/levels/handmade_levels.dart';
 
-/// §3.7 불변식을 어긋나게 만드는 레벨 생성자.
+/// 정확 일치 불변식을 어긋나게 만들기 위한 레벨 생성자.
 BloomLevel buildLevel({
   Map<CellPos, BloomColor>? colors,
   List<CellPos>? startPoints,
-  List<CanSpec>? cans,
+  List<List<CanSpec>>? lanes,
   int columns = 2,
   int rows = 1,
-  int slotCount = 3,
+  int activeSlotCount = 2,
+  int laneRevealCount = 2,
 }) => BloomLevel(
   name: '검증용',
   columns: columns,
@@ -21,26 +22,39 @@ BloomLevel buildLevel({
         (col: 1, row: 0): BloomColor.red,
       },
   startPoints: startPoints ?? const [(col: 0, row: 0)],
-  cans: cans ?? const [(color: BloomColor.red, count: 2)],
-  slotCount: slotCount,
+  lanes:
+      lanes ??
+      const [
+        [(color: BloomColor.red, count: 2)],
+      ],
+  activeSlotCount: activeSlotCount,
+  laneRevealCount: laneRevealCount,
 );
 
 void main() {
-  group('§3.7 불변식 — 색깔별 물 횟수 = 색깔별 칸 수', () {
+  group('정확 일치 불변식 — 색깔별 물 횟수 = 색깔별 칸 수', () {
     test('맞으면 통과한다', () {
       expect(buildLevel, returnsNormally);
     });
 
     test('총합이 모자라면 거부한다', () {
       expect(
-        () => buildLevel(cans: const [(color: BloomColor.red, count: 1)]),
+        () => buildLevel(
+          lanes: const [
+            [(color: BloomColor.red, count: 1)],
+          ],
+        ),
         throwsArgumentError,
       );
     });
 
     test('총합이 남으면 거부한다', () {
       expect(
-        () => buildLevel(cans: const [(color: BloomColor.red, count: 3)]),
+        () => buildLevel(
+          lanes: const [
+            [(color: BloomColor.red, count: 3)],
+          ],
+        ),
         throwsArgumentError,
       );
     });
@@ -49,9 +63,11 @@ void main() {
       // 총합 2 = 칸 2지만, 칸은 빨강 2개인데 물은 빨강 1 + 파랑 1이다.
       expect(
         () => buildLevel(
-          cans: const [
-            (color: BloomColor.red, count: 1),
-            (color: BloomColor.blue, count: 1),
+          lanes: const [
+            [
+              (color: BloomColor.red, count: 1),
+              (color: BloomColor.blue, count: 1),
+            ],
           ],
         ),
         throwsArgumentError,
@@ -65,7 +81,9 @@ void main() {
             (col: 0, row: 0): BloomColor.red,
             (col: 1, row: 0): BloomColor.blue,
           },
-          cans: const [(color: BloomColor.red, count: 2)],
+          lanes: const [
+            [(color: BloomColor.red, count: 2)],
+          ],
         ),
         throwsArgumentError,
       );
@@ -75,8 +93,24 @@ void main() {
       // 시작 지점도 발아에서 개화로 가야 하므로 물 한 번이 든다.
       // 씨앗(1칸)만 세어 x1을 주면 거부돼야 한다.
       expect(
-        () => buildLevel(cans: const [(color: BloomColor.red, count: 1)]),
+        () => buildLevel(
+          lanes: const [
+            [(color: BloomColor.red, count: 1)],
+          ],
+        ),
         throwsArgumentError,
+      );
+    });
+
+    test('레인이 여러 줄이어도 전체 합으로 검사한다', () {
+      expect(
+        () => buildLevel(
+          lanes: const [
+            [(color: BloomColor.red, count: 1)],
+            [(color: BloomColor.red, count: 1)],
+          ],
+        ),
+        returnsNormally,
       );
     });
   });
@@ -113,13 +147,29 @@ void main() {
       );
     });
 
-    test('슬롯 수가 0 이하면 거부한다', () {
-      expect(() => buildLevel(slotCount: 0), throwsArgumentError);
+    test('빈 레인이 있으면 거부한다', () {
+      expect(
+        () => buildLevel(
+          lanes: const [
+            [(color: BloomColor.red, count: 2)],
+            [],
+          ],
+        ),
+        throwsArgumentError,
+      );
+    });
+
+    test('활성화 슬롯 수가 0 이하면 거부한다', () {
+      expect(() => buildLevel(activeSlotCount: 0), throwsArgumentError);
+    });
+
+    test('레인 공개 수가 0 이하면 거부한다', () {
+      expect(() => buildLevel(laneRevealCount: 0), throwsArgumentError);
     });
   });
 
   group('손으로 만든 레벨', () {
-    test('전부 §3.7을 지킨다', () {
+    test('전부 정확 일치를 지킨다', () {
       // 생성자가 검사하므로, 목록을 읽는 것만으로 검증된다.
       expect(HandmadeLevels.all, isNotEmpty);
       for (final level in HandmadeLevels.all) {
@@ -133,7 +183,7 @@ void main() {
 
     test('물뿌리개 총 횟수가 전체 칸 수와 같다', () {
       for (final level in HandmadeLevels.all) {
-        final totalWater = level.cans.fold(0, (sum, can) => sum + can.count);
+        final totalWater = level.allCans.fold(0, (sum, can) => sum + can.count);
         expect(totalWater, level.cellCount, reason: level.name);
       }
     });

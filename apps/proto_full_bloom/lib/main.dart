@@ -8,16 +8,16 @@ import 'game/bloom_palette.dart';
 import 'levels/handmade_levels.dart';
 
 void main() {
-  runApp(const ProtoFullBloomApp());
+  runApp(const GardenGrowApp());
 }
 
-class ProtoFullBloomApp extends StatelessWidget {
-  const ProtoFullBloomApp({super.key});
+class GardenGrowApp extends StatelessWidget {
+  const GardenGrowApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '만개',
+      title: 'Garden Grow',
       theme: AppTheme.dark(),
       home: const GamePage(),
     );
@@ -74,7 +74,7 @@ class _GamePageState extends State<GamePage> {
             ),
             ValueListenableBuilder<BloomStats>(
               valueListenable: _game.stats,
-              builder: (context, stats, _) => _SlotBar(game: _game),
+              builder: (context, stats, _) => _CanTray(game: _game),
             ),
           ],
         ),
@@ -135,8 +135,8 @@ class _StatusBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final message = switch ((stats.isWon, stats.isDeadlocked)) {
-      (true, _) => '만개! ${stats.watered}번에 다 피웠다',
-      (_, true) => '교착 — 쓸 수 있는 물뿌리개가 없다',
+      (true, _) => 'Full Bloom! ${stats.watered}번에 다 피웠다',
+      (_, true) => '교착 — 둘 수 있는 수가 없다',
       _ => '${stats.bloomed} / ${stats.total}칸',
     };
     final color = switch ((stats.isWon, stats.isDeadlocked)) {
@@ -175,9 +175,9 @@ class _StatusBar extends StatelessWidget {
   }
 }
 
-/// 활성화 슬롯과 대기열 (PRD §3.6).
-class _SlotBar extends StatelessWidget {
-  const _SlotBar({required this.game});
+/// 활성화 슬롯 + 레인들.
+class _CanTray extends StatelessWidget {
+  const _CanTray({required this.game});
 
   final BloomGame game;
 
@@ -197,31 +197,58 @@ class _SlotBar extends StatelessWidget {
         children: [
           Row(
             children: [
-              for (var index = 0; index < board.slots.length; index++)
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: AppSpacing.xs),
-                    child: _SlotButton(
-                      can: board.slots[index],
-                      enabled: board.canUseSlot(index),
-                      onTap: () => game.useSlot(index),
-                      onPreview: (pressed) =>
-                          game.setPreview(pressed ? index : null),
-                    ),
+              const Text(
+                '활성화',
+                style: TextStyle(fontSize: 11, color: Colors.white38),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              for (var slot = 0; slot < board.activeSlots.length; slot++)
+                Padding(
+                  padding: const EdgeInsets.only(right: AppSpacing.xs),
+                  child: _ActiveSlotChip(
+                    can: board.activeSlots[slot],
+                    enabled: board.canUseActive(slot),
+                    onTap: () => game.useActive(slot),
+                    onPreview: (pressed) {
+                      final can = board.activeSlots[slot];
+                      game.setPreview(
+                        pressed && can != null
+                            ? (color: can.color, remaining: can.remaining)
+                            : null,
+                      );
+                    },
                   ),
                 ),
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
-          _PendingRow(cans: board.pendingCans),
+          for (var lane = 0; lane < board.laneCount; lane++)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+              child: _LaneRow(
+                visible: board.visibleLane(lane),
+                hiddenCount: board.hiddenLaneCount(lane),
+                canTake: board.canTakeFromLane(lane),
+                onTake: () => game.takeFromLane(lane),
+                onPreview: (pressed) {
+                  final front = board.laneFront(lane);
+                  game.setPreview(
+                    pressed && front != null
+                        ? (color: front.color, remaining: front.count)
+                        : null,
+                  );
+                },
+              ),
+            ),
         ],
       ),
     );
   }
 }
 
-class _SlotButton extends StatelessWidget {
-  const _SlotButton({
+/// 활성화 슬롯 한 칸. 주차된 물뿌리개는 대상이 생기면 탭해서 재개한다.
+class _ActiveSlotChip extends StatelessWidget {
+  const _ActiveSlotChip({
     required this.can,
     required this.enabled,
     required this.onTap,
@@ -231,8 +258,6 @@ class _SlotButton extends StatelessWidget {
   final WateringCan? can;
   final bool enabled;
   final VoidCallback onTap;
-
-  /// 누르고 있는 동안 true. 보드에 이 물뿌리개가 피울 칸을 번호로 띄운다.
   final ValueChanged<bool> onPreview;
 
   @override
@@ -240,17 +265,18 @@ class _SlotButton extends StatelessWidget {
     final current = can;
     if (current == null) {
       return Container(
-        height: 62,
+        width: 64,
+        height: 48,
         decoration: BoxDecoration(
           color: BloomPalette.tile.withValues(alpha: 0.4),
           borderRadius: BorderRadius.circular(AppRadius.sm),
+          border: Border.all(color: Colors.white12),
         ),
       );
     }
 
     final color = BloomPalette.of(current.color);
     return GestureDetector(
-      // 누르고 있는 동안 어느 칸이 피는지 보드에 표시한다.
       onTapDown: (_) => onPreview(true),
       onTapCancel: () => onPreview(false),
       onTap: () {
@@ -260,9 +286,10 @@ class _SlotButton extends StatelessWidget {
         }
       },
       child: Container(
-        height: 62,
+        width: 64,
+        height: 48,
         decoration: BoxDecoration(
-          color: color.withValues(alpha: enabled ? 0.9 : 0.22),
+          color: color.withValues(alpha: enabled ? 0.9 : 0.3),
           borderRadius: BorderRadius.circular(AppRadius.sm),
           border: Border.all(
             color: enabled ? Colors.white54 : Colors.transparent,
@@ -276,15 +303,15 @@ class _SlotButton extends StatelessWidget {
             Text(
               '×${current.remaining}',
               style: TextStyle(
-                fontSize: 22,
+                fontSize: 17,
                 fontWeight: FontWeight.w800,
                 color: enabled ? Colors.white : Colors.white38,
               ),
             ),
             if (!enabled)
               const Text(
-                '쓸 곳 없음',
-                style: TextStyle(fontSize: 10, color: Colors.white38),
+                '주차',
+                style: TextStyle(fontSize: 9, color: Colors.white38),
               ),
           ],
         ),
@@ -293,55 +320,100 @@ class _SlotButton extends StatelessWidget {
   }
 }
 
-class _PendingRow extends StatelessWidget {
-  const _PendingRow({required this.cans});
+/// 레인 한 줄 — 맨 앞만 꺼낼 수 있고, 뒤는 공개 범위까지만 보인다.
+class _LaneRow extends StatelessWidget {
+  const _LaneRow({
+    required this.visible,
+    required this.hiddenCount,
+    required this.canTake,
+    required this.onTake,
+    required this.onPreview,
+  });
 
-  final List<CanSpec> cans;
+  final List<CanSpec> visible;
+  final int hiddenCount;
+  final bool canTake;
+  final VoidCallback onTake;
+  final ValueChanged<bool> onPreview;
 
   @override
   Widget build(BuildContext context) {
-    if (cans.isEmpty) {
-      return const Text(
-        '대기열 비어 있음',
-        style: TextStyle(fontSize: 11, color: Colors.white38),
+    if (visible.isEmpty) {
+      return const SizedBox(
+        height: 40,
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            '레인 비어 있음',
+            style: TextStyle(fontSize: 11, color: Colors.white24),
+          ),
+        ),
       );
     }
+
+    final front = visible.first;
+    final frontColor = BloomPalette.of(front.color);
+
     return Row(
       children: [
-        const Text(
-          '대기열',
-          style: TextStyle(fontSize: 11, color: Colors.white38),
-        ),
-        const SizedBox(width: AppSpacing.xs),
-        Expanded(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                for (final can in cans)
-                  Container(
-                    margin: const EdgeInsets.only(right: 4),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 7,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: BloomPalette.of(can.color).withValues(alpha: 0.75),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      '×${can.count}',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-              ],
+        // 맨 앞 — 꺼낼 수 있는 유일한 자리.
+        GestureDetector(
+          onTapDown: (_) => onPreview(true),
+          onTapCancel: () => onPreview(false),
+          onTap: () {
+            onPreview(false);
+            if (canTake) {
+              onTake();
+            }
+          },
+          child: Container(
+            width: 64,
+            height: 40,
+            decoration: BoxDecoration(
+              color: frontColor.withValues(alpha: canTake ? 0.9 : 0.35),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+              border: Border.all(
+                color: canTake ? Colors.white54 : Colors.transparent,
+                width: 1.5,
+              ),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              '×${front.count}',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                color: canTake ? Colors.white : Colors.white38,
+              ),
             ),
           ),
         ),
+        const SizedBox(width: AppSpacing.xs),
+        // 공개된 뒷줄 — 보이기만 하고 꺼낼 수 없다.
+        for (final spec in visible.skip(1))
+          Container(
+            margin: const EdgeInsets.only(right: 4),
+            width: 44,
+            height: 32,
+            decoration: BoxDecoration(
+              color: BloomPalette.of(spec.color).withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(6),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              '×${spec.count}',
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: Colors.white70,
+              ),
+            ),
+          ),
+        if (hiddenCount > 0)
+          Text(
+            '+$hiddenCount',
+            style: const TextStyle(fontSize: 12, color: Colors.white38),
+          ),
       ],
     );
   }

@@ -2,17 +2,17 @@ import '../domain/domain.dart';
 
 /// 손으로 만든 검증용 레벨들.
 ///
-/// **생성기보다 먼저 이것으로 재미를 본다** (PRD §9.1) — 손으로 만든 레벨에서
-/// 재미가 안 나오면 생성기는 의미가 없다.
+/// **생성기보다 먼저 이것으로 재미를 본다** (기획서 §44 Phase 1~2) —
+/// 손으로 만든 레벨에서 재미가 안 나오면 생성기는 의미가 없다.
 ///
-/// 모든 레벨은 [BloomLevel] 생성자가 §3.7 불변식(색깔별 물 횟수 = 칸 수)을
+/// 모든 레벨은 [BloomLevel] 생성자가 정확 일치 불변식(색깔별 물 횟수 = 칸 수)을
 /// 검사하고, 테스트가 솔버로 풀림까지 확인한다.
 abstract final class HandmadeLevels {
   static List<BloomLevel> get all => [tutorial, cross, split, flower];
 
-  /// 1. 한 가지 색. 큐가 어떻게 뻗는지 보는 것이 전부다.
+  /// 1. 한 가지 색. 레인에서 꺼내 쓰는 조작을 익히는 판.
   ///
-  /// 색이 하나면 큐의 모든 칸이 대상이라 교착이 없다 — 규칙을 익히는 판.
+  /// 색이 하나면 큐의 모든 칸이 대상이라 교착이 없다.
   static BloomLevel get tutorial => BloomLevel(
     name: '튜토리얼',
     columns: 3,
@@ -22,17 +22,16 @@ abstract final class HandmadeLevels {
         for (var col = 0; col < 3; col++) (col: col, row: row): BloomColor.red,
     },
     startPoints: const [(col: 1, row: 1)],
-    cans: const [
-      (color: BloomColor.red, count: 1),
-      (color: BloomColor.red, count: 4),
-      (color: BloomColor.red, count: 4),
+    lanes: const [
+      [(color: BloomColor.red, count: 1), (color: BloomColor.red, count: 4)],
+      [(color: BloomColor.red, count: 4)],
     ],
   );
 
   /// 2. 십자. 두 색이 처음 만나고, **파랑은 첫 수에 쓸 수 없다.**
   ///
-  /// 시작 지점이 빨강이라 큐에 파랑이 없다 — 색이 슬롯을 막는다는 것을
-  /// 가장 작은 판으로 보여준다 (PRD §3.5).
+  /// 시작 지점이 빨강이라 큐에 파랑이 없다 — 파랑을 일찍 꺼내면 주차돼
+  /// 슬롯을 막는다는 것을 가장 작은 판으로 보여준다.
   static BloomLevel get cross => BloomLevel(
     name: '십자',
     columns: 5,
@@ -51,14 +50,13 @@ abstract final class HandmadeLevels {
       (col: 4, row: 2): BloomColor.blue,
     },
     startPoints: const [(col: 2, row: 2)],
-    cans: const [
-      (color: BloomColor.red, count: 2),
-      (color: BloomColor.blue, count: 4),
-      (color: BloomColor.red, count: 3),
+    lanes: const [
+      [(color: BloomColor.red, count: 2), (color: BloomColor.blue, count: 4)],
+      [(color: BloomColor.red, count: 3)],
     ],
   );
 
-  /// 3. 좌우 분단. 큰 물뿌리개가 슬롯을 오래 막는 느낌을 보는 판.
+  /// 3. 좌우 분단. 묻힌 물뿌리개를 파내는 판 — 레인 앞을 써야 뒤가 나온다.
   static BloomLevel get split => BloomLevel(
     name: '분단',
     columns: 4,
@@ -69,15 +67,13 @@ abstract final class HandmadeLevels {
           (col: col, row: row): col < 2 ? BloomColor.red : BloomColor.blue,
     },
     startPoints: const [(col: 1, row: 1)],
-    cans: const [
-      (color: BloomColor.red, count: 3),
-      (color: BloomColor.blue, count: 2),
-      (color: BloomColor.red, count: 5),
-      (color: BloomColor.blue, count: 6),
+    lanes: const [
+      [(color: BloomColor.red, count: 3), (color: BloomColor.blue, count: 6)],
+      [(color: BloomColor.blue, count: 2), (color: BloomColor.red, count: 5)],
     ],
   );
 
-  /// 4. 꽃. 세 색 + 시작 지점 2개.
+  /// 4. 꽃. 세 색 + 시작 지점 2개 + 레인 3줄.
   static BloomLevel get flower => BloomLevel(
     name: '꽃',
     columns: 5,
@@ -103,12 +99,10 @@ abstract final class HandmadeLevels {
       (col: 2, row: 3): BloomColor.green,
     },
     startPoints: const [(col: 2, row: 1), (col: 2, row: 3)],
-    cans: const [
-      (color: BloomColor.red, count: 2),
-      (color: BloomColor.green, count: 3),
-      (color: BloomColor.yellow, count: 5),
-      (color: BloomColor.red, count: 2),
-      (color: BloomColor.yellow, count: 3),
+    lanes: const [
+      [(color: BloomColor.red, count: 2), (color: BloomColor.yellow, count: 5)],
+      [(color: BloomColor.green, count: 3), (color: BloomColor.red, count: 2)],
+      [(color: BloomColor.yellow, count: 3)],
     ],
   );
 }

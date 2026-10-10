@@ -30,13 +30,48 @@ void main() {
       expect(board.queue, [(col: 0, row: 0), (col: 2, row: 0)]);
     });
 
-    test('슬롯이 대기열 앞에서 채워지고 나머지는 대기한다', () {
+    test('활성화 슬롯은 비어서 시작하고 레인은 손대지 않은 상태다', () {
+      final board = BloomBoard(HandmadeLevels.cross);
+
+      expect(board.activeSlots, [null, null]);
+      expect(board.laneFront(0), (color: BloomColor.red, count: 2));
+      expect(board.laneFront(1), (color: BloomColor.red, count: 3));
+    });
+  });
+
+  group('레인 공개 범위', () {
+    test('앞에서 laneRevealCount개까지만 보인다', () {
+      final level = lineLevel(
+        name: '공개',
+        cells: const [
+          BloomColor.red,
+          BloomColor.red,
+          BloomColor.red,
+          BloomColor.red,
+        ],
+        lanes: const [
+          [
+            (color: BloomColor.red, count: 1),
+            (color: BloomColor.red, count: 1),
+            (color: BloomColor.red, count: 1),
+            (color: BloomColor.red, count: 1),
+          ],
+        ],
+      );
+      final board = BloomBoard(level);
+
+      expect(board.visibleLane(0), hasLength(2));
+      expect(board.hiddenLaneCount(0), 2);
+    });
+
+    test('꺼낼수록 가려진 것이 드러난다', () {
       final board = BloomBoard(
-        monoLevel(start: (col: 2, row: 2), canCounts: const [1, 2, 3, 19]),
+        monoLevel(start: (col: 2, row: 2), canCounts: const [25]),
       );
 
-      expect(board.slots.map((can) => can?.remaining), [1, 2, 3]);
-      expect(board.pendingCans, hasLength(1));
+      expect(board.hiddenLaneCount(0), 0);
+      board.takeFromLane(0);
+      expect(board.visibleLane(0), isEmpty);
     });
   });
 
@@ -46,7 +81,7 @@ void main() {
         monoLevel(start: (col: 2, row: 2), canCounts: const [1, 24]),
       );
 
-      final bloomed = board.useSlot(0);
+      final bloomed = board.takeFromLane(0);
 
       expect(bloomed, [(col: 2, row: 2)]);
       expect(board.queue, [
@@ -59,12 +94,12 @@ void main() {
 
     test('6번째 물이 하2다', () {
       // 기획 확인 사항 — 시작 지점이 발아이므로 물 1번이 거기 들어가고,
-      // 첫 고리가 물 2~5번, 다음 고리(하2)가 물 6번이다 (PRD §3.3).
+      // 첫 고리가 물 2~5번, 다음 고리(하2)가 물 6번이다.
       final board = BloomBoard(
         monoLevel(start: (col: 2, row: 2), canCounts: const [6, 19]),
       );
 
-      final bloomed = board.useSlot(0);
+      final bloomed = board.takeFromLane(0);
 
       expect(bloomed, [
         (col: 2, row: 2), // 1  시작 지점
@@ -81,7 +116,7 @@ void main() {
         monoLevel(start: (col: 2, row: 2), canCounts: const [25]),
       );
 
-      board.useSlot(0);
+      board.takeFromLane(0);
 
       expect(board.queue, isEmpty);
       expect(board.isWon, isTrue);
@@ -99,7 +134,7 @@ void main() {
         ),
       );
 
-      board.useSlot(0);
+      board.takeFromLane(0);
 
       expect(board.queue, [
         (col: 0, row: 1), // 하
@@ -108,83 +143,85 @@ void main() {
     });
   });
 
-  group('색 매칭', () {
-    test('큐에 같은 색이 없는 물뿌리개는 쓸 수 없다', () {
-      // 십자 레벨의 시작 지점은 빨강이라 파랑은 첫 수에 쓸 수 없다.
+  group('레인에서 꺼내기', () {
+    test('꺼낸 물뿌리개는 바로 재생되고 소진되면 슬롯이 빈다', () {
       final board = BloomBoard(HandmadeLevels.cross);
 
-      expect(board.slots[1]!.color, BloomColor.blue);
-      expect(board.canUseSlot(1), isFalse);
-      expect(board.useSlot(1), isEmpty);
-    });
-
-    test('색이 안 맞는 칸은 건너뛰고 뒤에 있는 같은 색을 집는다', () {
-      final board = BloomBoard(HandmadeLevels.cross);
-
-      board.useSlot(0); // 빨강 x2 — 중앙과 하를 피운다
-
-      // 큐 앞은 파랑인데 빨강 물뿌리개는 그 뒤의 빨강을 집는다.
-      expect(board.queue.first, (col: 1, row: 2));
-      expect(board.cellAt((col: 1, row: 2))!.color, BloomColor.blue);
-      expect(board.nextTargetFor(BloomColor.red), (col: 2, row: 1));
-      expect(board.nextTargetFor(BloomColor.blue), (col: 1, row: 2));
-    });
-
-    test('previewTargets는 그 색이 피울 칸을 큐 순서대로 낸다', () {
-      final board = BloomBoard(HandmadeLevels.cross);
-
-      board.useSlot(0);
-
-      expect(board.previewTargets(BloomColor.blue, 2), [
-        (col: 1, row: 2),
-        (col: 3, row: 2),
-      ]);
-    });
-  });
-
-  group('남은 횟수와 슬롯 (PRD §3.5)', () {
-    test('쓸 대상이 없어 멈추면 남은 횟수가 슬롯에 남는다', () {
-      final board = BloomBoard(TestLevels.stalls);
-
-      // 빨강 x3이지만 닿을 수 있는 빨강이 2칸뿐이라 1이 남는다.
-      final bloomed = board.useSlot(0);
+      final bloomed = board.takeFromLane(0); // 빨강 x2
 
       expect(bloomed, hasLength(2));
-      expect(board.slots[0], isNotNull);
-      expect(board.slots[0]!.remaining, 1);
+      expect(board.activeSlots, [null, null]); // 소진 → 즉시 비움
+      expect(board.laneFront(0), (color: BloomColor.blue, count: 4));
     });
 
-    test('소진될 때만 슬롯이 비고 대기열이 충원된다', () {
-      final board = BloomBoard(
-        monoLevel(start: (col: 2, row: 2), canCounts: const [1, 2, 3, 19]),
-      );
+    test('대상이 없는 색을 꺼내면 주차되고 레인은 전진한다', () {
+      // 교착 가능 레벨 — 파랑을 먼저 꺼내면 큐에 파랑이 없어 주차된다.
+      final board = BloomBoard(TestLevels.deadlockable);
 
-      expect(board.pendingCans, hasLength(1));
-      board.useSlot(0); // x1 소진
+      final bloomed = board.takeFromLane(0);
 
-      expect(board.slots[0]!.remaining, 19);
-      expect(board.pendingCans, isEmpty);
+      expect(bloomed, isEmpty);
+      expect(board.activeSlots[0]!.color, BloomColor.blue);
+      expect(board.activeSlots[0]!.remaining, 1);
+      expect(board.laneFront(0), isNull); // 레인은 전진했다
     });
 
-    test('대기열이 비면 소진된 슬롯은 빈 채로 남는다', () {
+    test('빈 활성화 슬롯이 없으면 레인에서 꺼낼 수 없다', () {
+      final board = BloomBoard(TestLevels.deadlockable); // 슬롯 1개
+
+      board.takeFromLane(0); // 파랑 주차 → 슬롯 참
+
+      expect(board.hasFreeActiveSlot, isFalse);
+      expect(board.canTakeFromLane(1), isFalse);
+      expect(board.takeFromLane(1), isEmpty);
+      expect(board.laneFront(1), isNotNull); // 레인이 움직이지 않았다
+    });
+
+    test('빈 레인에서는 꺼낼 수 없다', () {
       final board = BloomBoard(
         monoLevel(
           columns: 3,
           rows: 3,
           start: (col: 1, row: 1),
-          canCounts: const [1, 8],
+          canCounts: const [9],
         ),
       );
 
-      board.useSlot(0);
+      board.takeFromLane(0);
 
-      expect(board.slots[0], isNull);
-      expect(board.slots[1]!.remaining, 8);
-      expect(board.slots[2], isNull);
+      expect(board.canTakeFromLane(0), isFalse);
     });
   });
 
-  group('승리와 교착 (PRD §3.8)', () {
+  group('주차와 재개', () {
+    test('멈춘 물뿌리개는 남은 횟수를 든 채 주차되고 나중에 재개된다', () {
+      final board = BloomBoard(TestLevels.stalls);
+
+      // 빨강 x3 — 닿을 수 있는 빨강이 2칸뿐이라 x1을 든 채 주차된다.
+      expect(board.takeFromLane(0), hasLength(2));
+      expect(board.activeSlots[0]!.remaining, 1);
+      expect(board.canUseActive(0), isFalse);
+
+      // 파랑이 피면 세 번째 빨강이 깨어나고, 주차된 것을 재개할 수 있다.
+      expect(board.takeFromLane(1), hasLength(1));
+      expect(board.canUseActive(0), isTrue);
+      expect(board.useActive(0), hasLength(1));
+
+      expect(board.isWon, isTrue);
+      expect(board.activeSlots, [null, null]);
+    });
+
+    test('대상이 없는 주차 물뿌리개는 재개할 수 없다', () {
+      final board = BloomBoard(TestLevels.deadlockable);
+
+      board.takeFromLane(0); // 파랑 주차
+
+      expect(board.canUseActive(0), isFalse);
+      expect(board.useActive(0), isEmpty);
+    });
+  });
+
+  group('승리와 교착', () {
     test('모든 칸이 개화하면 승리고 교착이 아니다', () {
       final board = BloomBoard(
         monoLevel(
@@ -195,44 +232,76 @@ void main() {
         ),
       );
 
-      board.useSlot(0);
+      board.takeFromLane(0);
 
       expect(board.isWon, isTrue);
       expect(board.isDeadlocked, isFalse);
     });
 
-    test('쓸 수 있는 슬롯이 없으면 교착이다', () {
+    test('둘 수 있는 수가 없으면 교착이다', () {
       final board = BloomBoard(TestLevels.deadlockable);
 
-      // 빨강을 먼저 다 쓰면 파랑 칸에 닿지 못한 채 파랑만 남는다.
-      board.useSlot(0);
+      // 파랑을 먼저 꺼내면 슬롯 1개가 주차로 막힌다 —
+      // 재개 불가 + 빈 슬롯 없음 = 수가 없다.
+      board.takeFromLane(0);
 
       expect(board.isWon, isFalse);
+      expect(board.availableMoves, isEmpty);
       expect(board.isDeadlocked, isTrue);
+    });
+
+    test('빈 슬롯이 있고 레인이 남았으면 교착이 아니다 (파내기가 가능하다)', () {
+      final board = BloomBoard(TestLevels.unsolvable); // 희망은 없지만
+
+      expect(board.isDeadlocked, isFalse); // 첫 수는 둘 수 있다
+    });
+  });
+
+  group('availableMoves', () {
+    test('재개 가능한 슬롯과 꺼낼 수 있는 레인을 전부 나열한다', () {
+      final board = BloomBoard(TestLevels.stalls);
+      board.takeFromLane(0); // 빨강 주차(재개 불가), 슬롯 1개 빔
+
+      final moves = board.availableMoves;
+
+      // 주차된 빨강은 재개 불가 → 레인 둘 중 레인 1(파랑)만... 레인 0은 비었다.
+      expect(moves, [(fromLane: true, index: 1)]);
     });
   });
 
   group('되돌리기', () {
-    test('한 수를 되돌리면 칸·큐·슬롯이 모두 돌아온다', () {
+    test('한 수를 되돌리면 칸·큐·슬롯·레인이 모두 돌아온다', () {
       final board = BloomBoard(HandmadeLevels.cross);
       final queueBefore = board.queue;
-      final remainingBefore = board.slots[0]!.remaining;
 
-      board.useSlot(0);
+      board.takeFromLane(0);
       expect(board.canUndo, isTrue);
       expect(board.undo(), isTrue);
 
       expect(board.queue, queueBefore);
-      expect(board.slots[0]!.remaining, remainingBefore);
+      expect(board.laneFront(0), (color: BloomColor.red, count: 2));
+      expect(board.activeSlots, [null, null]);
       expect(board.cellAt((col: 2, row: 2))!.isSprout, isTrue);
       expect(board.wateredCount, 0);
+    });
+
+    test('주차도 한 수이고 되돌릴 수 있다', () {
+      final board = BloomBoard(TestLevels.deadlockable);
+
+      board.takeFromLane(0); // 주차 → 교착
+      expect(board.isDeadlocked, isTrue);
+
+      expect(board.undo(), isTrue);
+      expect(board.isDeadlocked, isFalse);
+      expect(board.laneFront(0), isNotNull);
+      expect(board.activeSlots, [null]);
     });
 
     test('끝까지 되돌릴 수 있고 더 되돌릴 것이 없으면 false다', () {
       final board = BloomBoard(HandmadeLevels.cross);
 
-      board.useSlot(0);
-      board.useSlot(1);
+      board.takeFromLane(0);
+      board.takeFromLane(1);
       while (board.undo()) {}
 
       expect(board.canUndo, isFalse);
@@ -243,12 +312,13 @@ void main() {
     test('재시작은 처음 상태로 돌린다', () {
       final board = BloomBoard(HandmadeLevels.cross);
 
-      board.useSlot(0);
+      board.takeFromLane(0);
       board.restart();
 
       expect(board.wateredCount, 0);
       expect(board.canUndo, isFalse);
       expect(board.queue, [(col: 2, row: 2)]);
+      expect(board.laneFront(0), (color: BloomColor.red, count: 2));
     });
   });
 }

@@ -17,10 +17,14 @@ typedef BloomStats = ({
   bool canUndo,
 });
 
-/// 만개 보드 게임.
+/// HUD가 눌러보고 있는 물뿌리개 (미리보기용). 레인 앞이든 주차된 것이든
+/// 색과 남은 횟수만 있으면 어디까지 피울지 계산할 수 있다.
+typedef PreviewCan = ({BloomColor color, int remaining});
+
+/// Garden Grow 보드 게임.
 ///
 /// 판정은 전부 [BloomBoard]에 위임하고, 여기서는 칸 컴포넌트를 모델 상태대로
-/// 다시 그리는 일만 한다 (PRD §10).
+/// 다시 그리는 일만 한다 (기획서 §38).
 class BloomGame extends FlameGame {
   BloomGame({required BloomLevel level})
     : board = BloomBoard(level),
@@ -41,11 +45,8 @@ class BloomGame extends FlameGame {
   /// 같은 값을 다시 넣으면 알림이 가지 않는다.
   late final ValueNotifier<BloomStats> stats = ValueNotifier(_currentStats());
 
-  /// HUD가 눌러보고 있는 **슬롯 번호**. 미리보기 번호에만 쓴다.
-  ///
-  /// 색이 아니라 슬롯이어야 한다 — 같은 색 물뿌리개가 여러 슬롯에 있으면
-  /// (튜토리얼은 셋 다 빨강) 색으로 묶으면 x1을 눌러도 9칸까지 번호가 붙는다.
-  int? previewSlot;
+  /// 눌러보고 있는 물뿌리개. null이면 번호를 띄우지 않는다.
+  PreviewCan? preview;
 
   final List<CellComponent> _cells = [];
 
@@ -66,14 +67,14 @@ class BloomGame extends FlameGame {
       _origin +
       Vector2((pos.col + 0.5) * kCellSize, (pos.row + 0.5) * kCellSize);
 
-  /// 슬롯 [index]를 쓴다. 개화한 칸들에 **순서대로 지연을 주어** 연쇄가
-  /// 흐르는 것처럼 보이게 한다.
-  void useSlot(int index) {
-    final bloomed = board.useSlot(index);
-    if (bloomed.isEmpty) {
-      return;
-    }
-    _sync(pulse: bloomed);
+  /// 레인 [lane]의 맨 앞을 꺼내 재생한다.
+  void takeFromLane(int lane) {
+    _animate(board.takeFromLane(lane));
+  }
+
+  /// 주차된 활성화 슬롯 [slot]을 재개한다.
+  void useActive(int slot) {
+    _animate(board.useActive(slot));
   }
 
   void undo() {
@@ -87,12 +88,17 @@ class BloomGame extends FlameGame {
     _sync();
   }
 
-  void setPreview(int? slotIndex) {
-    if (previewSlot == slotIndex) {
+  void setPreview(PreviewCan? can) {
+    if (preview == can) {
       return;
     }
-    previewSlot = slotIndex;
+    preview = can;
     _sync();
+  }
+
+  void _animate(List<CellPos> bloomed) {
+    // 주차만 되고 아무것도 안 폈어도 레인·슬롯 상태는 바뀌었다 — 항상 동기화.
+    _sync(pulse: bloomed);
   }
 
   /// 모델 상태대로 칸을 다시 만든다. 보드가 작아 전체 재생성이 충분하다.
@@ -105,13 +111,12 @@ class BloomGame extends FlameGame {
     // 번호는 "지금 누른 물뿌리개가 몇 번째로 피울 칸인가"다. 누른 것이 없으면
     // 번호를 아예 안 띄운다 — 전체 큐 순번은 색이 섞여 읽히지 않는다.
     //
-    // **그 슬롯의 남은 횟수만큼만** 번호를 붙인다. 그래서 x1을 누르면 1칸,
+    // **그 물뿌리개의 남은 횟수만큼만** 번호를 붙인다. 그래서 x1을 누르면 1칸,
     // x4를 누르면 4칸이 보이고 "이 한 수가 어디까지 가나"가 그대로 읽힌다.
     final order = <CellPos, int>{};
-    final slotIndex = previewSlot;
-    final can = slotIndex == null ? null : board.slots[slotIndex];
-    if (can != null) {
-      final targets = board.previewTargets(can.color, can.remaining);
+    final pressed = preview;
+    if (pressed != null) {
+      final targets = board.previewTargets(pressed.color, pressed.remaining);
       for (var index = 0; index < targets.length; index++) {
         order[targets[index]] = index + 1;
       }
