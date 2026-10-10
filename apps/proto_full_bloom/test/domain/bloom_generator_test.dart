@@ -138,4 +138,94 @@ void main() {
       expect(generated.level.colors.values.toSet(), hasLength(4));
     });
   });
+
+  group('그림 먼저 파이프라인', () {
+    test('drawPicture는 시드에 결정적이고 색 수를 지킨다', () {
+      final a = BloomGenerator.drawPicture(seed: 9, colorCount: 2);
+      final b = BloomGenerator.drawPicture(seed: 9, colorCount: 2);
+
+      expect(a.colors, b.colors);
+      expect(a.colors.values.toSet(), hasLength(2));
+    });
+
+    test('그림은 텍스트로 저장했다가 그대로 되살릴 수 있다', () {
+      // 프로그램이 그린 그림을 라이브러리에 넣는 길 — render → parse 왕복.
+      final drawn = BloomGenerator.drawPicture(seed: 13, colorCount: 3);
+      final art = BloomGenerator.renderPicture(drawn);
+      final parsed = BloomGenerator.parsePicture(art);
+
+      expect(parsed.columns, drawn.columns);
+      expect(parsed.rows, drawn.rows);
+      expect(parsed.colors, drawn.colors);
+    });
+
+    test('손으로 색까지 그린 그림이 그대로 레벨이 된다', () {
+      final picture = BloomGenerator.parsePicture('''
+.RR.
+RYYB
+.BB.''');
+      final generated = BloomGenerator.generateFromPicture(
+        seed: 1,
+        picture: picture,
+        laneCount: 2,
+      );
+
+      // 그림(색 배치)은 한 칸도 바뀌지 않는다.
+      expect(generated.level.colors, picture.colors);
+      expect(generated.level.colors[(col: 1, row: 1)], BloomColor.yellow);
+      expect(generated.report.solution, isNotNull);
+    });
+
+    test('소문자 색 문자도 받는다', () {
+      final picture = BloomGenerator.parsePicture('rby');
+
+      expect(picture.colors[(col: 0, row: 0)], BloomColor.red);
+      expect(picture.colors[(col: 2, row: 0)], BloomColor.yellow);
+    });
+
+    test('모르는 색 문자는 거부한다', () {
+      expect(() => BloomGenerator.parsePicture('RXB'), throwsArgumentError);
+    });
+
+    test('끊긴 색 그림은 거부한다', () {
+      expect(() => BloomGenerator.parsePicture('R.B'), throwsArgumentError);
+    });
+
+    test('같은 그림에 레인 시드만 바꾸면 미술은 같고 퍼즐만 달라진다', () {
+      // 무한 레벨의 핵심 — 그림 하나 × 레인 시드.
+      final picture = BloomGenerator.drawPicture(seed: 21, colorCount: 3);
+      final levels = [
+        for (var seed = 1; seed <= 5; seed++)
+          BloomGenerator.generateFromPicture(
+            seed: seed,
+            picture: picture,
+          ).level,
+      ];
+
+      for (final level in levels) {
+        expect(level.colors, picture.colors); // 미술 고정
+      }
+      // 다섯 시드의 (시작 지점, 레인) 조합이 전부 같을 확률은 사실상 0이다.
+      final variants = {
+        for (final level in levels) '${level.startPoints}|${level.lanes}': true,
+      };
+      expect(variants.length, greaterThan(1));
+    });
+
+    test('난이도 프리셋이 색 수와 슬롯 수를 정한다', () {
+      final easy = BloomGenerator.generateAtDifficulty(
+        seed: 4,
+        difficulty: BloomDifficulty.easy,
+      );
+      expect(easy.level.colors.values.toSet(), hasLength(2));
+      expect(easy.level.activeSlotCount, 4);
+
+      final hard = BloomGenerator.generateAtDifficulty(
+        seed: 4,
+        difficulty: BloomDifficulty.hard,
+      );
+      expect(hard.level.colors.values.toSet(), hasLength(4));
+      expect(hard.level.activeSlotCount, 3);
+    });
+  });
 }
