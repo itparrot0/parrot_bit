@@ -164,14 +164,8 @@ void main() {
     });
 
     test('숨김 위치가 레인 밖이면 거부한다', () {
-      expect(
-        () => buildLevel(hiddenCans: const {(5, 0)}),
-        throwsArgumentError,
-      );
-      expect(
-        () => buildLevel(hiddenCans: const {(0, 9)}),
-        throwsArgumentError,
-      );
+      expect(() => buildLevel(hiddenCans: const {(5, 0)}), throwsArgumentError);
+      expect(() => buildLevel(hiddenCans: const {(0, 9)}), throwsArgumentError);
     });
   });
 
