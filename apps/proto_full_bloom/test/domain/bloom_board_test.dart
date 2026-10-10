@@ -256,25 +256,40 @@ void main() {
     });
   });
 
-  group('주차와 재개', () {
-    test('멈춘 물뿌리개는 남은 횟수를 든 채 주차되고 나중에 재개된다', () {
+  group('주차와 자동 재개', () {
+    test('멈춘 물뿌리개는 남은 횟수를 든 채 주차된다', () {
       final board = BloomBoard(TestLevels.stalls);
 
       // 빨강 x3 — 닿을 수 있는 빨강이 2칸뿐이라 x1을 든 채 주차된다.
       expect(board.takeFromLane(0), hasLength(2));
       expect(board.activeSlots[0]!.remaining, 1);
       expect(board.canUseActive(0), isFalse);
+    });
 
-      // 파랑이 피면 세 번째 빨강이 깨어나고, 주차된 것을 재개할 수 있다.
-      expect(board.takeFromLane(1), hasLength(1));
-      expect(board.canUseActive(0), isTrue);
-      expect(board.useActive(0), hasLength(1));
+    test('개화로 주차가 쓸 수 있게 되면 같은 수 안에서 자동 재개된다', () {
+      final board = BloomBoard(TestLevels.stalls);
+      board.takeFromLane(0); // 빨강 x3 → 2칸 피우고 x1 주차
 
+      // 파랑 x1을 꺼내면: 파랑이 피고 → 세 번째 빨강이 깨어나고 →
+      // 주차된 빨강 x1이 즉시 자동 재개돼 그 자리에서 끝난다.
+      final bloomed = board.takeFromLane(1);
+
+      expect(bloomed, [(col: 2, row: 0), (col: 3, row: 0)]);
       expect(board.isWon, isTrue);
       expect(board.activeSlots, [null, null]);
     });
 
-    test('대상이 없는 주차 물뿌리개는 재개할 수 없다', () {
+    test('수가 끝나면 대상이 있는 주차는 남지 않는다', () {
+      final board = BloomBoard(TestLevels.stalls);
+
+      board.takeFromLane(0);
+
+      for (var slot = 0; slot < board.activeSlots.length; slot++) {
+        expect(board.canUseActive(slot), isFalse);
+      }
+    });
+
+    test('대상이 없는 주차 물뿌리개는 재개되지 않는다', () {
       final board = BloomBoard(TestLevels.deadlockable);
 
       board.takeFromLane(0); // 파랑 주차

@@ -52,6 +52,8 @@ final class _BoardSnapshot {
 /// - 재생 중에는 FIFO — 안쪽 고리에서 바깥 고리로 번진다.
 /// - **물뿌리개가 멈추면(고착) 큐를 바깥 고리 우선으로 재정렬한다**
 ///   ([_settleFrontier]) — 다음 수는 꽃무리 가장자리에서 이어진다.
+/// - **개화로 주차가 쓸 수 있게 되면 즉시 자동 재개한다** (슬롯 번호 순,
+///   연쇄). 수가 끝나면 대상 있는 주차는 남지 않는다.
 class BloomBoard {
   BloomBoard(this.level) {
     _reset();
@@ -234,6 +236,10 @@ class BloomBoard {
   }
 
   /// 주차된 활성화 슬롯 [slot]의 물뿌리개를 재개한다.
+  ///
+  /// 자동 재개(아래 [_play]) 때문에 **수가 끝난 상태에서는 쓸 수 있는 주차가
+  /// 남지 않는다** — 평소에는 닿지 않는 수다. 자동 재개를 끄는 변형을 대비해
+  /// 남겨둔다.
   List<CellPos> useActive(int slot) {
     if (!canUseActive(slot)) {
       return const [];
@@ -260,13 +266,39 @@ class BloomBoard {
 
   // ── 내부 ──────────────────────────────────────────────────────────────
 
-  /// 슬롯 [slot]의 물뿌리개를 쓸 수 있는 동안 계속 쓴다.
+  /// 슬롯 [slot]의 물뿌리개를 재생하고, 그로 인해 **주차돼 있던 물뿌리개가
+  /// 쓸 수 있게 되면 즉시 자동 재개**한다 (2026-10-11 확정).
+  ///
+  /// 자동 재개는 슬롯 번호 순서로, 더 이상 쓸 수 있는 주차가 없을 때까지
+  /// 연쇄한다. 그래서 **수가 끝난 뒤에는 "대상이 있는 주차"가 존재하지
+  /// 않는다** — 주차는 전부 막힌 것들이고, 플레이어의 결정은 레인에서
+  /// 무엇을 꺼내는가 하나로 모인다.
+  List<CellPos> _play(int slot) {
+    final bloomed = <CellPos>[];
+    _playOne(slot, bloomed);
+
+    // 자동 재개 — 하나가 풀리면 그 개화가 또 다른 주차를 풀 수 있으므로
+    // 매번 슬롯 0부터 다시 훑는다. 물 총량이 칸 수로 유한해 반드시 끝난다.
+    var resumed = true;
+    while (resumed) {
+      resumed = false;
+      for (var index = 0; index < _active.length; index++) {
+        if (canUseActive(index)) {
+          _playOne(index, bloomed);
+          resumed = true;
+          break;
+        }
+      }
+    }
+    return bloomed;
+  }
+
+  /// 슬롯 [slot]의 물뿌리개 하나를 쓸 수 있는 동안 계속 쓴다.
   ///
   /// 남은 횟수가 0이 되면 슬롯을 비우고, 대상이 없어 멈추면 **남은 횟수를
-  /// 든 채 주차**시킨다 — 버려지는 물은 없다.
-  List<CellPos> _play(int slot) {
+  /// 든 채 주차**시킨다 — 버려지는 물은 없다. 멈추면 큐를 재정렬한다.
+  void _playOne(int slot, List<CellPos> bloomed) {
     final can = _active[slot]!;
-    final bloomed = <CellPos>[];
     while (!can.isEmpty) {
       final target = nextTargetFor(can.color);
       if (target == null) {
@@ -281,7 +313,6 @@ class BloomBoard {
       _active[slot] = null;
     }
     _settleFrontier();
-    return bloomed;
   }
 
   /// 물뿌리개가 멈출 때(고착)마다 큐를 **바깥 고리 우선**으로 재정렬한다.
