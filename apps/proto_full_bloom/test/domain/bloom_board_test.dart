@@ -33,7 +33,7 @@ void main() {
     test('활성화 슬롯은 비어서 시작하고 레인은 손대지 않은 상태다', () {
       final board = BloomBoard(HandmadeLevels.cross);
 
-      expect(board.activeSlots, [null, null]);
+      expect(board.activeSlots, List.filled(board.level.activeSlotCount, null));
       expect(board.laneFront(0), (color: BloomColor.red, count: 2));
       expect(board.laneFront(1), (color: BloomColor.red, count: 3));
     });
@@ -244,7 +244,10 @@ void main() {
       final bloomed = board.takeFromLane(0); // 빨강 x2
 
       expect(bloomed, hasLength(2));
-      expect(board.activeSlots, [null, null]); // 소진 → 즉시 비움
+      expect(
+        board.activeSlots,
+        List.filled(board.level.activeSlotCount, null),
+      ); // 소진 → 즉시 비움
       expect(board.laneFront(0), (color: BloomColor.blue, count: 4));
     });
 
@@ -307,7 +310,7 @@ void main() {
 
       expect(bloomed, [(col: 2, row: 0), (col: 3, row: 0)]);
       expect(board.isWon, isTrue);
-      expect(board.activeSlots, [null, null]);
+      expect(board.activeSlots, List.filled(board.level.activeSlotCount, null));
     });
 
     test('수가 끝나면 대상이 있는 주차는 남지 않는다', () {
@@ -389,7 +392,7 @@ void main() {
 
       expect(board.queue, queueBefore);
       expect(board.laneFront(0), (color: BloomColor.red, count: 2));
-      expect(board.activeSlots, [null, null]);
+      expect(board.activeSlots, List.filled(board.level.activeSlotCount, null));
       expect(board.cellAt((col: 2, row: 2))!.isSprout, isTrue);
       expect(board.wateredCount, 0);
     });

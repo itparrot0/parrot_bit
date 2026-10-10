@@ -35,22 +35,52 @@ void main() {
       expect(board.isWon, isTrue);
     });
 
-    test('요청한 파라미터대로 만든다', () {
+    test('그림 실루엣대로 칸을 만들고 빈칸은 비워둔다', () {
       final generated = BloomGenerator.generate(
         seed: 3,
-        columns: 4,
-        rows: 4,
+        shape: '''
+.##.
+####
+.##.''',
         colorCount: 2,
         laneCount: 2,
       );
       final level = generated.level;
 
       expect(level.columns, 4);
-      expect(level.rows, 4);
-      expect(level.cellCount, 16); // 빈칸 없는 꽉 찬 직사각형
-      expect(level.colors.values.toSet(), hasLength(2));
+      expect(level.rows, 3);
+      expect(level.cellCount, 8); // # 개수
+      expect(level.colors.containsKey((col: 0, row: 0)), isFalse); // 빈칸
+      expect(level.colors.containsKey((col: 1, row: 0)), isTrue);
       expect(level.lanes, hasLength(2));
-      expect(level.startPoints, hasLength(1));
+      expect(level.activeSlotCount, 4); // 기본값
+    });
+
+    test('내장 그림은 전부 4방향으로 연결돼 생성에 쓸 수 있다', () {
+      for (var index = 0; index < BloomGenerator.shapes.length; index++) {
+        // 연결이 끊긴 그림이면 색칠 단계에서 ArgumentError가 난다.
+        expect(
+          () => BloomGenerator.generate(
+            seed: 100 + index,
+            shape: BloomGenerator.shapes[index],
+          ),
+          returnsNormally,
+          reason: 'shape $index',
+        );
+      }
+    });
+
+    test('연결이 끊긴 그림은 거부한다', () {
+      expect(
+        () => BloomGenerator.generate(
+          seed: 1,
+          shape: '''
+##..
+....
+..##''',
+        ),
+        throwsArgumentError,
+      );
     });
 
     test('모든 색이 보드에 실제로 쓰인다', () {

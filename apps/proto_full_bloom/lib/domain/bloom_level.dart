@@ -14,7 +14,7 @@ final class BloomLevel {
     required this.colors,
     required this.startPoints,
     required this.lanes,
-    this.activeSlotCount = 2,
+    this.activeSlotCount = 4,
     this.hiddenCans = const {},
   }) {
     _validate();

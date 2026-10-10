@@ -60,9 +60,9 @@ void main() {
     await tester.tap(find.text('랜덤'));
     await tester.pump(const Duration(milliseconds: 32));
 
-    // 기본 파라미터는 5x6 꽉 찬 보드 = 30칸.
+    // 그림(실루엣)마다 칸 수가 달라 개수는 고정이 아니다.
     expect(find.textContaining('랜덤 #'), findsOneWidget);
-    expect(find.text('0 / 30칸'), findsOneWidget);
+    expect(find.textContaining('0 / '), findsOneWidget);
   });
 
   testWidgets('레벨을 바꾸면 그 레벨의 레인이 보인다', (tester) async {
