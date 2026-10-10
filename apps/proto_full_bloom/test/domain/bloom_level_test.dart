@@ -10,7 +10,7 @@ BloomLevel buildLevel({
   int columns = 2,
   int rows = 1,
   int activeSlotCount = 2,
-  int laneRevealCount = 2,
+  Set<(int, int)> hiddenCans = const {},
 }) => BloomLevel(
   name: '검증용',
   columns: columns,
@@ -28,7 +28,7 @@ BloomLevel buildLevel({
         [(color: BloomColor.red, count: 2)],
       ],
   activeSlotCount: activeSlotCount,
-  laneRevealCount: laneRevealCount,
+  hiddenCans: hiddenCans,
 );
 
 void main() {
@@ -163,8 +163,15 @@ void main() {
       expect(() => buildLevel(activeSlotCount: 0), throwsArgumentError);
     });
 
-    test('레인 공개 수가 0 이하면 거부한다', () {
-      expect(() => buildLevel(laneRevealCount: 0), throwsArgumentError);
+    test('숨김 위치가 레인 밖이면 거부한다', () {
+      expect(
+        () => buildLevel(hiddenCans: const {(5, 0)}),
+        throwsArgumentError,
+      );
+      expect(
+        () => buildLevel(hiddenCans: const {(0, 9)}),
+        throwsArgumentError,
+      );
     });
   });
 

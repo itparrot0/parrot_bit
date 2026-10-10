@@ -15,7 +15,7 @@ final class BloomLevel {
     required this.startPoints,
     required this.lanes,
     this.activeSlotCount = 2,
-    this.laneRevealCount = 2,
+    this.hiddenCans = const {},
   }) {
     _validate();
   }
@@ -37,8 +37,12 @@ final class BloomLevel {
   /// 활성화 슬롯 수. 꺼낸 물뿌리개는 소진될 때까지 여기 주차된다.
   final int activeSlotCount;
 
-  /// 레인마다 앞에서 몇 개까지 보여주는가. 난이도 다이얼이다.
-  final int laneRevealCount;
+  /// 숨김 물뿌리개의 위치들 — (레인 번호, 레인 안 인덱스).
+  ///
+  /// **기본은 전부 공개다** (모든 레인의 색·개수가 보인다). 여기 적힌 것만
+  /// **레인 맨 앞에 올 때까지** 가려진다 — 난이도 요소이고, 나중에 "맨 앞에
+  /// 올 때 드러나는" 다른 요소들도 이 자리에 같은 방식으로 붙는다.
+  final Set<(int, int)> hiddenCans;
 
   int get cellCount => colors.length;
 
@@ -95,15 +99,17 @@ final class BloomLevel {
         '1 이상이어야 한다',
       );
     }
-    if (laneRevealCount < 1) {
-      throw ArgumentError.value(
-        laneRevealCount,
-        'laneRevealCount',
-        '1 이상이어야 한다',
-      );
-    }
     if (lanes.isEmpty || lanes.any((lane) => lane.isEmpty)) {
       throw ArgumentError('빈 레인이 있다 ($name) — 레인은 최소 1개의 물뿌리개를 갖는다');
+    }
+
+    for (final (lane, index) in hiddenCans) {
+      if (lane < 0 ||
+          lane >= lanes.length ||
+          index < 0 ||
+          index >= lanes[lane].length) {
+        throw ArgumentError('숨김 위치가 레인 밖이다: ($lane, $index) ($name)');
+      }
     }
 
     final cells = cellCountByColor;

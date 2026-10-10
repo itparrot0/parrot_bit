@@ -222,8 +222,8 @@ class _CanTray extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
-          // 레인은 세로 기둥이다 — 맨 앞이 위, 공개분이 그 아래,
-          // 그 밑은 색이 보이지 않는 덮개(+N)뿐이다.
+          // 레인은 세로 기둥이다 — 맨 앞이 위. 기본은 전부 공개이고,
+          // 숨김 표시된 물뿌리개만 맨 앞에 올 때까지 가려진다.
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -231,8 +231,7 @@ class _CanTray extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(right: AppSpacing.sm),
                   child: _LaneColumn(
-                    visible: board.visibleLane(lane),
-                    hiddenCount: board.hiddenLaneCount(lane),
+                    views: board.laneView(lane),
                     canTake: board.canTakeFromLane(lane),
                     onTake: () => game.takeFromLane(lane),
                     onPreview: (pressed) {
@@ -327,19 +326,19 @@ class _ActiveSlotChip extends StatelessWidget {
   }
 }
 
-/// 레인 한 기둥 — 맨 앞(맨 위)만 꺼낼 수 있고, 아래로 공개 범위까지만
-/// 색이 보인다. 그 밑은 **색이 드러나지 않는 덮개**로 개수만 알려준다.
+/// 레인 한 기둥 — 맨 앞(맨 위)만 꺼낼 수 있다.
+///
+/// 기본은 전부 공개(색·개수)이고, 숨김 표시된 물뿌리개만 맨 앞에 올 때까지
+/// `?` 덮개로 가려진다.
 class _LaneColumn extends StatelessWidget {
   const _LaneColumn({
-    required this.visible,
-    required this.hiddenCount,
+    required this.views,
     required this.canTake,
     required this.onTake,
     required this.onPreview,
   });
 
-  final List<CanSpec> visible;
-  final int hiddenCount;
+  final List<LaneCanView> views;
   final bool canTake;
   final VoidCallback onTake;
   final ValueChanged<bool> onPreview;
@@ -348,7 +347,7 @@ class _LaneColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (visible.isEmpty) {
+    if (views.isEmpty) {
       // 빈 레인 — 자리만 남긴다.
       return Container(
         width: _width,
@@ -361,13 +360,13 @@ class _LaneColumn extends StatelessWidget {
       );
     }
 
-    final front = visible.first;
+    final front = views.first.spec;
     final frontColor = BloomPalette.of(front.color);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // 맨 앞 — 꺼낼 수 있는 유일한 자리.
+        // 맨 앞 — 꺼낼 수 있는 유일한 자리. 맨 앞에 오면 항상 공개된다.
         GestureDetector(
           onTapDown: (_) => onPreview(true),
           onTapCancel: () => onPreview(false),
@@ -399,43 +398,48 @@ class _LaneColumn extends StatelessWidget {
             ),
           ),
         ),
-        // 공개된 아랫줄 — 보이기만 하고 꺼낼 수 없다.
-        for (final spec in visible.skip(1))
-          Container(
-            margin: const EdgeInsets.only(top: 4),
-            width: _width,
-            height: 30,
-            decoration: BoxDecoration(
-              color: BloomPalette.of(spec.color).withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              '×${spec.count}',
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                color: Colors.white70,
-              ),
-            ),
-          ),
-        // 가려진 아래쪽 — 색을 드러내지 않는다.
-        if (hiddenCount > 0)
-          Container(
-            margin: const EdgeInsets.only(top: 4),
-            width: _width,
-            height: 22,
-            decoration: BoxDecoration(
-              color: BloomPalette.tile,
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: Colors.white12),
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              '+$hiddenCount',
-              style: const TextStyle(fontSize: 11, color: Colors.white38),
-            ),
-          ),
+        // 아랫줄 — 공개면 색·개수를, 숨김이면 ? 덮개를 그린다.
+        for (final view in views.skip(1))
+          view.revealed
+              ? Container(
+                  margin: const EdgeInsets.only(top: 4),
+                  width: _width,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: BloomPalette.of(
+                      view.spec.color,
+                    ).withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    '×${view.spec.count}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white70,
+                    ),
+                  ),
+                )
+              : Container(
+                  margin: const EdgeInsets.only(top: 4),
+                  width: _width,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: BloomPalette.tile,
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: Colors.white12),
+                  ),
+                  alignment: Alignment.center,
+                  child: const Text(
+                    '?',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white38,
+                    ),
+                  ),
+                ),
       ],
     );
   }

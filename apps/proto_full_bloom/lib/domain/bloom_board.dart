@@ -11,6 +11,10 @@ import 'watering_can.dart';
 /// 물뿌리개를 재개한다.
 typedef BloomMove = ({bool fromLane, int index});
 
+/// 레인 속 물뿌리개 하나의 겉모습. [revealed]가 false면 HUD는 색·개수를
+/// 그리지 않는다 — 숨김은 표현의 문제라 솔버·규칙에는 영향이 없다.
+typedef LaneCanView = ({CanSpec spec, bool revealed});
+
 /// 되돌리기용 상태 사본.
 final class _BoardSnapshot {
   _BoardSnapshot({
@@ -124,14 +128,21 @@ class BloomBoard {
     return index < remaining.length ? remaining[index] : null;
   }
 
-  /// 레인 [lane]에서 **보이는** 앞부분 (laneRevealCount개까지).
-  List<CanSpec> visibleLane(int lane) =>
-      remainingLane(lane).take(level.laneRevealCount).toList();
-
-  /// 레인 [lane]에서 가려진 물뿌리개 수.
-  int hiddenLaneCount(int lane) {
-    final hidden = remainingLane(lane).length - level.laneRevealCount;
-    return hidden > 0 ? hidden : 0;
+  /// 레인 [lane]에 남은 물뿌리개들의 겉모습 (앞이 다음 차례).
+  ///
+  /// 기본은 전부 공개다. [BloomLevel.hiddenCans]에 적힌 것만 가려지며,
+  /// **레인 맨 앞에 오는 순간 공개된다.**
+  List<LaneCanView> laneView(int lane) {
+    final specs = level.lanes[lane];
+    final frontIndex = _laneIndices[lane];
+    return [
+      for (var index = frontIndex; index < specs.length; index++)
+        (
+          spec: specs[index],
+          revealed:
+              index == frontIndex || !level.hiddenCans.contains((lane, index)),
+        ),
+    ];
   }
 
   bool get hasFreeActiveSlot => _active.contains(null);

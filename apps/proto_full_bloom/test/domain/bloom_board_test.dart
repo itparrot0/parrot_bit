@@ -39,39 +39,70 @@ void main() {
     });
   });
 
-  group('레인 공개 범위', () {
-    test('앞에서 laneRevealCount개까지만 보인다', () {
-      final level = lineLevel(
-        name: '공개',
-        cells: const [
-          BloomColor.red,
-          BloomColor.red,
-          BloomColor.red,
-          BloomColor.red,
-        ],
+  group('레인 공개', () {
+    test('기본값은 모든 물뿌리개의 색과 개수가 공개된다', () {
+      final board = BloomBoard(
+        lineLevel(
+          name: '공개',
+          cells: const [
+            BloomColor.red,
+            BloomColor.red,
+            BloomColor.red,
+            BloomColor.red,
+          ],
+          lanes: const [
+            [
+              (color: BloomColor.red, count: 1),
+              (color: BloomColor.red, count: 1),
+              (color: BloomColor.red, count: 1),
+              (color: BloomColor.red, count: 1),
+            ],
+          ],
+        ),
+      );
+
+      expect(board.laneView(0), hasLength(4));
+      expect(board.laneView(0).every((view) => view.revealed), isTrue);
+    });
+
+    test('숨김 표시된 물뿌리개는 맨 앞에 올 때까지 가려진다', () {
+      final level = BloomLevel(
+        name: '숨김',
+        columns: 4,
+        rows: 1,
+        colors: const {
+          (col: 0, row: 0): BloomColor.red,
+          (col: 1, row: 0): BloomColor.red,
+          (col: 2, row: 0): BloomColor.red,
+          (col: 3, row: 0): BloomColor.red,
+        },
+        startPoints: const [(col: 0, row: 0)],
         lanes: const [
           [
             (color: BloomColor.red, count: 1),
-            (color: BloomColor.red, count: 1),
-            (color: BloomColor.red, count: 1),
-            (color: BloomColor.red, count: 1),
+            (color: BloomColor.red, count: 3),
           ],
         ],
+        hiddenCans: const {(0, 1)},
       );
       final board = BloomBoard(level);
 
-      expect(board.visibleLane(0), hasLength(2));
-      expect(board.hiddenLaneCount(0), 2);
+      expect(board.laneView(0)[0].revealed, isTrue);
+      expect(board.laneView(0)[1].revealed, isFalse);
+
+      // 앞을 꺼내면 숨김이던 것이 맨 앞으로 와 공개된다.
+      board.takeFromLane(0);
+      expect(board.laneView(0).single.revealed, isTrue);
     });
 
-    test('꺼낼수록 가려진 것이 드러난다', () {
+    test('꺼낼수록 레인이 줄어든다', () {
       final board = BloomBoard(
         monoLevel(start: (col: 2, row: 2), canCounts: const [25]),
       );
 
-      expect(board.hiddenLaneCount(0), 0);
+      expect(board.laneView(0), hasLength(1));
       board.takeFromLane(0);
-      expect(board.visibleLane(0), isEmpty);
+      expect(board.laneView(0), isEmpty);
     });
   });
 
