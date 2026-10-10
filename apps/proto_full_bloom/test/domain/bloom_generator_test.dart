@@ -83,6 +83,55 @@ void main() {
       );
     });
 
+    test('물뿌리개 횟수가 지정한 범위 안에서 나온다', () {
+      // 5x5 단색 25칸을 3..6으로 쪼갠다 — 모든 조각이 범위 안이고 합이 25다.
+      final generated = BloomGenerator.generate(
+        seed: 5,
+        shape: '''
+#####
+#####
+#####
+#####
+#####''',
+        colorCount: 1,
+        minCanSize: 3,
+        maxCanSize: 6,
+      );
+      final cans = generated.level.allCans.toList();
+
+      expect(cans.fold(0, (sum, can) => sum + can.count), 25);
+      for (final can in cans) {
+        expect(can.count, inInclusiveRange(3, 6));
+      }
+    });
+
+    test('색의 총량이 최소 크기보다 작으면 그 색만 한 조각으로 담는다', () {
+      // 1x3 줄에서 색 2개면 한 색은 1~2칸뿐 — min 3을 지킬 수 없어도
+      // 정확 일치가 우선이라 전부 한 조각으로 나온다.
+      final generated = BloomGenerator.generate(
+        seed: 2,
+        shape: '###',
+        colorCount: 2,
+        laneCount: 2,
+        minCanSize: 3,
+        maxCanSize: 6,
+      );
+
+      final totals = generated.level.waterCountByColor;
+      expect(totals, generated.level.cellCountByColor); // 정확 일치 유지
+    });
+
+    test('잘못된 횟수 범위는 거부한다', () {
+      expect(
+        () => BloomGenerator.generate(seed: 1, minCanSize: 0),
+        throwsArgumentError,
+      );
+      expect(
+        () => BloomGenerator.generate(seed: 1, minCanSize: 5, maxCanSize: 4),
+        throwsArgumentError,
+      );
+    });
+
     test('모든 색이 보드에 실제로 쓰인다', () {
       final generated = BloomGenerator.generate(seed: 11, colorCount: 4);
 

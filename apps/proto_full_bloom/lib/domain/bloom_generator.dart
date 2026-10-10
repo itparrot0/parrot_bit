@@ -80,8 +80,15 @@ abstract final class BloomGenerator {
     int colorCount = 3,
     int laneCount = 3,
     int activeSlotCount = 4,
+
+    /// 물뿌리개 횟수 범위. 크게 잡을수록 덩어리가 커져 주차가 길어진다 —
+    /// 난이도 다이얼이다. 레벨 데이터 자체에는 제한이 없다.
+    int minCanSize = 1,
     int maxCanSize = 4,
   }) {
+    if (minCanSize < 1 || minCanSize > maxCanSize) {
+      throw ArgumentError('물뿌리개 횟수 범위가 잘못됐다: $minCanSize..$maxCanSize');
+    }
     final random = Random(seed);
     final mask = _parseShape(shape ?? shapes[random.nextInt(shapes.length)]);
 
@@ -91,7 +98,7 @@ abstract final class BloomGenerator {
 
       for (var laneTry = 0; laneTry < _laneAttemptsPerColoring; laneTry++) {
         final lanes = _dealLanes(
-          _splitCans(random, colors, maxCanSize),
+          _splitCans(random, colors, minCanSize, maxCanSize),
           laneCount,
         );
         final level = BloomLevel(
@@ -192,10 +199,17 @@ abstract final class BloomGenerator {
     return colors;
   }
 
-  /// 색깔별 칸 수를 세어 물뿌리개 횟수로 쪼갠다 — 정확 일치의 역산.
+  /// 색깔별 칸 수를 세어 [minCanSize]..[maxCanSize] 조각으로 쪼갠다 —
+  /// 정확 일치의 역산.
+  ///
+  /// 매 조각은 **남은 양도 범위를 지킬 수 있는 크기만** 고른다 (예: min 3에
+  /// 남은 7 → 4를 집으면 나머지 3 ✓, 5를 집으면 나머지 2 ✗). 색의 총량이
+  /// min보다 작아 범위를 지킬 수 없으면 그 색만 전부 한 조각으로 담는다 —
+  /// 정확 일치가 범위보다 우선이다.
   static List<CanSpec> _splitCans(
     Random random,
     Map<CellPos, BloomColor> colors,
+    int minCanSize,
     int maxCanSize,
   ) {
     final counts = <BloomColor, int>{};
@@ -207,7 +221,11 @@ abstract final class BloomGenerator {
     counts.forEach((color, total) {
       var left = total;
       while (left > 0) {
-        final size = 1 + random.nextInt(min(maxCanSize, left));
+        final sizes = [
+          for (var size = minCanSize; size <= min(maxCanSize, left); size++)
+            if (left - size == 0 || left - size >= minCanSize) size,
+        ];
+        final size = sizes.isEmpty ? left : sizes[random.nextInt(sizes.length)];
         cans.add((color: color, count: size));
         left -= size;
       }
