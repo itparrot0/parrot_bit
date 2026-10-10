@@ -222,24 +222,31 @@ class _CanTray extends StatelessWidget {
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
-          for (var lane = 0; lane < board.laneCount; lane++)
-            Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-              child: _LaneRow(
-                visible: board.visibleLane(lane),
-                hiddenCount: board.hiddenLaneCount(lane),
-                canTake: board.canTakeFromLane(lane),
-                onTake: () => game.takeFromLane(lane),
-                onPreview: (pressed) {
-                  final front = board.laneFront(lane);
-                  game.setPreview(
-                    pressed && front != null
-                        ? (color: front.color, remaining: front.count)
-                        : null,
-                  );
-                },
-              ),
-            ),
+          // 레인은 세로 기둥이다 — 맨 앞이 위, 공개분이 그 아래,
+          // 그 밑은 색이 보이지 않는 덮개(+N)뿐이다.
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              for (var lane = 0; lane < board.laneCount; lane++)
+                Padding(
+                  padding: const EdgeInsets.only(right: AppSpacing.sm),
+                  child: _LaneColumn(
+                    visible: board.visibleLane(lane),
+                    hiddenCount: board.hiddenLaneCount(lane),
+                    canTake: board.canTakeFromLane(lane),
+                    onTake: () => game.takeFromLane(lane),
+                    onPreview: (pressed) {
+                      final front = board.laneFront(lane);
+                      game.setPreview(
+                        pressed && front != null
+                            ? (color: front.color, remaining: front.count)
+                            : null,
+                      );
+                    },
+                  ),
+                ),
+            ],
+          ),
         ],
       ),
     );
@@ -320,9 +327,10 @@ class _ActiveSlotChip extends StatelessWidget {
   }
 }
 
-/// 레인 한 줄 — 맨 앞만 꺼낼 수 있고, 뒤는 공개 범위까지만 보인다.
-class _LaneRow extends StatelessWidget {
-  const _LaneRow({
+/// 레인 한 기둥 — 맨 앞(맨 위)만 꺼낼 수 있고, 아래로 공개 범위까지만
+/// 색이 보인다. 그 밑은 **색이 드러나지 않는 덮개**로 개수만 알려준다.
+class _LaneColumn extends StatelessWidget {
+  const _LaneColumn({
     required this.visible,
     required this.hiddenCount,
     required this.canTake,
@@ -336,17 +344,19 @@ class _LaneRow extends StatelessWidget {
   final VoidCallback onTake;
   final ValueChanged<bool> onPreview;
 
+  static const double _width = 60;
+
   @override
   Widget build(BuildContext context) {
     if (visible.isEmpty) {
-      return const SizedBox(
-        height: 40,
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-            '레인 비어 있음',
-            style: TextStyle(fontSize: 11, color: Colors.white24),
-          ),
+      // 빈 레인 — 자리만 남긴다.
+      return Container(
+        width: _width,
+        height: 44,
+        decoration: BoxDecoration(
+          color: BloomPalette.tile.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(AppRadius.sm),
+          border: Border.all(color: Colors.white12),
         ),
       );
     }
@@ -354,7 +364,8 @@ class _LaneRow extends StatelessWidget {
     final front = visible.first;
     final frontColor = BloomPalette.of(front.color);
 
-    return Row(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         // 맨 앞 — 꺼낼 수 있는 유일한 자리.
         GestureDetector(
@@ -367,8 +378,8 @@ class _LaneRow extends StatelessWidget {
             }
           },
           child: Container(
-            width: 64,
-            height: 40,
+            width: _width,
+            height: 44,
             decoration: BoxDecoration(
               color: frontColor.withValues(alpha: canTake ? 0.9 : 0.35),
               borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -388,13 +399,12 @@ class _LaneRow extends StatelessWidget {
             ),
           ),
         ),
-        const SizedBox(width: AppSpacing.xs),
-        // 공개된 뒷줄 — 보이기만 하고 꺼낼 수 없다.
+        // 공개된 아랫줄 — 보이기만 하고 꺼낼 수 없다.
         for (final spec in visible.skip(1))
           Container(
-            margin: const EdgeInsets.only(right: 4),
-            width: 44,
-            height: 32,
+            margin: const EdgeInsets.only(top: 4),
+            width: _width,
+            height: 30,
             decoration: BoxDecoration(
               color: BloomPalette.of(spec.color).withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(6),
@@ -409,10 +419,22 @@ class _LaneRow extends StatelessWidget {
               ),
             ),
           ),
+        // 가려진 아래쪽 — 색을 드러내지 않는다.
         if (hiddenCount > 0)
-          Text(
-            '+$hiddenCount',
-            style: const TextStyle(fontSize: 12, color: Colors.white38),
+          Container(
+            margin: const EdgeInsets.only(top: 4),
+            width: _width,
+            height: 22,
+            decoration: BoxDecoration(
+              color: BloomPalette.tile,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: Colors.white12),
+            ),
+            alignment: Alignment.center,
+            child: Text(
+              '+$hiddenCount',
+              style: const TextStyle(fontSize: 11, color: Colors.white38),
+            ),
           ),
       ],
     );
