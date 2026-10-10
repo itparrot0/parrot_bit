@@ -6,14 +6,14 @@ import 'test_levels.dart';
 
 void main() {
   group('초기 상태', () {
-    test('시작 지점만 꽃송이이고 나머지는 씨앗이다', () {
+    test('시작 지점만 발아이고 나머지는 씨앗이다', () {
       final board = BloomBoard(
         monoLevel(start: (col: 2, row: 2), canCounts: const [25]),
       );
 
-      expect(board.cellAt((col: 2, row: 2))!.isBud, isTrue);
+      expect(board.cellAt((col: 2, row: 2))!.isSprout, isTrue);
       expect(board.cellAt((col: 0, row: 0))!.isSeed, isTrue);
-      expect(board.cells.values.where((cell) => cell.isBud), hasLength(1));
+      expect(board.cells.values.where((cell) => cell.isSprout), hasLength(1));
     });
 
     test('큐의 초기 내용은 시작 지점이다', () {
@@ -58,7 +58,7 @@ void main() {
     });
 
     test('6번째 물이 하2다', () {
-      // 기획 확인 사항 — 시작 지점이 꽃송이이므로 물 1번이 거기 들어가고,
+      // 기획 확인 사항 — 시작 지점이 발아이므로 물 1번이 거기 들어가고,
       // 첫 고리가 물 2~5번, 다음 고리(하2)가 물 6번이다 (PRD §3.3).
       final board = BloomBoard(
         monoLevel(start: (col: 2, row: 2), canCounts: const [6, 19]),
@@ -224,7 +224,7 @@ void main() {
 
       expect(board.queue, queueBefore);
       expect(board.slots[0]!.remaining, remainingBefore);
-      expect(board.cellAt((col: 2, row: 2))!.isBud, isTrue);
+      expect(board.cellAt((col: 2, row: 2))!.isSprout, isTrue);
       expect(board.wateredCount, 0);
     });
 

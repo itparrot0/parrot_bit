@@ -1,9 +1,16 @@
-# proto_full_bloom (만개 — 프로토타입)
+# proto_garden_grow (Garden Grow — 프로토타입)
 
-색상 연쇄 개화 퍼즐 프로토타입.
+색상 연쇄 개화 퍼즐 프로토타입. **Full Bloom은 게임 이름이 아니라 클리어 연출
+이름**이다 (기획서 §10).
 
-- 기획: [`docs/prd/full_bloom.md`](../../docs/prd/full_bloom.md)
-- **기본값은 폐기다.** 승격 시 `apps/full_bloom`을 새로 만들고 검증된 코드만
+> **디렉터리 리네임 보류.** 패키지·디렉터리는 아직 `proto_full_bloom`이다 —
+> IntelliJ 분석기가 디렉터리를 잡고 있어 `git mv`가 실패했다. IDE에서 프로젝트를
+> 닫고 `git mv apps/proto_full_bloom apps/proto_garden_grow` 후 pubspec 이름·
+> import·Android namespace를 함께 고친다 (PRD §12).
+
+- 기획: [`docs/prd/garden_grow.md`](../../docs/prd/garden_grow.md) (규칙 최종본),
+  상위 기획서 Garden Grow v0.1
+- **기본값은 폐기다.** 승격 시 `apps/garden_grow`를 새로 만들고 검증된 코드만
   이식한 뒤 이 디렉터리를 지운다 (`docs/03-architecture.md` §6).
 
 ## 검증할 것 (PRD §9)
@@ -27,10 +34,10 @@ lib/
 ├── domain/              순수 Dart. Flutter/Flame 없이 테스트된다
 │   ├── cell_pos.dart        좌표 + 이웃 순서(하→좌→우→상)
 │   ├── bloom_color.dart     색
-│   ├── cell.dart            칸의 3단계 (씨앗·꽃송이·개화)
+│   ├── cell.dart            칸의 3단계 (씨앗·발아·개화)
 │   ├── watering_can.dart    물뿌리개 (남은 횟수를 들고 있다)
 │   ├── bloom_level.dart     레벨 정의 + §3.7 불변식 검사
-│   ├── bloom_board.dart     큐·개화 전파·색 매칭·슬롯·승패·되돌리기
+│   ├── bloom_board.dart     큐·고리·개화 전파·색 매칭·슬롯·승패·되돌리기
 │   └── bloom_solver.dart    교착 없이 끝까지 가는지 탐색 + 난이도 지표
 ├── levels/handmade_levels.dart   손으로 만든 레벨 4개
 ├── game/                Flame — 모델 결과를 그리기만 한다
@@ -42,10 +49,11 @@ lib/
 
 ## 화면에서 읽는 법
 
-- **씨앗** 작고 어두운 점 / **꽃송이** 중간 원 + 흰 테두리 / **개화** 큰 원
-- **꽃송이 위의 숫자가 큐 순번이다.** 이게 "큐를 화면에 보여주기"(PRD §5-3)의
-  실현이고, 예측 가능성이 전부 여기서 나온다.
-- 슬롯을 **누르고 있으면** 그 색이 다음에 피울 칸이 흰 사각으로 집힌다.
+- **씨앗** 작고 어두운 점 / **발아** 중간 원 + 흰 테두리 / **개화** 큰 원
+- **슬롯을 누르고 있으면** 그 물뿌리개가 피울 칸에 `1, 2, 3…`이 찍힌다.
+  남은 횟수만큼만 붙으므로 "이 한 수가 어디까지 가나"가 그대로 보인다.
+  누르지 않으면 번호를 안 띄운다 — 전체 큐 순번은 색이 섞여 읽히지 않는다.
+- 연쇄는 **고리 단위**로 묶여 터진다. 하·좌·우·상 한 싸이클이 한 고리다.
 - `쓸 곳 없음` 슬롯은 큐에 그 색이 없다는 뜻이다 (눌러도 안 나간다).
 
 ## 레벨 추가하기

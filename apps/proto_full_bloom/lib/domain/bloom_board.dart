@@ -8,6 +8,7 @@ import 'watering_can.dart';
 final class _BoardSnapshot {
   _BoardSnapshot({
     required this.cells,
+    required this.depth,
     required this.queue,
     required this.slots,
     required this.pendingIndex,
@@ -17,6 +18,7 @@ final class _BoardSnapshot {
   }
 
   final Map<CellPos, Cell> cells;
+  final Map<CellPos, int> depth;
   final List<CellPos> queue;
   final List<WateringCan?> slots;
   final int pendingIndex;
@@ -29,8 +31,8 @@ final class _BoardSnapshot {
 /// — 솔버와 생성기도 이걸 그대로 쓴다 (PRD §10).
 ///
 /// 핵심 불변식 둘:
-/// - **꽃송이 ⟺ 큐에 들어 있다.** 씨앗은 개화한 이웃이 생길 때 단 한 번
-///   꽃송이가 되며 그때 큐에 들어가고, 개화할 때 큐에서 나온다.
+/// - **발아 ⟺ 큐에 들어 있다.** 씨앗은 개화한 이웃이 생길 때 단 한 번
+///   발아가 되며 그때 큐에 들어가고, 개화할 때 큐에서 나온다.
 /// - **색깔별 물 횟수 = 색깔별 칸 수** (PRD §3.7, [BloomLevel]이 검사).
 class BloomBoard {
   BloomBoard(this.level) {
@@ -40,6 +42,12 @@ class BloomBoard {
   final BloomLevel level;
 
   final Map<CellPos, Cell> _cells = {};
+
+  /// 시작 지점에서 몇 번째 고리인가. 시작 지점이 0, 그 이웃이 1.
+  ///
+  /// "하·좌·우·상 한 싸이클"이 곧 고리 하나다. 연출이 고리 단위로 묶여
+  /// 터지게 하고(원형 확장), 기획서 §13의 Chain Depth 지표도 여기서 나온다.
+  final Map<CellPos, int> _depth = {};
 
   /// 다음에 피울 후보들. **앞에서 꺼내고 뒤에 넣는다** (너비 우선).
   final List<CellPos> _queue = [];
@@ -58,6 +66,21 @@ class BloomBoard {
   // ── 조회 ──────────────────────────────────────────────────────────────
 
   Cell? cellAt(CellPos pos) => _cells[pos];
+
+  /// [pos]의 고리 번호. 아직 깨어나지 않은 씨앗은 null.
+  int? depthOf(CellPos pos) => _depth[pos];
+
+  /// 지금까지 개화가 뻗어나간 고리 수 (기획서 §13 Chain Depth).
+  int get chainDepth {
+    var deepest = 0;
+    _cells.forEach((pos, cell) {
+      final depth = _depth[pos];
+      if (cell.isBloomed && depth != null && depth > deepest) {
+        deepest = depth;
+      }
+    });
+    return deepest;
+  }
 
   /// 칸 상태 스냅샷.
   Map<CellPos, Cell> get cells => Map.unmodifiable(_cells);
@@ -112,7 +135,7 @@ class BloomBoard {
     return true;
   }
 
-  /// 슬롯 [index]의 물뿌리개를 쓸 수 있는가 — 큐에 같은 색 꽃송이가 있는가.
+  /// 슬롯 [index]의 물뿌리개를 쓸 수 있는가 — 큐에 같은 색 발아가 있는가.
   bool canUseSlot(int index) {
     if (index < 0 || index >= _slots.length) {
       return false;
@@ -195,12 +218,13 @@ class BloomBoard {
 
     for (final neighbor in neighborsInOrder(pos)) {
       final cell = _cells[neighbor];
-      // 빈칸·꽃송이·개화는 건너뛴다. 씨앗만 깨어나며, 그 전이가 한 번뿐이라
+      // 빈칸·발아·개화는 건너뛴다. 씨앗만 깨어나며, 그 전이가 한 번뿐이라
       // 큐 중복 삽입이 구조적으로 막힌다.
       if (cell == null || !cell.isSeed) {
         continue;
       }
-      _cells[neighbor] = cell.awakened;
+      _cells[neighbor] = cell.sprouted;
+      _depth[neighbor] = (_depth[pos] ?? 0) + 1;
       _queue.add(neighbor);
     }
   }
@@ -220,15 +244,17 @@ class BloomBoard {
         for (final entry in level.colors.entries)
           entry.key: Cell.seed(entry.value),
       });
+    _depth.clear();
     _queue.clear();
     _slots.clear();
     _history.clear();
     _pendingIndex = 0;
     wateredCount = 0;
 
-    // 시작 지점만 꽃송이로 시작하고, 그 순서가 큐의 초기 내용이 된다.
+    // 시작 지점만 발아로 시작하고, 그 순서가 큐의 초기 내용이 된다.
     for (final start in level.startPoints) {
-      _cells[start] = Cell.bud(level.colors[start]!);
+      _cells[start] = Cell.sprout(level.colors[start]!);
+      _depth[start] = 0;
       _queue.add(start);
     }
     for (var index = 0; index < level.slotCount; index++) {
@@ -240,6 +266,7 @@ class BloomBoard {
     _history.add(
       _BoardSnapshot(
         cells: Map.of(_cells),
+        depth: Map.of(_depth),
         queue: List.of(_queue),
         slots: [for (final can in _slots) can?.copy()],
         pendingIndex: _pendingIndex,
@@ -252,6 +279,9 @@ class BloomBoard {
     _cells
       ..clear()
       ..addAll(snapshot.cells);
+    _depth
+      ..clear()
+      ..addAll(snapshot.depth);
     _queue
       ..clear()
       ..addAll(snapshot.queue);

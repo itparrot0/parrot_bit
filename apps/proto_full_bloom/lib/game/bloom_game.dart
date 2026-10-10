@@ -84,6 +84,12 @@ class BloomGame extends FlameGame {
     _sync();
   }
 
+  /// 지금 슬롯에 있는 [color] 물뿌리개의 남은 횟수 합.
+  int _remainingFor(BloomColor color) => board.slots
+      .whereType<WateringCan>()
+      .where((can) => can.color == color)
+      .fold(0, (sum, can) => sum + can.remaining);
+
   void setPreview(BloomColor? color) {
     if (previewColor == color) {
       return;
@@ -99,32 +105,42 @@ class BloomGame extends FlameGame {
     }
     _cells.clear();
 
-    final queue = board.queue;
-    final nextTarget = previewColor == null
-        ? null
-        : board.nextTargetFor(previewColor!);
-    final pulseOrder = {for (var i = 0; i < pulse.length; i++) pulse[i]: i};
+    // 번호는 "지금 누른 물뿌리개가 몇 번째로 피울 칸인가"다. 누른 것이 없으면
+    // 번호를 아예 안 띄운다 — 전체 큐 순번은 색이 섞여 읽히지 않는다.
+    final order = <CellPos, int>{};
+    final color = previewColor;
+    if (color != null) {
+      final targets = board.previewTargets(color, _remainingFor(color));
+      for (var index = 0; index < targets.length; index++) {
+        order[targets[index]] = index + 1;
+      }
+    }
+
+    // 연출은 **고리 단위**로 묶어 터뜨린다 — 하·좌·우·상 한 싸이클이 한 고리다.
+    final pulseDepths = {for (final pos in pulse) pos: board.depthOf(pos) ?? 0};
+    final firstDepth = pulseDepths.values.isEmpty
+        ? 0
+        : pulseDepths.values.reduce((a, b) => a < b ? a : b);
 
     board.cells.forEach((pos, cell) {
-      final queueIndex = queue.indexOf(pos);
       final component = CellComponent(
         cell: cell,
-        queueIndex: queueIndex >= 0 ? queueIndex + 1 : null,
-        isNextTarget: pos == nextTarget,
+        waterOrder: order[pos],
+        isNextTarget: order[pos] == 1,
         position: cellCenter(pos),
       );
       _cells.add(component);
       world.add(component);
 
-      final order = pulseOrder[pos];
-      if (order != null) {
+      final depth = pulseDepths[pos];
+      if (depth != null) {
         component.scale = Vector2.all(0.55);
         component.add(
           ScaleEffect.to(
             Vector2.all(1),
             DelayedEffectController(
               EffectController(duration: 0.16, curve: Curves.easeOutBack),
-              delay: order * 0.09,
+              delay: (depth - firstDepth) * 0.13,
             ),
           ),
         );

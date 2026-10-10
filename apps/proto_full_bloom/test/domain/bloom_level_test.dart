@@ -72,7 +72,7 @@ void main() {
     });
 
     test('세는 기준은 씨앗 수가 아니라 전체 칸 수다', () {
-      // 시작 지점도 꽃송이에서 개화로 가야 하므로 물 한 번이 든다.
+      // 시작 지점도 발아에서 개화로 가야 하므로 물 한 번이 든다.
       // 씨앗(1칸)만 세어 x1을 주면 거부돼야 한다.
       expect(
         () => buildLevel(cans: const [(color: BloomColor.red, count: 1)]),

@@ -26,7 +26,7 @@ final class BloomLevel {
   /// 칸 색 배치. **키가 없는 좌표는 빈칸**이다 (그림의 바깥).
   final Map<CellPos, BloomColor> colors;
 
-  /// 꽃송이로 시작하는 칸들. 큐의 초기 내용이 된다 (PRD §3.3).
+  /// 발아로 시작하는 칸들. 큐의 초기 내용이 된다 (PRD §3.3).
   final List<CellPos> startPoints;
 
   /// 대기열 순서. 앞에서부터 슬롯에 올라간다.

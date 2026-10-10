@@ -23,13 +23,53 @@ void main() {
     expect(cellsOf(game), hasLength(HandmadeLevels.cross.cellCount));
   });
 
-  testWidgets('시작 지점만 꽃송이로 그려지고 큐 순번을 갖는다', (tester) async {
+  testWidgets('시작 지점만 발아로 그려진다', (tester) async {
     final game = await pumpGame(tester, HandmadeLevels.cross);
 
-    final buds = cellsOf(game).where((cell) => cell.cell.isBud).toList();
+    final sprouts = cellsOf(game).where((cell) => cell.cell.isSprout).toList();
 
-    expect(buds, hasLength(1));
-    expect(buds.single.queueIndex, 1);
+    expect(sprouts, hasLength(1));
+  });
+
+  testWidgets('물뿌리개를 누르지 않으면 번호가 없다', (tester) async {
+    // 전체 큐 순번은 색이 섞여 읽히지 않으므로 아예 띄우지 않는다.
+    final game = await pumpGame(tester, HandmadeLevels.cross);
+
+    expect(cellsOf(game).where((cell) => cell.waterOrder != null), isEmpty);
+  });
+
+  testWidgets('누른 물뿌리개가 피울 순서대로 1부터 번호가 붙는다', (tester) async {
+    final game = await pumpGame(tester, HandmadeLevels.cross);
+    game.useSlot(0); // 빨강 x2 — 중앙과 하를 피운다
+    await tester.pump();
+
+    game.setPreview(BloomColor.blue); // 파랑 x4, 큐에 파랑 둘
+    await tester.pump();
+
+    final numbered = {
+      for (final cell in cellsOf(game))
+        if (cell.waterOrder != null) cell.waterOrder!: cell.cell.color,
+    };
+    expect(numbered.keys.toList()..sort(), [1, 2]);
+    expect(numbered.values.every((color) => color == BloomColor.blue), isTrue);
+  });
+
+  testWidgets('번호는 물뿌리개의 남은 횟수까지만 붙는다', (tester) async {
+    final game = await pumpGame(tester, HandmadeLevels.cross);
+    game.useSlot(0); // 빨강 x2 소진 → 슬롯이 빨강 x3으로 충원된다
+    await tester.pump();
+
+    game.setPreview(BloomColor.red);
+    await tester.pump();
+
+    // 빨강 x3이지만 큐에 남은 빨강은 상·하2 둘뿐이다.
+    final orders =
+        cellsOf(game)
+            .where((cell) => cell.waterOrder != null)
+            .map((cell) => cell.waterOrder!)
+            .toList()
+          ..sort();
+    expect(orders, [1, 2]);
   });
 
   testWidgets('슬롯을 쓰면 보드가 피고 화면이 따라간다', (tester) async {
@@ -40,14 +80,21 @@ void main() {
 
     expect(game.board.wateredCount, 2);
     expect(cellsOf(game).where((cell) => cell.cell.isBloomed), hasLength(2));
-    // 큐 순번은 1부터 빈틈없이 다시 매겨진다.
-    final indexes =
-        cellsOf(game)
-            .where((cell) => cell.cell.isBud)
-            .map((cell) => cell.queueIndex!)
-            .toList()
-          ..sort();
-    expect(indexes, [1, 2, 3, 4]);
+    expect(cellsOf(game).where((cell) => cell.cell.isSprout), hasLength(4));
+  });
+
+  testWidgets('고리 번호가 시작 지점에서 하나씩 늘어난다', (tester) async {
+    // 하·좌·우·상 한 싸이클이 한 고리다 — 연출이 이 단위로 묶여 터진다.
+    final game = await pumpGame(tester, HandmadeLevels.cross);
+
+    game.useSlot(0);
+    await tester.pump();
+
+    expect(game.board.depthOf((col: 2, row: 2)), 0); // 시작 지점
+    expect(game.board.depthOf((col: 2, row: 3)), 1); // 하
+    expect(game.board.depthOf((col: 1, row: 2)), 1); // 좌
+    expect(game.board.depthOf((col: 2, row: 4)), 2); // 하2
+    expect(game.board.chainDepth, 1); // 개화는 아직 고리 1까지
   });
 
   testWidgets('쓸 수 없는 슬롯을 눌러도 아무 일이 없다', (tester) async {
