@@ -5,6 +5,8 @@ import 'package:proto_full_bloom/game/bloom_game.dart';
 import 'package:proto_full_bloom/game/components/cell_component.dart';
 import 'package:proto_full_bloom/levels/handmade_levels.dart';
 
+import 'domain/test_levels.dart';
+
 Future<BloomGame> pumpGame(WidgetTester tester, BloomLevel level) async {
   final game = BloomGame(level: level);
   await tester.pumpWidget(GameWidget(game: game));
@@ -125,6 +127,21 @@ void main() {
     final highlighted = cellsOf(game).where((cell) => cell.isNextTarget);
     expect(highlighted, hasLength(1));
     expect(highlighted.single.cell.color, BloomColor.red);
+  });
+
+  testWidgets('주차만 되는 수에도 통계 알림이 간다', (tester) async {
+    // 회귀 버그: 아무것도 피지 않는 수(꺼내자마자 주차)는 기존 통계가 전부
+    // 그대로라 레코드가 동일했고, ValueNotifier가 알림을 보내지 않아
+    // 트레이(슬롯·레인)가 갱신되지 않았다. moves 필드가 이를 막는다.
+    final game = await pumpGame(tester, TestLevels.deadlockable);
+    final before = game.stats.value;
+
+    game.takeFromLane(0); // 파랑 꺼냄 — 0칸 피우고 즉시 주차
+    await tester.pump();
+
+    expect(game.board.activeSlots[0], isNotNull); // 모델은 바뀌었고
+    expect(game.stats.value, isNot(before)); // 통계도 반드시 바뀐다
+    expect(game.stats.value.moves, before.moves + 1);
   });
 
   testWidgets('통계가 승리까지 따라온다', (tester) async {

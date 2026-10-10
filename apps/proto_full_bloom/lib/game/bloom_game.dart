@@ -9,6 +9,10 @@ import 'components/cell_component.dart';
 
 /// HUD가 구독하는 상태 묶음.
 typedef BloomStats = ({
+  /// 둔 수의 번호. 주차만 되고 아무것도 피지 않는 수(통계가 하나도 안
+  /// 변하는 수)도 레코드를 다르게 만들어 **HUD 알림이 반드시 가게** 한다 —
+  /// 레코드는 구조적 동치라 이 필드가 없으면 그런 수에서 트레이가 멈춘다.
+  int moves,
   int watered,
   int total,
   int bloomed,
@@ -157,6 +161,7 @@ class BloomGame extends FlameGame {
   }
 
   BloomStats _currentStats() => (
+    moves: board.movesPlayed,
     watered: board.wateredCount,
     total: board.level.cellCount,
     bloomed: board.cells.values.where((cell) => cell.isBloomed).length,

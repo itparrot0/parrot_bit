@@ -176,6 +176,12 @@ class BloomBoard {
 
   bool get canUndo => _history.isNotEmpty;
 
+  /// 지금까지 둔 수의 번호 (되돌리면 줄어든다).
+  ///
+  /// 주차만 되고 아무것도 피지 않는 수도 수다 — HUD가 "상태가 바뀌었다"를
+  /// 알아채는 데 쓴다.
+  int get movesPlayed => _history.length;
+
   bool get isWon => _cells.values.every((cell) => cell.isBloomed);
 
   /// 교착 — 둘 수 있는 수가 하나도 없다.
