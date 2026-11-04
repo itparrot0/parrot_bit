@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "@bloom-wave/core": "*",
+    "@capacitor-community/admob": "^8.3.0",
     "@capacitor/app": "^8.1.2",
     "@capacitor/core": "^8.6.0",
     "@capacitor/haptics": "^8.0.2",

@@ -36,14 +36,19 @@ export class Tweens {
     if (!this.list.length) return;
     const keep: Tween[] = [];
     const finished: Tween[] = [];
-    for (const tw of this.list) {
-      if (tw.delay > 0) { tw.delay -= dt; if (tw.delay > 0) { keep.push(tw); continue; } }
-      tw.t = Math.min(1, tw.t + dt / tw.dur);
-      tw.update(tw.ease(tw.t));
-      if (tw.t >= 1) finished.push(tw); else keep.push(tw);
+    // 트윈 하나가 오류를 내도(파괴된 객체 등) 나머지 연출과 게임 진행이 멈추지 않게 각각 격리한다
+    const list = this.list;
+    this.list = [];
+    for (const tw of list) {
+      try {
+        if (tw.delay > 0) { tw.delay -= dt; if (tw.delay > 0) { keep.push(tw); continue; } }
+        tw.t = Math.min(1, tw.t + dt / tw.dur);
+        tw.update(tw.ease(tw.t));
+        if (tw.t >= 1) finished.push(tw); else keep.push(tw);
+      } catch (e) { console.warn("tween dropped", e); }
     }
-    this.list = keep;
-    for (const tw of finished) tw.done?.();
+    this.list = keep.concat(this.list); // update 중에 추가된 트윈 보존
+    for (const tw of finished) { try { tw.done?.(); } catch (e) { console.warn("tween done failed", e); } }
   }
 }
 

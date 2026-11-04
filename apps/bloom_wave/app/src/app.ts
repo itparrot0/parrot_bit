@@ -33,8 +33,9 @@ export class Ctx {
     app.renderer.on("resize", () => this.layout());
     app.ticker.add((tk) => {
       const dt = Math.min(100, tk.deltaMS);
+      // 게임 진행(틱)을 연출보다 먼저, 서로의 오류에 영향받지 않게
+      try { this.current?.update?.(dt); } catch (e) { console.error(e); }
       tweens.update(dt);
-      this.current?.update?.(dt);
     });
   }
 

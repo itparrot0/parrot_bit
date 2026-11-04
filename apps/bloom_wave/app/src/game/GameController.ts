@@ -2,20 +2,21 @@
 // 규칙은 전부 @bloom-wave/core 가 정한다. 여기서는 "언제 tick/deploy 를 부르는가"만 다룬다.
 import {
   type Drop, type Level, type Options, type State, type TickEvent,
-  cloneState, createState, deploy, isActive, legalActions, levelOptions, tick,
+  cloneState, createState, deploy, isActive, legalActions, levelOptions, queueLength, tick,
 } from "@bloom-wave/core/engine";
 import { solveFrom, type SolveResult } from "@bloom-wave/core/solver";
 
-export const TICK_MS = { normal: 150, slow: 250 } as const;
+// 2026-11-04 플레이 피드백: 150ms는 너무 빨라 기본을 300ms로. 규칙(클리어 가능 여부)은 틱 단위라 바뀌지 않는다
+export const TICK_MS = { normal: 300, slow: 450 } as const;
 export const UNDO_LIMIT = 50;
 
-export type TapResult = { ok: true; slot: number; drop: Drop } | { ok: false; reason: "full" | "wait" | "over" | "empty" };
+export type TapResult = { ok: true; slot: number; drop: Drop; lane: number } | { ok: false; reason: "full" | "wait" | "over" | "empty" };
 
 type Snapshot = { state: State; peak: number; ticks: number };
 
 export type ControllerEvents = {
   tick?: (ev: TickEvent, c: GameController) => void;
-  deploy?: (slot: number, drop: Drop, c: GameController) => void;
+  deploy?: (slot: number, drop: Drop, lane: number, c: GameController) => void;
   status?: (status: State["status"], c: GameController) => void;
   reset?: (c: GameController) => void; // 재시작·되돌리기로 상태가 통째로 바뀜
   idle?: (c: GameController) => void; // 웨이브가 멈춤 (이제 넣어야 함)
@@ -29,7 +30,7 @@ export class GameController {
   paused = false;
   /** true면 타이머로 틱을 돌리지 않는다 (테스트용 ?manualTick=1). step()으로만 진행 */
   manual: boolean;
-  /** 이번 판 동안 활성 슬롯이 동시에 찬 최대 칸 수 (별점) */
+  /** 이번 판 동안 활성 슬롯이 동시에 찬 최대 칸 수 (기록용) */
   peak = 0;
   ticks = 0;
   private acc = 0;
@@ -49,35 +50,38 @@ export class GameController {
 
   get status() { return this.state.status; }
   get active() { return isActive(this.state); }
-  get front(): Drop | undefined { return this.state.queue[0]; }
   get occupied() { return this.state.slots.filter(Boolean).length; }
   get canUndo() { return this.undoStack.length > 0; }
+  get queueLeft() { return queueLength(this.state); }
 
-  /** 맨 앞 물방울을 지금 탭할 수 있나 (판단은 core 의 legalActions 로만) */
-  canTapFront(): boolean {
-    return legalActions(this.state, this.options).some((a) => a.type === "deploy" && a.index === 0);
+  /** lane 줄의 맨 앞 물방울 */
+  front(lane: number): Drop | undefined { return this.state.lanes[lane]?.[0]; }
+
+  /** lane 줄의 맨 앞을 지금 탭할 수 있나 (판단은 core 의 legalActions 로만) */
+  canTap(lane: number): boolean {
+    return legalActions(this.state, this.options).some((a) => a.type === "deploy" && a.lane === lane);
   }
 
-  /** 맨 앞 물방울과 같은 색 발아 칸이 있나. 없으면 "대기" 물방울 */
-  frontUsable(): boolean {
-    const f = this.front;
+  /** lane 줄의 맨 앞 물방울과 같은 색 발아 칸이 있나 */
+  usable(lane: number): boolean {
+    const f = this.front(lane);
     return !!f && this.state.sproutCount[f.color] > 0;
   }
 
-  tapFront(): TapResult {
+  tap(lane: number): TapResult {
     const s = this.state;
     if (s.status !== "playing") return { ok: false, reason: "over" };
-    if (!s.queue.length) return { ok: false, reason: "empty" };
-    if (!this.canTapFront()) return { ok: false, reason: s.slots.includes(null) ? "wait" : "full" };
+    if (!s.lanes[lane]?.length) return { ok: false, reason: "empty" };
+    if (!this.canTap(lane)) return { ok: false, reason: s.slots.includes(null) ? "wait" : "full" };
     this.undoStack.push({ state: cloneState(s), peak: this.peak, ticks: this.ticks });
     if (this.undoStack.length > UNDO_LIMIT) this.undoStack.shift();
-    const drop = { ...s.queue[0] };
-    const slot = deploy(this.level, s, 0);
+    const drop = { ...s.lanes[lane][0] };
+    const slot = deploy(this.level, s, lane);
     this.peak = Math.max(this.peak, this.occupied);
     this.acc = 0; // 탭한 물방울은 다음 틱부터 함께 퍼진다
-    this.on.deploy?.(slot, drop, this);
+    this.on.deploy?.(slot, drop, lane, this);
     this.afterChange();
-    return { ok: true, slot, drop };
+    return { ok: true, slot, drop, lane };
   }
 
   /** 틱 하나 진행 (웨이브가 없으면 아무것도 안 함) */
@@ -136,16 +140,6 @@ export class GameController {
     const r = solveFrom(this.level, this.state, this.options, maxNodes);
     const a = r.solution[0];
     return { action: a ? (a.type === "deploy" ? "tap" : "wait") : null, result: r };
-  }
-
-  /** 별점: ★1 클리어 / ★2 슬롯 최대 3칸 이하 / ★3 레벨 최적값 이하 (01 기획서 4.5) */
-  stars(): number {
-    if (this.state.status !== "cleared") return 0;
-    const best = this.level.meta?.star3Peak ?? 1;
-    let n = 1;
-    if (this.peak <= 3) n++;
-    if (this.peak <= 3 && this.peak <= best) n++;
-    return n;
   }
 
   private afterChange() {

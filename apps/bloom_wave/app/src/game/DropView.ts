@@ -1,102 +1,104 @@
-// 활성 슬롯 4칸(좌 2 · 우 2)과 대기열(맨 앞 강조, 최대 7개 + "+N")
+// 활성 슬롯(보드 아래 한 줄)과 대기열(세로 줄 여러 개).
+// 줄마다 맨 위가 탭할 물방울이고, 그 아래로 options.visible 개까지만 보이며 나머지는 숫자로만 표시한다.
 import { Container, Graphics, Sprite, Text } from "pixi.js";
 import type { Drop, Level, State } from "@bloom-wave/core/engine";
 import { TEX } from "../ui/textures";
 import { C, hexToNum, mix } from "../ui/theme";
 import { label } from "../ui/widgets";
 import { tweens, ease } from "../ui/tween";
-import { t } from "../i18n/i18n";
-
-export const QUEUE_VISIBLE = 7;
 
 class DropSprite extends Container {
   readonly body: Sprite;
   readonly num: Text;
-  readonly tag: Container;
   constructor(public r: number) {
     super();
     this.body = new Sprite(TEX.drop);
     this.body.anchor.set(0.5, 0.58);
     this.body.width = this.body.height = r * 2;
-    this.num = label("", r * 0.78, 0xffffff, { stroke: { color: 0x000000, width: r * 0.1, alpha: 0.35 } as never });
+    this.num = label("", r * 0.78, 0xffffff);
     this.num.y = r * 0.12;
-    this.tag = new Container();
-    const tg = new Graphics().roundRect(-r * 0.75, -r * 0.24, r * 1.5, r * 0.48, r * 0.24).fill({ color: C.ink });
-    const tt = label(t("waiting"), r * 0.3, 0xffffff);
-    this.tag.addChild(tg, tt);
-    this.tag.y = -r * 1.05;
-    this.addChild(this.body, this.num, this.tag);
+    this.addChild(this.body, this.num);
   }
-  set(d: Drop, level: Level, usable: boolean) {
+  set(d: Drop, level: Level) {
     const col = hexToNum(level.palette[d.color]);
     this.body.tint = col;
     this.num.text = String(d.amount);
     // 흰색·밝은 물방울에서도 숫자가 보이도록
     const lum = ((col >> 16) & 255) * 0.3 + ((col >> 8) & 255) * 0.59 + (col & 255) * 0.11;
     this.num.style.fill = lum > 200 ? C.ink : 0xffffff;
-    this.tag.visible = !usable;
   }
 }
 
+export type DropLayout = {
+  slots: { x: number; y: number }[];
+  slotR: number;
+  laneTop: number; // 줄 맨 앞 물방울 중심 y
+  laneBottom: number; // 줄 영역 아래 끝 (터치 영역)
+  laneXs: number[]; // 줄마다 중심 x
+  laneW: number; // 줄 하나의 터치 폭
+};
+
 export class DropView extends Container {
-  readonly slotPos: { x: number; y: number }[];
   private slotBg: Graphics[] = [];
   private slotDrops: DropSprite[] = [];
-  private queueDrops: DropSprite[] = [];
-  private more: Text;
-  readonly queueRoot = new Container();
-  private frontPos: { x: number; y: number };
+  private lanes: { bg: Graphics; drops: DropSprite[]; more: Text; hit: Graphics }[] = [];
   private bounceT = -1;
-  onTapFront: () => void = () => {};
+  private visibleCount: number;
+  onTap: (lane: number) => void = () => {};
 
-  constructor(private level: Level, slotPos: { x: number; y: number }[], queueY: number, queueLeft: number, queueRight: number) {
+  constructor(private level: Level, private L: DropLayout, visible: number) {
     super();
-    this.slotPos = slotPos;
-    const slotR = 78;
-    slotPos.forEach((p, i) => {
+    this.visibleCount = Math.max(1, visible);
+    L.slots.forEach((p, i) => {
       const g = new Graphics();
       g.position.set(p.x, p.y);
       this.slotBg.push(g);
-      const d = new DropSprite(62);
+      const d = new DropSprite(L.slotR * 0.8);
       d.position.set(p.x, p.y);
       d.visible = false;
       d.label = `slot-${i}`;
       this.slotDrops.push(d);
       this.addChild(g, d);
     });
-    this.drawSlots(0, slotR);
+    this.drawSlots(0);
 
-    // 대기열: 맨 앞은 크게, 나머지는 작게 한 줄
-    this.addChild(this.queueRoot);
-    this.frontPos = { x: queueLeft + 100, y: queueY };
-    const frontBg = new Graphics().circle(0, 0, 112).fill({ color: C.panel }).circle(0, 0, 112).stroke({ color: C.slotEdge, width: 6 });
-    frontBg.position.set(this.frontPos.x, this.frontPos.y);
-    this.queueRoot.addChild(frontBg);
-    const front = new DropSprite(86);
-    front.position.set(this.frontPos.x, this.frontPos.y);
-    front.label = "queue-front";
-    this.queueDrops.push(front);
-    const gap = (queueRight - (queueLeft + 250)) / (QUEUE_VISIBLE - 1);
-    for (let k = 1; k < QUEUE_VISIBLE; k++) {
-      const d = new DropSprite(50);
-      d.position.set(queueLeft + 250 + (k - 1) * gap, queueY + 10);
-      this.queueDrops.push(d);
-    }
-    this.queueDrops.forEach((d) => this.queueRoot.addChild(d));
-    this.more = label("", 40, C.inkSoft);
-    this.more.position.set(queueRight + 10, queueY + 10);
-    this.queueRoot.addChild(this.more);
-
-    // 대기열 영역 전체가 "맨 앞 탭" (한 손 조작, 큰 터치 영역)
-    const hit = new Graphics().rect(queueLeft - 20, queueY - 150, queueRight - queueLeft + 120, 300).fill({ color: 0xffffff, alpha: 0.001 });
-    hit.eventMode = "static";
-    hit.cursor = "pointer";
-    hit.label = "queue-hit";
-    hit.on("pointerdown", () => this.onTapFront());
-    this.queueRoot.addChildAt(hit, 0);
+    const frontR = Math.min(84, L.laneW * 0.36);
+    const nextR = frontR * 0.62;
+    level.lanes.forEach((_, li) => {
+      const x = L.laneXs[li];
+      const root = new Container();
+      root.label = `lane-${li}`;
+      const bg = new Graphics();
+      const h = L.laneBottom - L.laneTop + frontR + 30;
+      bg.roundRect(x - L.laneW / 2, L.laneTop - frontR - 30, L.laneW, h, 40).fill({ color: C.bgDeep, alpha: 0.6 });
+      bg.circle(x, L.laneTop, frontR + 18).fill({ color: C.panel });
+      root.addChild(bg);
+      const drops: DropSprite[] = [];
+      for (let k = 0; k < this.visibleCount; k++) {
+        const d = new DropSprite(k === 0 ? frontR : nextR);
+        d.position.set(x, k === 0 ? L.laneTop : L.laneTop + frontR + 40 + (k - 0.5) * nextR * 2.3);
+        d.alpha = k === 0 ? 1 : 0.85;
+        d.label = k === 0 ? `lane-front-${li}` : `lane-${li}-${k}`;
+        drops.push(d);
+        root.addChild(d);
+      }
+      const more = label("", 38, C.inkSoft);
+      more.position.set(x, L.laneBottom - 34);
+      root.addChild(more);
+      // 줄 전체가 터치 영역 (한 손 조작)
+      const hit = new Graphics().rect(x - L.laneW / 2, L.laneTop - frontR - 30, L.laneW, h).fill({ color: 0xffffff, alpha: 0.001 });
+      hit.eventMode = "static";
+      hit.cursor = "pointer";
+      hit.label = `lane-hit-${li}`;
+      hit.on("pointerdown", () => this.onTap(li));
+      root.addChild(hit);
+      this.lanes.push({ bg, drops, more, hit });
+      this.addChild(root);
+    });
   }
 
-  private drawSlots(occupied: number, r = 78) {
+  private drawSlots(occupied: number) {
+    const r = this.L.slotR;
     const warn = occupied >= 3;
     this.slotBg.forEach((g) => {
       g.clear();
@@ -106,70 +108,80 @@ export class DropView extends Container {
     });
   }
 
-  /** 상태 전체를 다시 그림 (재시작·되돌리기·매 변경 후) */
+  /** 상태 전체를 다시 그림 */
   sync(s: State, flying = -1) {
     s.slots.forEach((d, i) => {
       const v = this.slotDrops[i];
-      if (!d) { v.visible = false; return; }
-      v.set(d, this.level, s.sproutCount[d.color] > 0);
-      if (i !== flying) { v.visible = true; v.position.set(this.slotPos[i].x, this.slotPos[i].y); v.scale.set(1); }
+      if (!d) { if (i !== flying) v.visible = false; return; }
+      v.set(d, this.level);
+      if (i !== flying) {
+        tweens.cancel(v);
+        v.visible = true;
+        v.position.set(this.L.slots[i].x, this.L.slots[i].y);
+        v.scale.set(1);
+      }
     });
     this.drawSlots(s.slots.filter(Boolean).length);
-    this.queueDrops.forEach((v, k) => {
-      const d = s.queue[k];
-      v.visible = !!d;
-      if (d) v.set(d, this.level, s.sproutCount[d.color] > 0);
+    this.lanes.forEach((lane, li) => {
+      const q = s.lanes[li] ?? [];
+      lane.drops.forEach((v, k) => {
+        const d = q[k];
+        v.visible = !!d;
+        if (d) v.set(d, this.level);
+      });
+      const extra = q.length - this.visibleCount;
+      lane.more.text = extra > 0 ? `+${extra}` : q.length ? "" : "—";
     });
-    const extra = s.queue.length - QUEUE_VISIBLE;
-    this.more.text = extra > 0 ? `+${extra}` : "";
   }
 
-  /** 대기열 → 슬롯 곡선 비행 (엔진 상태는 이미 슬롯에 있음) */
-  fly(slot: number, s: State) {
+  /** 줄 맨 앞 → 슬롯 곡선 비행 (엔진 상태는 이미 슬롯에 있음) */
+  fly(slot: number, lane: number, s: State) {
     const v = this.slotDrops[slot];
-    const from = this.frontPos, to = this.slotPos[slot];
+    const from = this.lanes[lane].drops[0].position.clone();
+    const to = this.L.slots[slot];
+    const k0 = this.lanes[lane].drops[0].r / v.r;
     this.sync(s, slot);
     v.visible = true;
-    tweens.add(250, (k) => {
-      const mx = (from.x + to.x) / 2, my = Math.min(from.y, to.y) - 260;
+    tweens.cancel(v);
+    tweens.add(300, (k) => {
+      const mx = (from.x + to.x) / 2, my = Math.min(from.y, to.y) - 160;
       const a = (1 - k) * (1 - k), b = 2 * (1 - k) * k, c = k * k;
       v.position.set(a * from.x + b * mx + c * to.x, a * from.y + b * my + c * to.y);
-      v.scale.set(86 / 62 + (1 - 86 / 62) * k);
-    }, { ease: ease.inOutSine, owner: v, done: () => v.scale.set(1) });
+      v.scale.set(k0 + (1 - k0) * k);
+    }, { ease: ease.inOutSine, owner: v, done: () => { v.position.set(to.x, to.y); v.scale.set(1); } });
   }
 
-  /** 슬롯 숫자 갱신 (틱마다) */
   pulseSlot(slot: number) {
     const v = this.slotDrops[slot];
-    tweens.add(140, (k) => v.scale.set(1 + 0.12 * Math.sin(k * Math.PI)), { ease: ease.linear });
+    tweens.add(220, (k) => v.scale.set(1 + 0.12 * Math.sin(k * Math.PI)), { ease: ease.linear });
   }
 
   /** 빈 슬롯이 없을 때 탭: 슬롯이 짧게 흔들림 */
   shake() {
-    [...this.slotBg, ...this.slotDrops].forEach((g, idx) => {
-      const p = this.slotPos[idx % this.slotPos.length];
-      tweens.add(300, (k) => { g.x = p.x + Math.sin(k * Math.PI * 6) * 14 * (1 - k); }, { ease: ease.linear, done: () => { g.x = p.x; } });
+    this.slotBg.forEach((g, i) => {
+      const p = this.L.slots[i];
+      tweens.add(320, (k) => { g.x = p.x + Math.sin(k * Math.PI * 6) * 14 * (1 - k); }, { ease: ease.linear, done: () => { g.x = p.x; } });
     });
   }
 
-  /** 실패: 슬롯 4칸이 흔들리며 회색 */
+  /** 실패: 슬롯이 흔들리며 회색 */
   failFx() {
     this.shake();
     this.slotDrops.forEach((d) => { d.body.tint = mix(d.body.tint as number, 0x8a8a8a, 0.7); });
   }
 
-  /** 웨이브가 멈추면 맨 앞이 살짝 튄다 ("이제 넣어야 한다") */
+  /** 웨이브가 멈추면 맨 앞 물방울들이 살짝 튄다 ("이제 넣어야 한다") */
   bounceFront() { this.bounceT = 0; }
 
   update(dt: number) {
-    const f = this.queueDrops[0];
-    if (this.bounceT >= 0) {
-      this.bounceT += dt;
-      const k = this.bounceT / 900;
-      f.y = this.frontPos.y - Math.abs(Math.sin(k * Math.PI * 2)) * 28 * Math.max(0, 1 - k);
-      if (k >= 1) { this.bounceT = -1; f.y = this.frontPos.y; }
-    }
+    if (this.bounceT < 0) return;
+    this.bounceT += dt;
+    const k = this.bounceT / 900;
+    const off = Math.abs(Math.sin(k * Math.PI * 2)) * 22 * Math.max(0, 1 - k);
+    for (const l of this.lanes) l.drops[0].y = this.L.laneTop - off;
+    if (k >= 1) { this.bounceT = -1; for (const l of this.lanes) l.drops[0].y = this.L.laneTop; }
   }
 
-  slotCenter(i: number) { return this.slotPos[i]; }
+  slotCenter(i: number) { return this.L.slots[i]; }
+  laneFront(li: number) { return this.lanes[li].drops[0]; }
 }

@@ -71,7 +71,11 @@ export class Overlay extends Container {
     this.box.addChild(panel(boxW, boxH));
     if (id) this.label = id;
     this.alpha = 0;
-    tweens.add(200, (v) => { this.alpha = v; this.box.scale.set(0.9 + 0.1 * v); }, { ease: ease.outBack });
+    tweens.add(220, (v) => { if (!this.destroyed) { this.alpha = Math.min(1, v); this.box.scale.set(0.9 + 0.1 * v); } }, { ease: ease.outBack, owner: this });
+  }
+  override destroy(options?: Parameters<Container["destroy"]>[0]) {
+    tweens.cancel(this);
+    super.destroy(options);
   }
 }
 
