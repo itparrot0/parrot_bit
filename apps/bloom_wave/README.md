@@ -15,7 +15,8 @@ app               Vite + PixiJS 앱, Capacitor Android
 - Node.js 22.18 이상
 - Android 빌드: Android SDK(API 36), **JDK 21** (Capacitor 8 요구 — JDK 17로는 `invalid source release: 21`로 실패), `ANDROID_HOME`
   - 다른 Flutter 앱은 JDK 17을 쓰므로, 이 앱을 빌드하는 셸에서만 `JAVA_HOME`을 JDK 21로 지정한다.
-  - 권한은 `VIBRATE`(햅틱)뿐이다. 인터넷 권한 없음.
+  - 앱이 직접 선언한 권한은 `VIBRATE`(햅틱)뿐이다. **인터넷·광고 ID 권한은 AdMob 플러그인이 추가한다** — Play 데이터 보안 양식에 광고를 반영해야 한다.
+  - AdMob ID는 아직 Google **테스트 ID**다. 출시 전에 `app/src/monetize/ads.ts`와 `app/android/app/src/main/AndroidManifest.xml`을 실제 ID로 교체한다.
 
 ## 명령
 ```sh
