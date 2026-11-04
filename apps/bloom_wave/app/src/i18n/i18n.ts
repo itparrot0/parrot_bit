@@ -1,0 +1,124 @@
+import type { Lang } from "../save/save";
+
+const ko = {
+  title: "Bloom Wave",
+  subtitle: "물방울로 그림을 꽃피우세요",
+  play: "시작",
+  continue: "이어하기",
+  garden: "정원",
+  settings: "설정",
+  stage: "스테이지 {n}",
+  stages: "스테이지",
+  back: "뒤로",
+  undo: "되돌리기",
+  hint: "힌트",
+  restart: "재시작",
+  pause: "일시정지",
+  resume: "계속하기",
+  map: "스테이지 맵",
+  next: "다음 스테이지",
+  retry: "다시 하기",
+  cleared: "완성!",
+  failed: "슬롯이 막혔어요",
+  failedSub: "4칸이 모두 쓸 수 없는 물방울로 찼습니다",
+  waiting: "대기",
+  hintTap: "지금 넣으세요",
+  hintWait: "조금 기다리세요",
+  hintNone: "이 상태에서는 클리어할 수 없어요. 되돌려 보세요",
+  hintSlow: "힌트를 찾지 못했어요",
+  sound: "사운드",
+  vibration: "진동",
+  tickSpeed: "웨이브 속도",
+  tickNormal: "기본",
+  tickSlow: "느리게",
+  fastFx: "빠른 연출",
+  language: "언어",
+  privacy: "개인정보처리방침",
+  version: "버전 {v}",
+  on: "켬",
+  off: "끔",
+  gardenEmpty: "아직 완성한 그림이 없어요.\n스테이지를 클리어하면 여기에 꽃이 핍니다.",
+  gardenCount: "{n} / {total} 그림",
+  exitTitle: "게임을 종료할까요?",
+  exitYes: "종료",
+  exitNo: "취소",
+  tapToStart: "탭해서 시작",
+  bandIntro: "입문",
+  bandMid: "중급",
+  bandHard: "상급",
+  tutorial_wave: "아래 물방울을 탭하세요.\n같은 색 싹(밝은 칸)에서 꽃이 한 바퀴씩 퍼지고,\n핀 꽃은 주변 8칸의 씨앗을 깨웁니다.",
+  tutorial_colors: "물방울은 자기 색 싹에만 퍼집니다.\n숫자만큼 꽃을 피우고 나면 사라져요.",
+  tutorial_realtime: "꽃이 퍼지는 도중에도 다음 물방울을 넣을 수 있어요.\n지금 넣을지, 기다릴지 골라 보세요.",
+  tutorial_waiting: "'대기' 표시가 붙은 물방울은 아직 퍼질 싹이 없어요.\n넣으면 슬롯 한 칸을 차지한 채 기다립니다.",
+  tutorial_slots: "좌우 슬롯 4칸이 모두 기다리는 물방울로 차면 집니다.\n슬롯이 3칸 차면 빨갛게 경고해요.",
+};
+
+export type Key = keyof typeof ko;
+
+const en: Record<Key, string> = {
+  title: "Bloom Wave",
+  subtitle: "Bring pixel pictures to bloom",
+  play: "Play",
+  continue: "Continue",
+  garden: "Garden",
+  settings: "Settings",
+  stage: "Stage {n}",
+  stages: "Stages",
+  back: "Back",
+  undo: "Undo",
+  hint: "Hint",
+  restart: "Restart",
+  pause: "Paused",
+  resume: "Resume",
+  map: "Stage Map",
+  next: "Next Stage",
+  retry: "Try Again",
+  cleared: "Complete!",
+  failed: "Slots are jammed",
+  failedSub: "All 4 slots hold drops that can't spread",
+  waiting: "WAIT",
+  hintTap: "Drop it now",
+  hintWait: "Wait a moment",
+  hintNone: "Can't be cleared from here. Try undo",
+  hintSlow: "Couldn't find a hint",
+  sound: "Sound",
+  vibration: "Vibration",
+  tickSpeed: "Wave speed",
+  tickNormal: "Normal",
+  tickSlow: "Slow",
+  fastFx: "Fast effects",
+  language: "Language",
+  privacy: "Privacy Policy",
+  version: "Version {v}",
+  on: "On",
+  off: "Off",
+  gardenEmpty: "No finished pictures yet.\nClear stages to fill your garden.",
+  gardenCount: "{n} / {total} pictures",
+  exitTitle: "Quit the game?",
+  exitYes: "Quit",
+  exitNo: "Cancel",
+  tapToStart: "Tap to start",
+  bandIntro: "Beginner",
+  bandMid: "Intermediate",
+  bandHard: "Advanced",
+  tutorial_wave: "Tap the drop below.\nFlowers bloom ring by ring from sprouts of the same color,\nand each bloom wakes the 8 seeds around it.",
+  tutorial_colors: "A drop only spreads on sprouts of its own color.\nIt blooms as many cells as its number, then disappears.",
+  tutorial_realtime: "You can drop the next one while the wave is still spreading.\nDrop now, or wait?",
+  tutorial_waiting: "A drop marked WAIT has no sprouts to spread on yet.\nIt will sit in a slot until its color wakes up.",
+  tutorial_slots: "You lose when all 4 slots are full of waiting drops.\nThe slots turn red when 3 are taken.",
+};
+
+const dicts: Record<Lang, Record<Key, string>> = { ko, en };
+let lang: Lang = "ko";
+
+export function setLang(l: Lang) { lang = l; document.documentElement.lang = l; }
+export function getLang(): Lang { return lang; }
+export function t(key: Key, vars: Record<string, string | number> = {}): string {
+  let s = dicts[lang][key] ?? key;
+  for (const [k, v] of Object.entries(vars)) s = s.replace(`{${k}}`, String(v));
+  return s;
+}
+export function detectLang(): Lang {
+  return (navigator.language || "ko").toLowerCase().startsWith("ko") ? "ko" : "en";
+}
+export function hasKey(k: string): k is Key { return k in ko; }
