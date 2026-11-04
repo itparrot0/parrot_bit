@@ -7,13 +7,16 @@ import 'dart:math' as math;
 import 'package:bloom_wave/domain/engine.dart' show dir8;
 import 'package:bloom_wave/domain/generator.dart';
 
+import 'art_complex.dart';
 import 'art_source.dart';
 
 /// 그림 묶음(유형). 같은 묶음끼리는 스테이지 배치에서 너무 가깝게 붙지 않게 한다
 String familyOf(String name) {
   if (_alias.containsKey(name)) return _alias[name]!;
   final i = name.lastIndexOf('_');
-  return name.startsWith('g_') && i > 1 ? name.substring(0, i) : name;
+  return (name.startsWith('g_') || name.startsWith('c_')) && i > 1
+      ? name.substring(0, i)
+      : name;
 }
 
 /// 손그림 중 코드 그림과 같은 유형인 것
@@ -127,7 +130,7 @@ List<String> _cleanPalette(Grid g, Map<String, String> pal) {
   }
 }
 
-ArtSource _art(
+ArtSource makeArt(
   String name,
   String ko,
   String en,
@@ -204,7 +207,7 @@ List<ArtSource> _landscapes() {
       final g = _postcard(t.sky);
       draw(g, t, rng, pal);
       out.add(
-        _art(
+        makeArt(
           'g_${id}_${t.id}',
           '${t.ko} $ko',
           '$en at ${t.en}'.replaceFirst(' at Misty', ' in Mist'),
@@ -641,7 +644,7 @@ List<ArtSource> _characters() {
         );
     }
     final (ko, en) = nextName();
-    out.add(_art('g_friend_$i', '친구 $ko', 'Friend $en', pal, g));
+    out.add(makeArt('g_friend_$i', '친구 $ko', 'Friend $en', pal, g));
   }
 
   // 2) 직업 친구들: 12가지 × 3명
@@ -850,7 +853,7 @@ List<ArtSource> _characters() {
       final (nk, ne) = nextName();
       final jk = id == 'royal' ? royalKo[v] : ko,
           je = id == 'royal' ? royalEn[v] : en;
-      out.add(_art('g_${id}_$v', '$jk $nk', '$je $ne', pal, g));
+      out.add(makeArt('g_${id}_$v', '$jk $nk', '$je $ne', pal, g));
     }
   }
 
@@ -919,7 +922,13 @@ List<ArtSource> _characters() {
       'k': '#1F2933',
     };
     out.add(
-      _art('g_robot_$i', '로봇 ${robots[i].$1}', 'Robot ${robots[i].$2}', pal, g),
+      makeArt(
+        'g_robot_$i',
+        '로봇 ${robots[i].$1}',
+        'Robot ${robots[i].$2}',
+        pal,
+        g,
+      ),
     );
   }
 
@@ -1023,7 +1032,13 @@ List<ArtSource> _characters() {
         'r': '#F28C8C',
       };
       out.add(
-        _art('g_${id}_$v', '${monColKo[v]} $ko', '${monColEn[v]} $en', pal, g),
+        makeArt(
+          'g_${id}_$v',
+          '${monColKo[v]} $ko',
+          '${monColEn[v]} $en',
+          pal,
+          g,
+        ),
       );
     }
   }
@@ -1267,7 +1282,7 @@ List<ArtSource> _characters() {
       'w': '#FFFFFF',
       'c': _cloth[(i * 4 + 1) % _cloth.length],
     };
-    out.add(_art('g_pal_$id', '$ko 친구', en, pal, g));
+    out.add(makeArt('g_pal_$id', '$ko 친구', en, pal, g));
   }
   return out;
 }
@@ -1316,7 +1331,7 @@ List<ArtSource> _illustrations() {
     final c1 = _colorWords[i % 8], c2 = _colorWords[(i * 3 + 3) % 8];
     final pal = {'a': c1.$3, 'b': c2.$3, 'k': '#6B4423', 'd': '#A0704A'};
     out.add(
-      _art(
+      makeArt(
         'g_balloon_$i',
         '${c1.$1} ${patterns[pat].$1} 열기구',
         '${c1.$2} ${patterns[pat].$2} Balloon',
@@ -1340,7 +1355,7 @@ List<ArtSource> _illustrations() {
     p1.recolor('a', 'b', (x, y) => y == 3 || y == 7);
     p1.each((x, y) => ring(x, y) && y > 6.4, 'r');
     out.add(
-      _art('g_planet_$i', '${c.$1} 고리 행성', '${c.$2} Ringed Planet', {
+      makeArt('g_planet_$i', '${c.$1} 고리 행성', '${c.$2} Ringed Planet', {
         'a': c.$3,
         'b': d.$3,
         'r': '#F3E3B5',
@@ -1356,7 +1371,7 @@ List<ArtSource> _illustrations() {
     r.rect(3, 12, 6, 12, 'k');
     r.poly([(3, 13), (7, 13), (5, 16)], 'f');
     out.add(
-      _art('g_rocket_$i', '${c.$1} 로켓', '${c.$2} Rocket', {
+      makeArt('g_rocket_$i', '${c.$1} 로켓', '${c.$2} Rocket', {
         'a': c.$3,
         'w': '#F3F4F6',
         'b': '#7FD1F5',
@@ -1373,7 +1388,7 @@ List<ArtSource> _illustrations() {
     }
     u.poly([(5, 7.5), (11, 7.5), (13.5, 12), (2.5, 12)], 'l');
     out.add(
-      _art('g_ufo_$i', '${c.$1} 비행접시', '${c.$2} UFO', {
+      makeArt('g_ufo_$i', '${c.$1} 비행접시', '${c.$2} UFO', {
         'b': '#9EE6F5',
         'a': c.$3,
         'y': '#F5D90A',
@@ -1400,7 +1415,7 @@ List<ArtSource> _illustrations() {
     }
     g.ell(6.0, 1.9, 0.9, 0.9, 'y');
     out.add(
-      _art('g_vase_$i', '${f.$1} 꽃 화병', '${f.$2} Flower Vase', {
+      makeArt('g_vase_$i', '${f.$1} 꽃 화병', '${f.$2} Flower Vase', {
         'v': c.$3,
         'w': '#FFFFFF',
         'g': '#3F8F4F',
@@ -1424,7 +1439,7 @@ List<ArtSource> _illustrations() {
     g.poly([(0.5, 6.4), (14.5, 6.4), (11.5, 10.6), (3.5, 10.6)], 'd');
     g.recolor('d', 'e', (x, y) => y == 7);
     out.add(
-      _art('g_fruitbowl_$i', ko, en, {
+      makeArt('g_fruitbowl_$i', ko, en, {
         'a': cols[0],
         'b': cols[1],
         'c': cols[2],
@@ -1446,7 +1461,7 @@ List<ArtSource> _illustrations() {
   }) {
     final g = Grid(w, h);
     draw(g);
-    out.add(_art('g_$id', ko, en, pal, g));
+    out.add(makeArt('g_$id', ko, en, pal, g));
   }
 
   for (var i = 0; i < 3; i++) {
@@ -1592,7 +1607,7 @@ List<ArtSource> _illustrations() {
   ) {
     final g = Grid(14, 14);
     draw(g);
-    out.add(_art('g_$id', ko, en, pal, g));
+    out.add(makeArt('g_$id', ko, en, pal, g));
   }
 
   for (var i = 0; i < 2; i++) {
@@ -1781,12 +1796,13 @@ List<ArtSource> _illustrations() {
       }
       final (sk, se, cols) = seasons[sIdx];
       out.add(
-        _art('g_tile${m}_$sIdx', '$sk ${motifs[m].$1}', '$se ${motifs[m].$2}', {
-          'a': cols[0],
-          'b': cols[1],
-          'c': cols[2],
-          'd': cols[3],
-        }, g),
+        makeArt(
+          'g_tile${m}_$sIdx',
+          '$sk ${motifs[m].$1}',
+          '$se ${motifs[m].$2}',
+          {'a': cols[0], 'b': cols[1], 'c': cols[2], 'd': cols[3]},
+          g,
+        ),
       );
     }
   }
@@ -1803,7 +1819,7 @@ List<ArtSource> _illustrations() {
   }) {
     final g = Grid(w, h);
     draw(g);
-    out.add(_art('g_food_$id', ko, en, pal, g));
+    out.add(makeArt('g_food_$id', ko, en, pal, g));
   }
 
   food(
@@ -2059,7 +2075,7 @@ List<ArtSource> _illustrations() {
   }) {
     final g = Grid(w, h);
     draw(g);
-    out.add(_art('g_inst_$id', ko, en, pal, g));
+    out.add(makeArt('g_inst_$id', ko, en, pal, g));
   }
 
   inst(
@@ -2142,4 +2158,5 @@ List<ArtSource> generatedArts() => [
   ..._landscapes(),
   ..._characters(),
   ..._illustrations(),
+  ...complexArts(),
 ];

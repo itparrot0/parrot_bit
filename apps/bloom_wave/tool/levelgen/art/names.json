@@ -1450,5 +1450,405 @@
   "g_inst_trumpet": {
     "ko": "트럼펫",
     "en": "Trumpet"
+  },
+  "c_river_village_dusk": {
+    "ko": "보랏빛 저녁 강변 마을",
+    "en": "Riverside Village at Violet Dusk"
+  },
+  "c_river_village_dawn": {
+    "ko": "새벽 강변 마을",
+    "en": "Riverside Village at Dawn"
+  },
+  "c_windmill_hill_dawn": {
+    "ko": "새벽 언덕 위 풍차",
+    "en": "Windmill on the Hill at Dawn"
+  },
+  "c_windmill_hill_sunset": {
+    "ko": "노을 언덕 위 풍차",
+    "en": "Windmill on the Hill at Sunset"
+  },
+  "c_lake_camp_sunset": {
+    "ko": "노을 호숫가 캠핑",
+    "en": "Lakeside Camp at Sunset"
+  },
+  "c_lake_camp_dusk": {
+    "ko": "보랏빛 저녁 호숫가 캠핑",
+    "en": "Lakeside Camp at Violet Dusk"
+  },
+  "c_harbor_dawn": {
+    "ko": "새벽 항구 마을",
+    "en": "Harbor Town at Dawn"
+  },
+  "c_harbor_dusk": {
+    "ko": "보랏빛 저녁 항구 마을",
+    "en": "Harbor Town at Violet Dusk"
+  },
+  "c_oasis_night": {
+    "ko": "달밤 사막 오아시스",
+    "en": "Desert Oasis at Moonlit"
+  },
+  "c_oasis_dusk": {
+    "ko": "보랏빛 저녁 사막 오아시스",
+    "en": "Desert Oasis at Violet Dusk"
+  },
+  "c_snow_cabin_day": {
+    "ko": "한낮 눈 숲 오두막",
+    "en": "Snowy Forest Cabin at Midday"
+  },
+  "c_snow_cabin_dusk": {
+    "ko": "보랏빛 저녁 눈 숲 오두막",
+    "en": "Snowy Forest Cabin at Violet Dusk"
+  },
+  "c_city_park_sunset": {
+    "ko": "노을 도시 공원",
+    "en": "City Park at Sunset"
+  },
+  "c_city_park_dawn": {
+    "ko": "새벽 도시 공원",
+    "en": "City Park at Dawn"
+  },
+  "c_canyon_bridge_day": {
+    "ko": "한낮 협곡 다리",
+    "en": "Canyon Bridge at Midday"
+  },
+  "c_canyon_bridge_sunset": {
+    "ko": "노을 협곡 다리",
+    "en": "Canyon Bridge at Sunset"
+  },
+  "c_tulip_farm_dawn": {
+    "ko": "새벽 튤립 농장",
+    "en": "Tulip Farm at Dawn"
+  },
+  "c_tulip_farm_night": {
+    "ko": "달밤 튤립 농장",
+    "en": "Tulip Farm at Moonlit"
+  },
+  "c_cliff_lighthouse_dusk": {
+    "ko": "보랏빛 저녁 절벽 등대",
+    "en": "Cliff Lighthouse at Violet Dusk"
+  },
+  "c_cliff_lighthouse_sunset": {
+    "ko": "노을 절벽 등대",
+    "en": "Cliff Lighthouse at Sunset"
+  },
+  "c_autumn_road_night": {
+    "ko": "달밤 단풍길",
+    "en": "Autumn Road at Moonlit"
+  },
+  "c_autumn_road_dusk": {
+    "ko": "보랏빛 저녁 단풍길",
+    "en": "Autumn Road at Violet Dusk"
+  },
+  "c_rice_terrace_night": {
+    "ko": "달밤 계단식 논",
+    "en": "Rice Terraces at Moonlit"
+  },
+  "c_rice_terrace_dawn": {
+    "ko": "새벽 계단식 논",
+    "en": "Rice Terraces at Dawn"
+  },
+  "c_volcano_island_dawn": {
+    "ko": "새벽 화산섬",
+    "en": "Volcano Island at Dawn"
+  },
+  "c_volcano_island_night": {
+    "ko": "달밤 화산섬",
+    "en": "Volcano Island at Moonlit"
+  },
+  "c_hill_castle_day": {
+    "ko": "한낮 언덕 위 성",
+    "en": "Castle on the Hill at Midday"
+  },
+  "c_hill_castle_dusk": {
+    "ko": "보랏빛 저녁 언덕 위 성",
+    "en": "Castle on the Hill at Violet Dusk"
+  },
+  "c_night_market_dawn": {
+    "ko": "새벽 야시장 골목",
+    "en": "Night Market Alley at Dawn"
+  },
+  "c_night_market_dusk": {
+    "ko": "보랏빛 저녁 야시장 골목",
+    "en": "Night Market Alley at Violet Dusk"
+  },
+  "c_jungle_falls_dawn": {
+    "ko": "새벽 정글 폭포",
+    "en": "Jungle Falls at Dawn"
+  },
+  "c_jungle_falls_day": {
+    "ko": "한낮 정글 폭포",
+    "en": "Jungle Falls at Midday"
+  },
+  "c_starry_hill_night": {
+    "ko": "달밤 별 언덕",
+    "en": "Starry Hill at Moonlit"
+  },
+  "c_starry_hill_dusk": {
+    "ko": "보랏빛 저녁 별 언덕",
+    "en": "Starry Hill at Violet Dusk"
+  },
+  "c_ski_slope_night": {
+    "ko": "달밤 스키장",
+    "en": "Ski Slope at Moonlit"
+  },
+  "c_ski_slope_dawn": {
+    "ko": "새벽 스키장",
+    "en": "Ski Slope at Dawn"
+  },
+  "c_bamboo_path_day": {
+    "ko": "한낮 대나무 숲길",
+    "en": "Bamboo Path at Midday"
+  },
+  "c_bamboo_path_dawn": {
+    "ko": "새벽 대나무 숲길",
+    "en": "Bamboo Path at Dawn"
+  },
+  "c_beach_resort_dusk": {
+    "ko": "보랏빛 저녁 해변 휴양지",
+    "en": "Beach Resort at Violet Dusk"
+  },
+  "c_beach_resort_dawn": {
+    "ko": "새벽 해변 휴양지",
+    "en": "Beach Resort at Dawn"
+  },
+  "c_kid_0": {
+    "ko": "풍선 든 가람",
+    "en": "Garam with a Balloon"
+  },
+  "c_kid_1": {
+    "ko": "꽃 든 나린",
+    "en": "Narin with a Flower"
+  },
+  "c_kid_2": {
+    "ko": "우산 든 다인",
+    "en": "Dain with an Umbrella"
+  },
+  "c_kid_3": {
+    "ko": "마법봉 든 라희",
+    "en": "Rahee with a Wand"
+  },
+  "c_kid_4": {
+    "ko": "책 든 마루",
+    "en": "Maru with a Book"
+  },
+  "c_kid_5": {
+    "ko": "바구니 든 보람",
+    "en": "Boram with a Basket"
+  },
+  "c_kid_6": {
+    "ko": "나무칼 든 세찬",
+    "en": "Sechan with a Wooden Sword"
+  },
+  "c_kid_7": {
+    "ko": "깃발 든 아로",
+    "en": "Aro with a Flag"
+  },
+  "c_kid_8": {
+    "ko": "잠자리채 든 윤슬",
+    "en": "Yunseul with a Bug Net"
+  },
+  "c_kid_9": {
+    "ko": "연 든 지안",
+    "en": "Jian with a Kite"
+  },
+  "c_kid_10": {
+    "ko": "풍선 든 초롱",
+    "en": "Chorong with a Balloon"
+  },
+  "c_kid_11": {
+    "ko": "꽃 든 태린",
+    "en": "Taerin with a Flower"
+  },
+  "c_kid_12": {
+    "ko": "우산 든 하늬",
+    "en": "Hanui with an Umbrella"
+  },
+  "c_kid_13": {
+    "ko": "마법봉 든 한결",
+    "en": "Hangyeol with a Wand"
+  },
+  "c_kid_14": {
+    "ko": "책 든 누리",
+    "en": "Nuri with a Book"
+  },
+  "c_kid_15": {
+    "ko": "바구니 든 다솜",
+    "en": "Dasom with a Basket"
+  },
+  "c_kid_16": {
+    "ko": "나무칼 든 로하",
+    "en": "Roha with a Wooden Sword"
+  },
+  "c_kid_17": {
+    "ko": "깃발 든 미소",
+    "en": "Miso with a Flag"
+  },
+  "c_kid_18": {
+    "ko": "잠자리채 든 봄이",
+    "en": "Bomi with a Bug Net"
+  },
+  "c_kid_19": {
+    "ko": "연 든 새롬",
+    "en": "Saerom with a Kite"
+  },
+  "c_kid_20": {
+    "ko": "풍선 든 여울",
+    "en": "Yeoul with a Balloon"
+  },
+  "c_kid_21": {
+    "ko": "꽃 든 은솔",
+    "en": "Eunsol with a Flower"
+  },
+  "c_kid_22": {
+    "ko": "우산 든 이랑",
+    "en": "Irang with an Umbrella"
+  },
+  "c_kid_23": {
+    "ko": "마법봉 든 주원",
+    "en": "Juwon with a Wand"
+  },
+  "c_kid_24": {
+    "ko": "책 든 차오",
+    "en": "Chao with a Book"
+  },
+  "c_kid_25": {
+    "ko": "바구니 든 파랑",
+    "en": "Parang with a Basket"
+  },
+  "c_kid_26": {
+    "ko": "나무칼 든 해나",
+    "en": "Haena with a Wooden Sword"
+  },
+  "c_kid_27": {
+    "ko": "깃발 든 호림",
+    "en": "Horim with a Flag"
+  },
+  "c_kid_28": {
+    "ko": "잠자리채 든 아윤",
+    "en": "Ayun with a Bug Net"
+  },
+  "c_kid_29": {
+    "ko": "연 든 라엘",
+    "en": "Rael with a Kite"
+  },
+  "c_animal_giraffe": {
+    "ko": "기린",
+    "en": "Giraffe"
+  },
+  "c_animal_zebra": {
+    "ko": "얼룩말",
+    "en": "Zebra"
+  },
+  "c_animal_elephant": {
+    "ko": "코끼리",
+    "en": "Elephant"
+  },
+  "c_animal_peacock": {
+    "ko": "공작",
+    "en": "Peacock"
+  },
+  "c_animal_parrot": {
+    "ko": "앵무새",
+    "en": "Parrot"
+  },
+  "c_animal_koi": {
+    "ko": "비단잉어",
+    "en": "Koi"
+  },
+  "c_animal_deer": {
+    "ko": "꽃사슴",
+    "en": "Spotted Deer"
+  },
+  "c_animal_horse": {
+    "ko": "말",
+    "en": "Horse"
+  },
+  "c_animal_flamingo": {
+    "ko": "홍학",
+    "en": "Flamingo"
+  },
+  "c_animal_tiger": {
+    "ko": "호랑이",
+    "en": "Tiger"
+  },
+  "c_room_living": {
+    "ko": "거실",
+    "en": "Living Room"
+  },
+  "c_room_bedroom": {
+    "ko": "침실",
+    "en": "Bedroom"
+  },
+  "c_room_study": {
+    "ko": "서재",
+    "en": "Study"
+  },
+  "c_room_kitchen": {
+    "ko": "부엌",
+    "en": "Kitchen"
+  },
+  "c_room_cafe": {
+    "ko": "카페",
+    "en": "Café"
+  },
+  "c_room_florist": {
+    "ko": "꽃집",
+    "en": "Flower Shop"
+  },
+  "c_room_bakery": {
+    "ko": "빵집",
+    "en": "Bakery"
+  },
+  "c_room_workshop": {
+    "ko": "목공방",
+    "en": "Woodshop"
+  },
+  "c_room_attic": {
+    "ko": "다락방",
+    "en": "Attic Room"
+  },
+  "c_room_greenhouse": {
+    "ko": "온실",
+    "en": "Greenhouse"
+  },
+  "c_glass0_0": {
+    "ko": "푸른 장미창",
+    "en": "Azure Rose Window"
+  },
+  "c_glass0_1": {
+    "ko": "붉은 장미창",
+    "en": "Crimson Rose Window"
+  },
+  "c_glass1_0": {
+    "ko": "푸른 마름모 창",
+    "en": "Azure Diamond Window"
+  },
+  "c_glass1_1": {
+    "ko": "붉은 마름모 창",
+    "en": "Crimson Diamond Window"
+  },
+  "c_glass2_0": {
+    "ko": "푸른 꽃 창",
+    "en": "Azure Flower Window"
+  },
+  "c_glass2_1": {
+    "ko": "붉은 꽃 창",
+    "en": "Crimson Flower Window"
+  },
+  "c_glass3_0": {
+    "ko": "푸른 생명의 나무 창",
+    "en": "Azure Tree of Life Window"
+  },
+  "c_glass3_1": {
+    "ko": "붉은 생명의 나무 창",
+    "en": "Crimson Tree of Life Window"
+  },
+  "c_glass4_0": {
+    "ko": "푸른 무지개 아치 창",
+    "en": "Azure Rainbow Arch Window"
+  },
+  "c_glass4_1": {
+    "ko": "붉은 무지개 아치 창",
+    "en": "Crimson Rainbow Arch Window"
   }
 }

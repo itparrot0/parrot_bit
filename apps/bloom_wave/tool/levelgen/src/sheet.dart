@@ -13,7 +13,7 @@ void writeSheet(String out, {String prefix = ''}) {
     for (final a in [...artSources, ...generatedArts()])
       if (a.name.startsWith(prefix)) a,
   ];
-  const cell = 7, tile = 17 * cell, label = 18, cols = 8;
+  const cell = 7, tile = 23 * cell, label = 18, cols = 8;
   final rows = (arts.length / cols).ceil();
   final sheet = img.Image(
     width: cols * (tile + 10),
@@ -29,7 +29,7 @@ void writeSheet(String out, {String prefix = ''}) {
         p.split('=')[0]: int.parse(p.split('=')[1].substring(1), radix: 16),
     };
     final w = a.rows.map((r) => r.length).reduce(math.max);
-    final dx = (17 - w) * cell ~/ 2, dy = (17 - a.rows.length) * cell ~/ 2;
+    final dx = (23 - w) * cell ~/ 2, dy = (23 - a.rows.length) * cell ~/ 2;
     for (var y = 0; y < a.rows.length; y++) {
       for (var x = 0; x < a.rows[y].length; x++) {
         final c = pal[a.rows[y][x]];
@@ -48,7 +48,10 @@ void writeSheet(String out, {String prefix = ''}) {
       sheet,
       a.name
           .replaceFirst('g_', '')
-          .substring(0, math.min(18, a.name.replaceFirst('g_', '').length)),
+          .substring(
+            0,
+            math.min(18, a.name.replaceFirst(RegExp('^[gc]_'), '').length),
+          ),
       font: img.arial14,
       x: ox,
       y: oy + tile + 2,

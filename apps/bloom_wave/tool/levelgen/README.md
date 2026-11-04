@@ -20,7 +20,7 @@ flutter test test/levelgen
 - 종료 코드: 성공 0, `verify` 실패 1, 잘못된 사용법 2.
 
 ## 그림(art)
-- 363장 = 손그림 90장(`src/art_source.dart`) + 코드 그림 273장(`src/art_gen.dart`: 풍경화·캐릭터·일러스트, 시드 고정이라 언제나 같은 그림).
+- 463장 = 손그림 90장(`src/art_source.dart`) + 코드 그림 273장(`src/art_gen.dart`: 풍경화·캐릭터·일러스트) + 복잡한 그림 100장(`src/art_complex.dart`: 최대 22칸 파노라마·전신 캐릭터·큰 동물·실내·스테인드글라스). 시드 고정이라 언제나 같은 그림.
 - 스테이지 배정(`src/make_config.dart`): 한 그림 최대 `maxUses`(3)번, 같은 그림 사이 `minGap`(100)스테이지 이상, 같은 유형(`familyOf`) 사이 `familyGap`(8)스테이지 이상.
 - 레벨 그림은 `art/<이름>.png` (1픽셀 = 1칸, 알파 < 128 은 빈 칸, 16×16 이하 권장). 이름은 `levels.config.json` 의 `art` 값.
 - 색이 `maxColors`(6)를 넘으면 가장 가까운 두 색을 칸 수가 적은 쪽 → 많은 쪽으로 합친다 (경고 출력). 3칸 미만인 색도 경고.

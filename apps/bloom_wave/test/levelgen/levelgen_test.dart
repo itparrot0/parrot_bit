@@ -295,10 +295,13 @@ void main() {
       all.length,
       reason: '한국어 이름 중복',
     );
-    expect(gen.length, greaterThanOrEqualTo(250));
+    expect(gen.length, greaterThanOrEqualTo(370));
+    expect(gen.where((a) => a.name.startsWith('c_')).length, 100);
     for (final a in gen) {
-      expect(a.rows.length, lessThanOrEqualTo(16), reason: a.name);
-      expect(a.rows.every((r) => r.length <= 16), isTrue, reason: a.name);
+      // 보통 그림 16칸, 복잡한 그림(c_) 22칸까지
+      final max = a.name.startsWith('c_') ? 22 : 16;
+      expect(a.rows.length, lessThanOrEqualTo(max), reason: a.name);
+      expect(a.rows.every((r) => r.length <= max), isTrue, reason: a.name);
       expect(a.palette.length, inInclusiveRange(2, 6), reason: a.name);
       final keys = a.palette.map((p) => p[0]).toSet();
       expect(
