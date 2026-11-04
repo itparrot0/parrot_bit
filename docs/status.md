@@ -5,40 +5,41 @@
 > 새 작업을 시작할 때 이 문서를 먼저 읽고, 멈출 때 갱신한다.
 
 - **마지막 갱신**: 2026-11-04
-- **진행 중**: Bloom Wave — 앱 동작, 출시 준비 단계 / Garden Grow — 프로토타입 동작, 플레이 판정 대기
+- **진행 중**: Bloom Wave — Flutter 전환 완료, 출시 준비 단계 / Garden Grow — 프로토타입 동작, 플레이 판정 대기
 - **보류**: 머지 게임, 슬립로그
 
 ---
 
-## B. Bloom Wave — 앱 동작, 출시 준비 단계
+## B. Bloom Wave — Flutter 전환 완료, 출시 준비 단계
 
 | | |
 |---|---|
-| 코드 | `apps/bloom_wave` — **TypeScript** (Vite + PixiJS + Capacitor Android). pub workspace·melos 밖 |
-| 문서 | `apps/bloom_wave/docs/` — `00_규칙_확인_질문.md`(확정 규칙), `01_게임기획서.md`, 단계별 지시서 02~06 |
-| 마지막 커밋 | `4047efa` (2026-11-04, 2차 플레이 피드백) |
+| 코드 | `apps/bloom_wave` — **Flutter** (2026-11-04 TypeScript에서 전환). pub workspace·melos 안 |
+| 문서 | `apps/bloom_wave/docs/` — `00_규칙_확인_질문.md`(확정 규칙, 3차 결정까지), `01_게임기획서.md`. 02~05는 TS 시절 기록 |
 
-씨앗으로 덮인 픽셀 그림에 물방울을 떨어뜨려 꽃 웨이브로 그림을 완성하는 한 손
-퍼즐. Garden Grow와 같은 계열이지만 규칙이 다르다(틱 단위 링 웨이브, 8방향
-전염, 대기열 여러 줄 + 슬롯 4개). 규칙 엔진·솔버·생성기를 앱과 레벨 생성기가
-같은 코드로 쓴다(`packages/core`).
+씨앗으로 덮인 픽셀 그림에 물방울을 떨어뜨려 꽃 웨이브로 그림을 완성하는 한 손 퍼즐. Garden Grow와 같은
+계열이지만 규칙이 다르다(틱 단위 링 웨이브, 8방향 전염, 대기열 여러 줄 + 슬롯 4개). 규칙 엔진·솔버·생성기는
+순수 Dart(`lib/domain/`)이고 앱과 레벨 생성기(`tool/levelgen`)가 같은 코드를 쓴다.
 
-**끝난 것**: 규칙 엔진·솔버, PNG → 클리어 보장 레벨 생성기(`tools/levelgen`),
-120레벨 팩(`pack-01`, 전부 솔버 재검증), 게임·스테이지 맵·정원·설정 화면,
-Android 플랫폼(targetSdk 36), 전면 광고·광고 제거 구매, 난이도 경고창
-(hard/superHard/megaHard). 플레이 피드백 2차까지 반영 — 별점·되돌리기 제거,
-완성 화면은 "다음 스테이지"만, 줄마다 물방울 3개 공개, 길게 눌러 색 미리보기.
+**Flutter 전환 (2026-11-04)**: TS(Vite·PixiJS·Capacitor)를 쓴 이유(브라우저 테스트·엔진 공유·iOS)는
+Flutter로도 충족되고 모노레포가 전부 Flutter라 옮겼다. TS 코드는 삭제했다(마지막 TS 커밋 `43be239`).
+전환 검증: `test/domain/ts_parity_test.dart` — 120레벨 솔버 해법·노드 수, 생성 레벨이 TS와 같다. Dart 레벨
+생성기 전체 빌드는 TS 빌드와 바이트 단위로 같다(`pack-01.json`, `report.csv`).
 
-**검증 (2026-11-04)**: core 13 · levelgen 7 · app(Vitest) 14 · Playwright e2e 15
-전부 통과, `levels:verify` 120레벨 통과, `tsc --noEmit` 깨끗. 클라우드에서
-e2e는 `PW_EXECUTABLE_PATH=/opt/pw-browsers/chromium`으로 돌린다.
+**3차 결정 (2026-11-04)**: 지난 스테이지 다시 하기 없음 → 스테이지 맵·정원 삭제. 홈은 시작 버튼 하나 +
+골드 잔액. 완성 시 골드 무작위 지급(`lib/economy/gold.dart`, 현재 10~30 — 플레이해 보고 조절), 완성 화면은
+[홈] [다음 스테이지]. 설정은 일시정지 메뉴로 옮겼다.
+
+**검증 (2026-11-04)**: `flutter test` 51개 통과(domain·TS 동등성·controller·save·화면 흐름·levelgen),
+`flutter analyze` 깨끗, `levelgen verify` 120레벨 통과. 웹 빌드로 홈 → 1스테이지 → 완성(골드) → 광고 →
+2스테이지 흐름을 브라우저에서 확인. **Android 빌드는 이 클라우드 환경에서 못 했다** (Android SDK 다운로드
+호스트 dl.google.com 차단) — 로컬에서 `flutter build apk` 로 확인 필요.
 
 **다음 할 일**:
-1. AdMob **테스트 ID → 실제 ID** 교체 (`app/src/monetize/ads.ts`, `AndroidManifest.xml`).
-2. 레벨 그림을 플레이스홀더(텍스트 아트 변환)에서 실제 아트로 교체 — `tools/levelgen/art/`.
-3. 서명된 AAB 빌드(JDK 21, `android/keystore.properties`) → `05_스토어배포_지시서.md`.
-   Play 데이터 보안 양식에 광고(인터넷·광고 ID 권한)를 반영.
-4. 그다음 `06_아이템_상점_가이드.md`의 아이템·상점.
+1. 로컬에서 APK 빌드·실기기 확인 (광고 SDK·결제·효과음은 실기기에서 처음 돈다).
+2. 골드 지급량 조절, 골드 사용처(아이템·상점 — `docs/06_아이템_상점_가이드.md`).
+3. AdMob **테스트 ID → 실제 ID**, Play Console `remove_ads` 상품, 업로드 키(`android/key.properties`).
+4. 레벨 그림을 플레이스홀더에서 실제 아트로 교체 — `tool/levelgen/art/`.
 
 ---
 
@@ -178,8 +179,6 @@ v0.1 원문으로 전면 교체**됐다. 이전 PRD에만 있던 결정들 — �
   --set-exit-if-changed .`가 파일을 재작성한 뒤 exit 1을 낸다. CI에서는 작업
   트리를 버리니 검사처럼 동작하지만, 로컬에서 돌리면 재포맷이 남는다.
   저장소는 `d51467d`에서 한 번 전체 정렬했다.
-- **`apps/bloom_wave`는 melos 밖이다.** `melos run test`는 이 앱을 돌리지 않는다 —
-  그 폴더에서 `npm test`를 따로 실행한다.
 - **CI 워크플로가 없다.** `docs/03-architecture.md` §1은 CI가
   `melos run analyze && melos run test`만 돌리면 되게 유지한다고 전제하는데,
   `.github/`가 아직 없다.

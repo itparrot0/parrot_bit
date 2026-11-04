@@ -1,7 +1,6 @@
-node_modules/
-dist/
-tools/levelgen/out/previews/
-test-results/
-playwright-report/
-*.tsbuildinfo
-tools/levelgen/out/build.log
+# Flutter 빌드 산출물
+build/
+.dart_tool/
+# 레벨 생성기 출력 중 미리보기·로그 (팩·리포트는 커밋한다)
+tool/levelgen/out/previews/
+tool/levelgen/out/build.log

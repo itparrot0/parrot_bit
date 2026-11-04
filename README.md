@@ -2,14 +2,10 @@
 
 IT Parrot 모바일 앱 모노레포 (Flutter + Melos + pub workspace).
 
-> **예외: `apps/bloom_wave`는 TypeScript(Vite + PixiJS + Capacitor) 앱이다.**
-> pub workspace·melos에 들어가지 않으며, 빌드·테스트는 그 폴더의
-> `npm install && npm test`로 따로 돌린다 ([apps/bloom_wave/README.md](apps/bloom_wave/README.md)).
-
 ## 구조
 
 ```
-apps/                # 앱 (릴리즈 앱 + proto_* 프로토타입, bloom_wave는 TypeScript)
+apps/                # 앱 (릴리즈 앱 + proto_* 프로토타입)
 packages/
 ├── core_ui          # 공통 위젯, 테마, 디자인 토큰
 ├── core_network     # API 클라이언트, 에러 처리

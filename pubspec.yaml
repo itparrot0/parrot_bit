@@ -6,6 +6,7 @@ environment:
   sdk: ^3.12.2
 
 workspace:
+  - apps/bloom_wave
   - apps/proto_merge
   - apps/proto_full_bloom
   - apps/sleep_log
