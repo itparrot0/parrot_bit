@@ -1,0 +1,362 @@
+{
+  "dewdrop": {
+    "ko": "이슬",
+    "en": "Dewdrop"
+  },
+  "sprout": {
+    "ko": "새싹",
+    "en": "Sprout"
+  },
+  "heart": {
+    "ko": "하트",
+    "en": "Heart"
+  },
+  "tulip": {
+    "ko": "튤립",
+    "en": "Tulip"
+  },
+  "daisy": {
+    "ko": "데이지",
+    "en": "Daisy"
+  },
+  "rose": {
+    "ko": "장미",
+    "en": "Rose"
+  },
+  "sunflower": {
+    "ko": "해바라기",
+    "en": "Sunflower"
+  },
+  "lotus": {
+    "ko": "연꽃",
+    "en": "Lotus"
+  },
+  "cherry_blossom": {
+    "ko": "벚꽃",
+    "en": "Cherry Blossom"
+  },
+  "cactus": {
+    "ko": "선인장",
+    "en": "Cactus"
+  },
+  "bouquet": {
+    "ko": "꽃다발",
+    "en": "Bouquet"
+  },
+  "cherry": {
+    "ko": "체리",
+    "en": "Cherries"
+  },
+  "apple": {
+    "ko": "사과",
+    "en": "Apple"
+  },
+  "lemon": {
+    "ko": "레몬",
+    "en": "Lemon"
+  },
+  "strawberry": {
+    "ko": "딸기",
+    "en": "Strawberry"
+  },
+  "grapes": {
+    "ko": "포도",
+    "en": "Grapes"
+  },
+  "banana": {
+    "ko": "바나나",
+    "en": "Bananas"
+  },
+  "peach": {
+    "ko": "복숭아",
+    "en": "Peach"
+  },
+  "pineapple": {
+    "ko": "파인애플",
+    "en": "Pineapple"
+  },
+  "watermelon": {
+    "ko": "수박",
+    "en": "Watermelon"
+  },
+  "fruit_basket": {
+    "ko": "과일 바구니",
+    "en": "Fruit Basket"
+  },
+  "ladybug": {
+    "ko": "무당벌레",
+    "en": "Ladybug"
+  },
+  "butterfly": {
+    "ko": "나비",
+    "en": "Butterfly"
+  },
+  "bee": {
+    "ko": "꿀벌",
+    "en": "Bee"
+  },
+  "snail": {
+    "ko": "달팽이",
+    "en": "Snail"
+  },
+  "mushroom": {
+    "ko": "버섯",
+    "en": "Mushroom"
+  },
+  "flowerpot": {
+    "ko": "화분",
+    "en": "Flowerpot"
+  },
+  "watering_can": {
+    "ko": "물뿌리개",
+    "en": "Watering Can"
+  },
+  "birdhouse": {
+    "ko": "새집",
+    "en": "Birdhouse"
+  },
+  "garden_gate": {
+    "ko": "정원 문",
+    "en": "Garden Gate"
+  },
+  "rainbow_flower": {
+    "ko": "무지개 꽃",
+    "en": "Rainbow Flower"
+  },
+  "chick": {
+    "ko": "병아리",
+    "en": "Chick"
+  },
+  "cat": {
+    "ko": "고양이",
+    "en": "Cat"
+  },
+  "fish": {
+    "ko": "물고기",
+    "en": "Fish"
+  },
+  "penguin": {
+    "ko": "펭귄",
+    "en": "Penguin"
+  },
+  "rabbit": {
+    "ko": "토끼",
+    "en": "Rabbit"
+  },
+  "frog": {
+    "ko": "개구리",
+    "en": "Frog"
+  },
+  "turtle": {
+    "ko": "거북이",
+    "en": "Turtle"
+  },
+  "owl": {
+    "ko": "부엉이",
+    "en": "Owl"
+  },
+  "fox": {
+    "ko": "여우",
+    "en": "Fox"
+  },
+  "panda": {
+    "ko": "판다",
+    "en": "Panda"
+  },
+  "starfish": {
+    "ko": "불가사리",
+    "en": "Starfish"
+  },
+  "shell": {
+    "ko": "조개",
+    "en": "Seashell"
+  },
+  "jellyfish": {
+    "ko": "해파리",
+    "en": "Jellyfish"
+  },
+  "octopus": {
+    "ko": "문어",
+    "en": "Octopus"
+  },
+  "whale": {
+    "ko": "고래",
+    "en": "Whale"
+  },
+  "sailboat": {
+    "ko": "돛단배",
+    "en": "Sailboat"
+  },
+  "lighthouse": {
+    "ko": "등대",
+    "en": "Lighthouse"
+  },
+  "coral_reef": {
+    "ko": "산호초",
+    "en": "Coral Reef"
+  },
+  "sun": {
+    "ko": "해",
+    "en": "Sun"
+  },
+  "moon": {
+    "ko": "달",
+    "en": "Moon"
+  },
+  "cloud": {
+    "ko": "구름",
+    "en": "Cloud"
+  },
+  "snowflake": {
+    "ko": "눈송이",
+    "en": "Snowflake"
+  },
+  "lightning": {
+    "ko": "번개 구름",
+    "en": "Storm"
+  },
+  "rainbow": {
+    "ko": "무지개",
+    "en": "Rainbow"
+  },
+  "kite": {
+    "ko": "연",
+    "en": "Kite"
+  },
+  "hot_air_balloon": {
+    "ko": "열기구",
+    "en": "Hot Air Balloon"
+  },
+  "rocket": {
+    "ko": "로켓",
+    "en": "Rocket"
+  },
+  "night_sky": {
+    "ko": "밤하늘",
+    "en": "Night Sky"
+  },
+  "candy": {
+    "ko": "사탕",
+    "en": "Candy"
+  },
+  "pudding": {
+    "ko": "푸딩",
+    "en": "Pudding"
+  },
+  "ice_cream": {
+    "ko": "아이스크림",
+    "en": "Ice Cream"
+  },
+  "cupcake": {
+    "ko": "컵케이크",
+    "en": "Cupcake"
+  },
+  "donut": {
+    "ko": "도넛",
+    "en": "Donut"
+  },
+  "lollipop": {
+    "ko": "막대사탕",
+    "en": "Lollipop"
+  },
+  "cake": {
+    "ko": "케이크",
+    "en": "Cake"
+  },
+  "macaron": {
+    "ko": "마카롱",
+    "en": "Macarons"
+  },
+  "teapot": {
+    "ko": "찻주전자",
+    "en": "Teapot"
+  },
+  "tea_party": {
+    "ko": "티타임",
+    "en": "Tea Party"
+  },
+  "watermelon_slice": {
+    "ko": "수박 조각",
+    "en": "Melon Slice"
+  },
+  "beach_ball": {
+    "ko": "비치볼",
+    "en": "Beach Ball"
+  },
+  "umbrella": {
+    "ko": "우산",
+    "en": "Umbrella"
+  },
+  "dragonfly": {
+    "ko": "잠자리",
+    "en": "Dragonfly"
+  },
+  "sandcastle": {
+    "ko": "모래성",
+    "en": "Sandcastle"
+  },
+  "picnic": {
+    "ko": "소풍",
+    "en": "Picnic"
+  },
+  "maple_leaf": {
+    "ko": "단풍잎",
+    "en": "Maple Leaf"
+  },
+  "acorn": {
+    "ko": "도토리",
+    "en": "Acorn"
+  },
+  "chestnut": {
+    "ko": "밤",
+    "en": "Chestnut"
+  },
+  "pumpkin": {
+    "ko": "호박",
+    "en": "Pumpkin"
+  },
+  "mitten": {
+    "ko": "벙어리장갑",
+    "en": "Mitten"
+  },
+  "snowman": {
+    "ko": "눈사람",
+    "en": "Snowman"
+  },
+  "gift": {
+    "ko": "선물 상자",
+    "en": "Gift"
+  },
+  "christmas_tree": {
+    "ko": "트리",
+    "en": "Christmas Tree"
+  },
+  "winter_cabin": {
+    "ko": "겨울 오두막",
+    "en": "Winter Cabin"
+  },
+  "house": {
+    "ko": "집",
+    "en": "House"
+  },
+  "car": {
+    "ko": "자동차",
+    "en": "Car"
+  },
+  "train": {
+    "ko": "기차",
+    "en": "Train"
+  },
+  "bicycle": {
+    "ko": "자전거",
+    "en": "Bicycle"
+  },
+  "guitar": {
+    "ko": "기타",
+    "en": "Guitar"
+  },
+  "carousel": {
+    "ko": "회전목마",
+    "en": "Carousel"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@bloom-wave/levelgen",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "픽셀 아트 PNG → 클리어 보장 Bloom Wave 레벨 팩 생성기",
+  "bin": { "levelgen": "./src/cli.ts" },
+  "scripts": {
+    "art": "node src/art.ts",
+    "config": "node src/make-config.ts",
+    "build": "node src/cli.ts build levels.config.json",
+    "verify": "node src/cli.ts verify out/pack-01.json",
+    "test": "node --test src/levelgen.test.ts"
+  },
+  "dependencies": {
+    "@bloom-wave/core": "*",
+    "pngjs": "^7.0.0"
+  }
+}

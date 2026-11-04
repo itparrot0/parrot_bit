@@ -4,3 +4,4 @@ tools/levelgen/out/previews/
 test-results/
 playwright-report/
 *.tsbuildinfo
+tools/levelgen/out/build.log

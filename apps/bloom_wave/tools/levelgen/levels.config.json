@@ -1,0 +1,2392 @@
+{
+  "pack": "pack-01",
+  "copyTo": [
+    "../../app/src/levels/pack-01.json"
+  ],
+  "defaults": {
+    "slotCount": 4,
+    "options": {
+      "queuePick": 1,
+      "realtime": true
+    },
+    "displacements": 1500,
+    "maxSolverNodes": 50000,
+    "maxColors": 6
+  },
+  "levels": [
+    {
+      "art": "dewdrop",
+      "band": "tutorial",
+      "tutorial": "wave",
+      "seeds": [
+        1
+      ],
+      "starts": 1,
+      "dropMin": 6,
+      "dropMax": 9,
+      "displacements": 0,
+      "targetWinRate": 1,
+      "winRange": [
+        1,
+        1
+      ],
+      "options": {
+        "realtime": false
+      }
+    },
+    {
+      "art": "sprout",
+      "band": "tutorial",
+      "tutorial": "colors",
+      "seeds": [
+        1,
+        2,
+        3
+      ],
+      "starts": 1,
+      "dropMin": 5,
+      "dropMax": 8,
+      "displacements": 0,
+      "targetWinRate": 1,
+      "winRange": [
+        1,
+        1
+      ],
+      "options": {
+        "realtime": false
+      }
+    },
+    {
+      "art": "heart",
+      "band": "tutorial",
+      "tutorial": "realtime",
+      "seeds": [
+        1,
+        2,
+        3
+      ],
+      "starts": 2,
+      "dropMin": 4,
+      "dropMax": 8,
+      "displacements": 0,
+      "targetWinRate": 1,
+      "winRange": [
+        1,
+        1
+      ]
+    },
+    {
+      "art": "sun",
+      "band": "tutorial",
+      "tutorial": "waiting",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 1,
+      "dropMin": 3,
+      "dropMax": 6,
+      "displacements": 30,
+      "targetWinRate": 1,
+      "winRange": [
+        0.95,
+        1
+      ]
+    },
+    {
+      "art": "snowflake",
+      "band": "tutorial",
+      "tutorial": "slots",
+      "seeds": [
+        1,
+        2,
+        3
+      ],
+      "starts": 2,
+      "dropMin": 3,
+      "dropMax": 6,
+      "displacements": 60,
+      "targetWinRate": 1,
+      "winRange": [
+        0.9,
+        1
+      ]
+    },
+    {
+      "art": "tulip",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "starfish",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "candy",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "banana",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "bicycle",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "cherry",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "moon",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "daisy",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "lightning",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "maple_leaf",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "ladybug",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "chestnut",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "guitar",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "acorn",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "kite",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "chick",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "teapot",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "pudding",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "butterfly",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "grapes",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "lemon",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "jellyfish",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "turtle",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "umbrella",
+      "band": "intro",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "dragonfly",
+      "band": "intro",
+      "role": "boss",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 6,
+      "targetWinRate": 0.85,
+      "winRange": [
+        0.7,
+        1
+      ]
+    },
+    {
+      "art": "mitten",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "car",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "rose",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "cherry_blossom",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "bee",
+      "band": "mid",
+      "role": "breather",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 3,
+      "dropMax": 6,
+      "targetWinRate": 0.9,
+      "winRange": [
+        0.75,
+        1
+      ]
+    },
+    {
+      "art": "cloud",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "penguin",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "fish",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "shell",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "rocket",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "pineapple",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "fox",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "flowerpot",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "mushroom",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "watermelon_slice",
+      "band": "mid",
+      "role": "breather",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 3,
+      "dropMax": 6,
+      "targetWinRate": 0.9,
+      "winRange": [
+        0.75,
+        1
+      ]
+    },
+    {
+      "art": "christmas_tree",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "ice_cream",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "apple",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "watering_can",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "gift",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "rabbit",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "lotus",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "cat",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "sailboat",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "pumpkin",
+      "band": "mid",
+      "role": "breather",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 3,
+      "dropMax": 6,
+      "targetWinRate": 0.9,
+      "winRange": [
+        0.75,
+        1
+      ]
+    },
+    {
+      "art": "birdhouse",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "strawberry",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "peach",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "lighthouse",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "frog",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "beach_ball",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "octopus",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "cactus",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "house",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "snail",
+      "band": "mid",
+      "role": "breather",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 3,
+      "dropMax": 6,
+      "targetWinRate": 0.9,
+      "winRange": [
+        0.75,
+        1
+      ]
+    },
+    {
+      "art": "snowman",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "cupcake",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "lollipop",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "whale",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "hot_air_balloon",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "macaron",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "train",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "watermelon",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "sunflower",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "sandcastle",
+      "band": "mid",
+      "role": "breather",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 3,
+      "dropMax": 6,
+      "targetWinRate": 0.9,
+      "winRange": [
+        0.75,
+        1
+      ]
+    },
+    {
+      "art": "cake",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "donut",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "bouquet",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "owl",
+      "band": "mid",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "garden_gate",
+      "band": "mid",
+      "role": "boss",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.5,
+      "winRange": [
+        0.3,
+        0.7
+      ]
+    },
+    {
+      "art": "garden_gate",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "owl",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "bouquet",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "donut",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "cake",
+      "variant": 2,
+      "band": "hard",
+      "role": "breather",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 5,
+      "targetWinRate": 0.7,
+      "winRange": [
+        0.5,
+        1
+      ]
+    },
+    {
+      "art": "sandcastle",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "sunflower",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "watermelon",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "train",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "macaron",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "hot_air_balloon",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "whale",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "lollipop",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "cupcake",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "snowman",
+      "variant": 2,
+      "band": "hard",
+      "role": "breather",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 5,
+      "targetWinRate": 0.7,
+      "winRange": [
+        0.5,
+        1
+      ]
+    },
+    {
+      "art": "snail",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "house",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "cactus",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "octopus",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "beach_ball",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "frog",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "lighthouse",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "peach",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "strawberry",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "birdhouse",
+      "variant": 2,
+      "band": "hard",
+      "role": "breather",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 5,
+      "targetWinRate": 0.7,
+      "winRange": [
+        0.5,
+        1
+      ]
+    },
+    {
+      "art": "pumpkin",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "sailboat",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "cat",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "lotus",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "rabbit",
+      "variant": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "rainbow",
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "coral_reef",
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "panda",
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "night_sky",
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "carousel",
+      "band": "hard",
+      "role": "breather",
+      "seeds": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "starts": 2,
+      "dropMin": 2,
+      "dropMax": 5,
+      "targetWinRate": 0.7,
+      "winRange": [
+        0.5,
+        1
+      ]
+    },
+    {
+      "art": "tea_party",
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "picnic",
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "fruit_basket",
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "winter_cabin",
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    },
+    {
+      "art": "rainbow_flower",
+      "band": "hard",
+      "role": "boss",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "dropMin": 1,
+      "dropMax": 3,
+      "targetWinRate": 0.15,
+      "winRange": [
+        0.05,
+        0.3
+      ]
+    }
+  ]
+}
