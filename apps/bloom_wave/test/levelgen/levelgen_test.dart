@@ -6,6 +6,8 @@ import 'package:bloom_wave/domain/engine.dart';
 import 'package:bloom_wave/domain/generator.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../tool/levelgen/src/art_gen.dart';
+import '../../tool/levelgen/src/art_source.dart';
 import '../../tool/levelgen/src/build.dart';
 import '../../tool/levelgen/src/config.dart';
 import '../../tool/levelgen/src/generate_one.dart';
@@ -252,5 +254,76 @@ void main() {
       ],
       ['II', 'III', 'IV', 'IX', 'XII', 'XIV'],
     );
+  });
+
+  test('그림 배정: 한 그림은 3번까지, 같은 그림은 100스테이지 이상 떨어져서', () {
+    final pack = jsonDecode(packText) as List;
+    final arts = [
+      for (final l in pack) (((l as Map)['meta'] as Map)['art'] as String),
+    ];
+    final uses = <String, int>{}, last = <String, int>{};
+    for (var i = 0; i < arts.length; i++) {
+      final a = arts[i];
+      uses[a] = (uses[a] ?? 0) + 1;
+      if (last.containsKey(a)) {
+        expect(
+          i - last[a]!,
+          greaterThanOrEqualTo(100),
+          reason: '$a: ${last[a]! + 1} → ${i + 1}',
+        );
+      }
+      last[a] = i;
+    }
+    expect(uses.values.every((n) => n <= 3), isTrue);
+    // 같은 유형(산 풍경끼리, 친구 캐릭터끼리 …)은 8스테이지 안에 겹치지 않는다
+    final lastFam = <String, int>{};
+    for (var i = 5; i < arts.length; i++) {
+      final f = familyOf(arts[i]);
+      if (lastFam.containsKey(f)) {
+        expect(i - lastFam[f]!, greaterThanOrEqualTo(8), reason: f);
+      }
+      lastFam[f] = i;
+    }
+  });
+
+  test('코드로 그린 그림: 이름이 겹치지 않고, 크기 16칸·색 6개 이하, 언제 돌려도 같다', () {
+    final gen = generatedArts();
+    final all = [...artSources, ...gen];
+    expect(all.map((a) => a.name).toSet().length, all.length);
+    expect(
+      all.map((a) => a.ko).toSet().length,
+      all.length,
+      reason: '한국어 이름 중복',
+    );
+    expect(gen.length, greaterThanOrEqualTo(250));
+    for (final a in gen) {
+      expect(a.rows.length, lessThanOrEqualTo(16), reason: a.name);
+      expect(a.rows.every((r) => r.length <= 16), isTrue, reason: a.name);
+      expect(a.palette.length, inInclusiveRange(2, 6), reason: a.name);
+      final keys = a.palette.map((p) => p[0]).toSet();
+      expect(
+        a.rows.join().split('').where((c) => c != '.').every(keys.contains),
+        isTrue,
+        reason: a.name,
+      );
+    }
+    final again = generatedArts();
+    for (var i = 0; i < gen.length; i++) {
+      expect(again[i].rows, gen[i].rows);
+    }
+    // 풍경화 · 캐릭터 · 일러스트가 모두 있다
+    bool has(String p) => gen.any((a) => a.name.startsWith(p));
+    for (final p in [
+      'g_mountain_',
+      'g_city_',
+      'g_friend_',
+      'g_robot_',
+      'g_pal_',
+      'g_balloon_',
+      'g_tile',
+      'g_food_',
+    ]) {
+      expect(has(p), isTrue, reason: p);
+    }
   });
 }

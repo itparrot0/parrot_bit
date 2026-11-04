@@ -4,12 +4,14 @@
 //   dart run tool/levelgen/levelgen.dart art [artDir]          텍스트 아트(src/art_source.dart) → art/*.png, names.json
 //   dart run tool/levelgen/levelgen.dart config [configPath]   levels.config.json 다시 만들기
 //   dart run tool/levelgen/levelgen.dart icons <outDir>        앱 아이콘 원본 PNG
+//   dart run tool/levelgen/levelgen.dart sheet <out.png> [접두어]  그림 콘택트 시트 (검토용)
 import 'dart:io';
 
 import 'src/art.dart';
 import 'src/build.dart';
 import 'src/icon.dart';
 import 'src/make_config.dart';
+import 'src/sheet.dart';
 import 'src/verify.dart';
 
 const _usage =
@@ -40,6 +42,8 @@ Future<void> main(List<String> argv) async {
       exit(0);
     case 'verify' when file != null:
       exit(verify(file) ? 0 : 1);
+    case 'sheet' when file != null:
+      writeSheet(file, prefix: argv.length > 2 ? argv[2] : '');
     case 'art':
       writeArt(file ?? '$_here/art');
     case 'config':

@@ -7,11 +7,13 @@ import 'dart:math' as math;
 import 'package:bloom_wave/domain/engine.dart';
 import 'package:bloom_wave/domain/generator.dart';
 
+import 'art_gen.dart';
 import 'art_source.dart';
 import 'config.dart';
 import 'js_json.dart';
 
-ArtSource _src(String name) => artSources.firstWhere((x) => x.name == name);
+final List<ArtSource> _allArts = [...artSources, ...generatedArts()];
+ArtSource _src(String name) => _allArts.firstWhere((x) => x.name == name);
 
 double _complexity(String name) {
   final a = _src(name);
@@ -28,6 +30,9 @@ const _v3 = PartialOptions(visible: 3);
 
 /// 출시 팩 스테이지 수
 const totalStages = 1000;
+
+/// 한 그림을 쓰는 최대 횟수 / 같은 그림 사이 최소 간격 / 같은 유형 사이 최소 간격
+const maxUses = 3, minGap = 100, familyGap = 8;
 
 /// 다음 어려움 스테이지까지 거리: 2~4
 int _gap(double Function() rng) => 2 + (rng() * 3).floor();
@@ -125,7 +130,7 @@ PackConfig makeConfig() {
   ];
   final used = tutorial.map((t) => t.art).toSet();
   final names = [
-    for (final a in artSources)
+    for (final a in _allArts)
       if (!used.contains(a.name)) a.name,
   ];
   // JS 의 Array.sort 처럼 안정 정렬 (복잡도가 같으면 원래 순서)
@@ -152,25 +157,55 @@ PackConfig makeConfig() {
           ][(rng() * 3).floor()];
   }
 
+  // 그림 배정 규칙 (2026-11-04):
+  //  - 한 그림은 많아야 [maxUses] 번
+  //  - 같은 그림이 다시 나오려면 [minGap] 스테이지 이상 지나야 한다
+  //  - 같은 유형(art_gen.familyOf: 산 풍경끼리, 친구 캐릭터끼리 …)은 [familyGap] 스테이지 안에 겹치지 않게 (안 되면 이것만 완화)
+  //  - 초반 노말은 단순한 그림부터, Super/Mega Hard 는 복잡한 2/3 에서 (안 되면 이것도 완화)
+  //  - 그 안에서 가장 적게 쓴 그림, 같으면 무작위
   final uses = <String, int>{}; // 그림별 사용 횟수 → variant 번호 (id: <그림>-<n>)
-  String? prev;
+  final lastUse = <String, int>{};
+  final lastFamily = <String, int>{};
   final levels = <LevelSpec>[...tutorial];
   for (var n = tutorial.length + 1; n <= totalStages; n++) {
     final tier = tiers[n] ?? Difficulty.normal;
-    // 그림 고르기: 초반 노말은 단순한 그림부터, Super/Mega Hard 는 복잡한 절반에서.
-    // 그 안에서 가장 적게 쓴 그림 (같으면 무작위), 바로 앞 스테이지와 같은 그림은 피한다.
-    final List<String> allowed = switch (tier) {
-      Difficulty.normal when n <= 30 => pool.sublist(0, 30),
-      Difficulty.normal when n <= 100 => pool.sublist(0, 60),
+    final List<String> preferred = switch (tier) {
+      Difficulty.normal when n <= 30 => pool.sublist(0, 60),
+      Difficulty.normal when n <= 100 => pool.sublist(0, pool.length ~/ 2),
       Difficulty.superHard ||
       Difficulty.megaHard => pool.sublist(pool.length ~/ 3),
       _ => pool,
     };
-    final cands = allowed.where((a) => a != prev).toList();
+    bool free(String a) =>
+        (uses[a] ?? 0) < maxUses && n - (lastUse[a] ?? -minGap) >= minGap;
+    bool spaced(String a) =>
+        n - (lastFamily[familyOf(a)] ?? -familyGap) >= familyGap;
+    var cands = [
+      for (final a in preferred)
+        if (free(a) && spaced(a)) a,
+    ];
+    if (cands.isEmpty) {
+      cands = [
+        for (final a in pool)
+          if (free(a) && spaced(a)) a,
+      ];
+    }
+    if (cands.isEmpty) {
+      cands = [
+        for (final a in pool)
+          if (free(a)) a,
+      ];
+    }
+    if (cands.isEmpty) {
+      throw StateError(
+        'stage $n: 쓸 수 있는 그림이 없다 (그림 ${pool.length}장, 최대 $maxUses번, 간격 $minGap)',
+      );
+    }
     final least = cands.map((a) => uses[a] ?? 0).reduce(math.min);
     final pick = cands.where((a) => (uses[a] ?? 0) == least).toList();
     final art = pick[(rng() * pick.length).floor()];
-    prev = art;
+    lastUse[art] = n;
+    lastFamily[familyOf(art)] = n;
     final variant = (uses[art] = (uses[art] ?? 0) + 1);
     // Mega Hard 는 해상도 2배 그림을 반쯤 섞는다 (칸이 많아져 더 어렵다)
     final scale =

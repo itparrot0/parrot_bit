@@ -358,5 +358,1097 @@
   "carousel": {
     "ko": "회전목마",
     "en": "Carousel"
+  },
+  "g_mountain_dawn": {
+    "ko": "새벽 산",
+    "en": "Mountains at Dawn"
+  },
+  "g_mountain_day": {
+    "ko": "한낮 산",
+    "en": "Mountains at Midday"
+  },
+  "g_mountain_sunset": {
+    "ko": "노을 산",
+    "en": "Mountains at Sunset"
+  },
+  "g_mountain_night": {
+    "ko": "달밤 산",
+    "en": "Mountains at Moonlit"
+  },
+  "g_mountain_dusk": {
+    "ko": "보랏빛 저녁 산",
+    "en": "Mountains at Violet Dusk"
+  },
+  "g_mountain_mist": {
+    "ko": "안개 낀 산",
+    "en": "Mountains in Mist"
+  },
+  "g_seaside_dawn": {
+    "ko": "새벽 바닷가",
+    "en": "Seaside at Dawn"
+  },
+  "g_seaside_day": {
+    "ko": "한낮 바닷가",
+    "en": "Seaside at Midday"
+  },
+  "g_seaside_sunset": {
+    "ko": "노을 바닷가",
+    "en": "Seaside at Sunset"
+  },
+  "g_seaside_night": {
+    "ko": "달밤 바닷가",
+    "en": "Seaside at Moonlit"
+  },
+  "g_seaside_dusk": {
+    "ko": "보랏빛 저녁 바닷가",
+    "en": "Seaside at Violet Dusk"
+  },
+  "g_seaside_mist": {
+    "ko": "안개 낀 바닷가",
+    "en": "Seaside in Mist"
+  },
+  "g_lake_dawn": {
+    "ko": "새벽 숲속 호수",
+    "en": "Forest Lake at Dawn"
+  },
+  "g_lake_day": {
+    "ko": "한낮 숲속 호수",
+    "en": "Forest Lake at Midday"
+  },
+  "g_lake_sunset": {
+    "ko": "노을 숲속 호수",
+    "en": "Forest Lake at Sunset"
+  },
+  "g_lake_night": {
+    "ko": "달밤 숲속 호수",
+    "en": "Forest Lake at Moonlit"
+  },
+  "g_lake_dusk": {
+    "ko": "보랏빛 저녁 숲속 호수",
+    "en": "Forest Lake at Violet Dusk"
+  },
+  "g_lake_mist": {
+    "ko": "안개 낀 숲속 호수",
+    "en": "Forest Lake in Mist"
+  },
+  "g_desert_dawn": {
+    "ko": "새벽 사막",
+    "en": "Desert at Dawn"
+  },
+  "g_desert_day": {
+    "ko": "한낮 사막",
+    "en": "Desert at Midday"
+  },
+  "g_desert_sunset": {
+    "ko": "노을 사막",
+    "en": "Desert at Sunset"
+  },
+  "g_desert_night": {
+    "ko": "달밤 사막",
+    "en": "Desert at Moonlit"
+  },
+  "g_desert_dusk": {
+    "ko": "보랏빛 저녁 사막",
+    "en": "Desert at Violet Dusk"
+  },
+  "g_desert_mist": {
+    "ko": "안개 낀 사막",
+    "en": "Desert in Mist"
+  },
+  "g_village_dawn": {
+    "ko": "새벽 눈 마을",
+    "en": "Snowy Village at Dawn"
+  },
+  "g_village_day": {
+    "ko": "한낮 눈 마을",
+    "en": "Snowy Village at Midday"
+  },
+  "g_village_sunset": {
+    "ko": "노을 눈 마을",
+    "en": "Snowy Village at Sunset"
+  },
+  "g_village_night": {
+    "ko": "달밤 눈 마을",
+    "en": "Snowy Village at Moonlit"
+  },
+  "g_village_dusk": {
+    "ko": "보랏빛 저녁 눈 마을",
+    "en": "Snowy Village at Violet Dusk"
+  },
+  "g_village_mist": {
+    "ko": "안개 낀 눈 마을",
+    "en": "Snowy Village in Mist"
+  },
+  "g_city_dawn": {
+    "ko": "새벽 도시",
+    "en": "City at Dawn"
+  },
+  "g_city_day": {
+    "ko": "한낮 도시",
+    "en": "City at Midday"
+  },
+  "g_city_sunset": {
+    "ko": "노을 도시",
+    "en": "City at Sunset"
+  },
+  "g_city_night": {
+    "ko": "달밤 도시",
+    "en": "City at Moonlit"
+  },
+  "g_city_dusk": {
+    "ko": "보랏빛 저녁 도시",
+    "en": "City at Violet Dusk"
+  },
+  "g_city_mist": {
+    "ko": "안개 낀 도시",
+    "en": "City in Mist"
+  },
+  "g_hills_dawn": {
+    "ko": "새벽 언덕",
+    "en": "Rolling Hills at Dawn"
+  },
+  "g_hills_day": {
+    "ko": "한낮 언덕",
+    "en": "Rolling Hills at Midday"
+  },
+  "g_hills_sunset": {
+    "ko": "노을 언덕",
+    "en": "Rolling Hills at Sunset"
+  },
+  "g_hills_night": {
+    "ko": "달밤 언덕",
+    "en": "Rolling Hills at Moonlit"
+  },
+  "g_hills_dusk": {
+    "ko": "보랏빛 저녁 언덕",
+    "en": "Rolling Hills at Violet Dusk"
+  },
+  "g_hills_mist": {
+    "ko": "안개 낀 언덕",
+    "en": "Rolling Hills in Mist"
+  },
+  "g_island_dawn": {
+    "ko": "새벽 섬",
+    "en": "Island at Dawn"
+  },
+  "g_island_day": {
+    "ko": "한낮 섬",
+    "en": "Island at Midday"
+  },
+  "g_island_sunset": {
+    "ko": "노을 섬",
+    "en": "Island at Sunset"
+  },
+  "g_island_night": {
+    "ko": "달밤 섬",
+    "en": "Island at Moonlit"
+  },
+  "g_island_dusk": {
+    "ko": "보랏빛 저녁 섬",
+    "en": "Island at Violet Dusk"
+  },
+  "g_island_mist": {
+    "ko": "안개 낀 섬",
+    "en": "Island in Mist"
+  },
+  "g_waterfall_dawn": {
+    "ko": "새벽 폭포",
+    "en": "Waterfall at Dawn"
+  },
+  "g_waterfall_day": {
+    "ko": "한낮 폭포",
+    "en": "Waterfall at Midday"
+  },
+  "g_waterfall_sunset": {
+    "ko": "노을 폭포",
+    "en": "Waterfall at Sunset"
+  },
+  "g_waterfall_night": {
+    "ko": "달밤 폭포",
+    "en": "Waterfall at Moonlit"
+  },
+  "g_waterfall_dusk": {
+    "ko": "보랏빛 저녁 폭포",
+    "en": "Waterfall at Violet Dusk"
+  },
+  "g_waterfall_mist": {
+    "ko": "안개 낀 폭포",
+    "en": "Waterfall in Mist"
+  },
+  "g_lighthouse_dawn": {
+    "ko": "새벽 등대 언덕",
+    "en": "Lighthouse Cove at Dawn"
+  },
+  "g_lighthouse_day": {
+    "ko": "한낮 등대 언덕",
+    "en": "Lighthouse Cove at Midday"
+  },
+  "g_lighthouse_sunset": {
+    "ko": "노을 등대 언덕",
+    "en": "Lighthouse Cove at Sunset"
+  },
+  "g_lighthouse_night": {
+    "ko": "달밤 등대 언덕",
+    "en": "Lighthouse Cove at Moonlit"
+  },
+  "g_lighthouse_dusk": {
+    "ko": "보랏빛 저녁 등대 언덕",
+    "en": "Lighthouse Cove at Violet Dusk"
+  },
+  "g_lighthouse_mist": {
+    "ko": "안개 낀 등대 언덕",
+    "en": "Lighthouse Cove in Mist"
+  },
+  "g_blossom_dawn": {
+    "ko": "새벽 벚꽃길",
+    "en": "Blossom Lane at Dawn"
+  },
+  "g_blossom_day": {
+    "ko": "한낮 벚꽃길",
+    "en": "Blossom Lane at Midday"
+  },
+  "g_blossom_sunset": {
+    "ko": "노을 벚꽃길",
+    "en": "Blossom Lane at Sunset"
+  },
+  "g_blossom_night": {
+    "ko": "달밤 벚꽃길",
+    "en": "Blossom Lane at Moonlit"
+  },
+  "g_blossom_dusk": {
+    "ko": "보랏빛 저녁 벚꽃길",
+    "en": "Blossom Lane at Violet Dusk"
+  },
+  "g_blossom_mist": {
+    "ko": "안개 낀 벚꽃길",
+    "en": "Blossom Lane in Mist"
+  },
+  "g_aurora_dawn": {
+    "ko": "초록 오로라",
+    "en": "Green Aurora"
+  },
+  "g_aurora_day": {
+    "ko": "보라 오로라",
+    "en": "Violet Aurora"
+  },
+  "g_aurora_sunset": {
+    "ko": "분홍 오로라",
+    "en": "Pink Aurora"
+  },
+  "g_aurora_night": {
+    "ko": "청록 오로라",
+    "en": "Teal Aurora"
+  },
+  "g_aurora_dusk": {
+    "ko": "노란 오로라",
+    "en": "Golden Aurora"
+  },
+  "g_aurora_mist": {
+    "ko": "푸른 오로라",
+    "en": "Blue Aurora"
+  },
+  "g_friend_0": {
+    "ko": "친구 하나",
+    "en": "Friend Hana"
+  },
+  "g_friend_1": {
+    "ko": "친구 두리",
+    "en": "Friend Duri"
+  },
+  "g_friend_2": {
+    "ko": "친구 민지",
+    "en": "Friend Minji"
+  },
+  "g_friend_3": {
+    "ko": "친구 도윤",
+    "en": "Friend Doyun"
+  },
+  "g_friend_4": {
+    "ko": "친구 서연",
+    "en": "Friend Seoyeon"
+  },
+  "g_friend_5": {
+    "ko": "친구 지호",
+    "en": "Friend Jiho"
+  },
+  "g_friend_6": {
+    "ko": "친구 하린",
+    "en": "Friend Harin"
+  },
+  "g_friend_7": {
+    "ko": "친구 준서",
+    "en": "Friend Junseo"
+  },
+  "g_friend_8": {
+    "ko": "친구 유나",
+    "en": "Friend Yuna"
+  },
+  "g_friend_9": {
+    "ko": "친구 시우",
+    "en": "Friend Siwoo"
+  },
+  "g_friend_10": {
+    "ko": "친구 다온",
+    "en": "Friend Daon"
+  },
+  "g_friend_11": {
+    "ko": "친구 은호",
+    "en": "Friend Eunho"
+  },
+  "g_friend_12": {
+    "ko": "친구 소라",
+    "en": "Friend Sora"
+  },
+  "g_friend_13": {
+    "ko": "친구 태오",
+    "en": "Friend Taeo"
+  },
+  "g_friend_14": {
+    "ko": "친구 아린",
+    "en": "Friend Arin"
+  },
+  "g_friend_15": {
+    "ko": "친구 로이",
+    "en": "Friend Roy"
+  },
+  "g_friend_16": {
+    "ko": "친구 나래",
+    "en": "Friend Narae"
+  },
+  "g_friend_17": {
+    "ko": "친구 우진",
+    "en": "Friend Woojin"
+  },
+  "g_friend_18": {
+    "ko": "친구 별이",
+    "en": "Friend Byeori"
+  },
+  "g_friend_19": {
+    "ko": "친구 해솔",
+    "en": "Friend Haesol"
+  },
+  "g_friend_20": {
+    "ko": "친구 가온",
+    "en": "Friend Gaon"
+  },
+  "g_friend_21": {
+    "ko": "친구 바다",
+    "en": "Friend Bada"
+  },
+  "g_friend_22": {
+    "ko": "친구 새봄",
+    "en": "Friend Saebom"
+  },
+  "g_friend_23": {
+    "ko": "친구 하람",
+    "en": "Friend Haram"
+  },
+  "g_friend_24": {
+    "ko": "친구 이든",
+    "en": "Friend Eden"
+  },
+  "g_friend_25": {
+    "ko": "친구 수아",
+    "en": "Friend Sua"
+  },
+  "g_friend_26": {
+    "ko": "친구 단비",
+    "en": "Friend Danbi"
+  },
+  "g_friend_27": {
+    "ko": "친구 로운",
+    "en": "Friend Rowoon"
+  },
+  "g_friend_28": {
+    "ko": "친구 미루",
+    "en": "Friend Miru"
+  },
+  "g_friend_29": {
+    "ko": "친구 찬",
+    "en": "Friend Chan"
+  },
+  "g_chef_0": {
+    "ko": "요리사 예준",
+    "en": "Chef Yejun"
+  },
+  "g_chef_1": {
+    "ko": "요리사 채아",
+    "en": "Chef Chaea"
+  },
+  "g_chef_2": {
+    "ko": "요리사 온유",
+    "en": "Chef Onyu"
+  },
+  "g_astronaut_0": {
+    "ko": "우주비행사 라온",
+    "en": "Astronaut Raon"
+  },
+  "g_astronaut_1": {
+    "ko": "우주비행사 보리",
+    "en": "Astronaut Bori"
+  },
+  "g_astronaut_2": {
+    "ko": "우주비행사 하율",
+    "en": "Astronaut Hayul"
+  },
+  "g_knight_0": {
+    "ko": "기사 하나",
+    "en": "Knight Hana"
+  },
+  "g_knight_1": {
+    "ko": "기사 두리",
+    "en": "Knight Duri"
+  },
+  "g_knight_2": {
+    "ko": "기사 민지",
+    "en": "Knight Minji"
+  },
+  "g_witch_0": {
+    "ko": "마녀 도윤",
+    "en": "Witch Doyun"
+  },
+  "g_witch_1": {
+    "ko": "마녀 서연",
+    "en": "Witch Seoyeon"
+  },
+  "g_witch_2": {
+    "ko": "마녀 지호",
+    "en": "Witch Jiho"
+  },
+  "g_pirate_0": {
+    "ko": "해적 하린",
+    "en": "Pirate Harin"
+  },
+  "g_pirate_1": {
+    "ko": "해적 준서",
+    "en": "Pirate Junseo"
+  },
+  "g_pirate_2": {
+    "ko": "해적 유나",
+    "en": "Pirate Yuna"
+  },
+  "g_wizard_0": {
+    "ko": "마법사 시우",
+    "en": "Wizard Siwoo"
+  },
+  "g_wizard_1": {
+    "ko": "마법사 다온",
+    "en": "Wizard Daon"
+  },
+  "g_wizard_2": {
+    "ko": "마법사 은호",
+    "en": "Wizard Eunho"
+  },
+  "g_farmer_0": {
+    "ko": "농부 소라",
+    "en": "Farmer Sora"
+  },
+  "g_farmer_1": {
+    "ko": "농부 태오",
+    "en": "Farmer Taeo"
+  },
+  "g_farmer_2": {
+    "ko": "농부 아린",
+    "en": "Farmer Arin"
+  },
+  "g_firefighter_0": {
+    "ko": "소방관 로이",
+    "en": "Firefighter Roy"
+  },
+  "g_firefighter_1": {
+    "ko": "소방관 나래",
+    "en": "Firefighter Narae"
+  },
+  "g_firefighter_2": {
+    "ko": "소방관 우진",
+    "en": "Firefighter Woojin"
+  },
+  "g_ninja_0": {
+    "ko": "닌자 별이",
+    "en": "Ninja Byeori"
+  },
+  "g_ninja_1": {
+    "ko": "닌자 해솔",
+    "en": "Ninja Haesol"
+  },
+  "g_ninja_2": {
+    "ko": "닌자 가온",
+    "en": "Ninja Gaon"
+  },
+  "g_royal_0": {
+    "ko": "왕자님 바다",
+    "en": "Prince Bada"
+  },
+  "g_royal_1": {
+    "ko": "공주님 새봄",
+    "en": "Princess Saebom"
+  },
+  "g_royal_2": {
+    "ko": "임금님 하람",
+    "en": "Monarch Haram"
+  },
+  "g_detective_0": {
+    "ko": "탐정 이든",
+    "en": "Detective Eden"
+  },
+  "g_detective_1": {
+    "ko": "탐정 수아",
+    "en": "Detective Sua"
+  },
+  "g_detective_2": {
+    "ko": "탐정 단비",
+    "en": "Detective Danbi"
+  },
+  "g_painter_0": {
+    "ko": "화가 로운",
+    "en": "Painter Rowoon"
+  },
+  "g_painter_1": {
+    "ko": "화가 미루",
+    "en": "Painter Miru"
+  },
+  "g_painter_2": {
+    "ko": "화가 찬",
+    "en": "Painter Chan"
+  },
+  "g_robot_0": {
+    "ko": "로봇 볼트",
+    "en": "Robot Bolt"
+  },
+  "g_robot_1": {
+    "ko": "로봇 너트",
+    "en": "Robot Nut"
+  },
+  "g_robot_2": {
+    "ko": "로봇 기어",
+    "en": "Robot Gear"
+  },
+  "g_robot_3": {
+    "ko": "로봇 스파크",
+    "en": "Robot Spark"
+  },
+  "g_robot_4": {
+    "ko": "로봇 픽셀",
+    "en": "Robot Pixel"
+  },
+  "g_robot_5": {
+    "ko": "로봇 큐브",
+    "en": "Robot Cube"
+  },
+  "g_robot_6": {
+    "ko": "로봇 코코",
+    "en": "Robot Coco"
+  },
+  "g_robot_7": {
+    "ko": "로봇 비비",
+    "en": "Robot Bibi"
+  },
+  "g_robot_8": {
+    "ko": "로봇 로로",
+    "en": "Robot Roro"
+  },
+  "g_robot_9": {
+    "ko": "로봇 제트",
+    "en": "Robot Jet"
+  },
+  "g_robot_10": {
+    "ko": "로봇 핑",
+    "en": "Robot Ping"
+  },
+  "g_robot_11": {
+    "ko": "로봇 모모",
+    "en": "Robot Momo"
+  },
+  "g_slime_0": {
+    "ko": "초록 슬라임",
+    "en": "Green Slime"
+  },
+  "g_slime_1": {
+    "ko": "파랑 슬라임",
+    "en": "Blue Slime"
+  },
+  "g_slime_2": {
+    "ko": "분홍 슬라임",
+    "en": "Pink Slime"
+  },
+  "g_ghost_0": {
+    "ko": "초록 유령",
+    "en": "Green Ghost"
+  },
+  "g_ghost_1": {
+    "ko": "파랑 유령",
+    "en": "Blue Ghost"
+  },
+  "g_ghost_2": {
+    "ko": "분홍 유령",
+    "en": "Pink Ghost"
+  },
+  "g_alien_0": {
+    "ko": "초록 외계인",
+    "en": "Green Alien"
+  },
+  "g_alien_1": {
+    "ko": "파랑 외계인",
+    "en": "Blue Alien"
+  },
+  "g_alien_2": {
+    "ko": "분홍 외계인",
+    "en": "Pink Alien"
+  },
+  "g_cyclops_0": {
+    "ko": "초록 외눈 몬스터",
+    "en": "Green One-eyed Monster"
+  },
+  "g_cyclops_1": {
+    "ko": "파랑 외눈 몬스터",
+    "en": "Blue One-eyed Monster"
+  },
+  "g_cyclops_2": {
+    "ko": "분홍 외눈 몬스터",
+    "en": "Pink One-eyed Monster"
+  },
+  "g_dragon_0": {
+    "ko": "초록 아기 용",
+    "en": "Green Baby Dragon"
+  },
+  "g_dragon_1": {
+    "ko": "파랑 아기 용",
+    "en": "Blue Baby Dragon"
+  },
+  "g_dragon_2": {
+    "ko": "분홍 아기 용",
+    "en": "Pink Baby Dragon"
+  },
+  "g_pal_bear": {
+    "ko": "곰돌이 친구",
+    "en": "Bear Pal"
+  },
+  "g_pal_bunny": {
+    "ko": "토끼 친구",
+    "en": "Bunny Pal"
+  },
+  "g_pal_kitty": {
+    "ko": "야옹이 친구",
+    "en": "Kitty Pal"
+  },
+  "g_pal_fox": {
+    "ko": "여우 친구",
+    "en": "Fox Pal"
+  },
+  "g_pal_panda": {
+    "ko": "판다 친구",
+    "en": "Panda Pal"
+  },
+  "g_pal_frog": {
+    "ko": "개구리 친구",
+    "en": "Frog Pal"
+  },
+  "g_pal_piggy": {
+    "ko": "꿀꿀이 친구",
+    "en": "Piggy Pal"
+  },
+  "g_pal_mouse": {
+    "ko": "생쥐 친구",
+    "en": "Mouse Pal"
+  },
+  "g_pal_tiger": {
+    "ko": "호랑이 친구",
+    "en": "Tiger Pal"
+  },
+  "g_pal_raccoon": {
+    "ko": "너구리 친구",
+    "en": "Raccoon Pal"
+  },
+  "g_pal_koala": {
+    "ko": "코알라 친구",
+    "en": "Koala Pal"
+  },
+  "g_pal_monkey": {
+    "ko": "원숭이 친구",
+    "en": "Monkey Pal"
+  },
+  "g_pal_lion": {
+    "ko": "사자 친구",
+    "en": "Lion Pal"
+  },
+  "g_pal_owl": {
+    "ko": "부엉이 친구",
+    "en": "Owl Pal"
+  },
+  "g_pal_hamster": {
+    "ko": "햄스터 친구",
+    "en": "Hamster Pal"
+  },
+  "g_pal_sheep": {
+    "ko": "양 친구",
+    "en": "Sheep Pal"
+  },
+  "g_balloon_0": {
+    "ko": "빨간 줄무늬 열기구",
+    "en": "Red Striped Balloon"
+  },
+  "g_balloon_1": {
+    "ko": "파란 물방울 열기구",
+    "en": "Blue Polka-dot Balloon"
+  },
+  "g_balloon_2": {
+    "ko": "초록 지그재그 열기구",
+    "en": "Green Zigzag Balloon"
+  },
+  "g_balloon_3": {
+    "ko": "노란 체크 열기구",
+    "en": "Yellow Checked Balloon"
+  },
+  "g_balloon_4": {
+    "ko": "보라 줄무늬 열기구",
+    "en": "Purple Striped Balloon"
+  },
+  "g_balloon_5": {
+    "ko": "주황 물방울 열기구",
+    "en": "Orange Polka-dot Balloon"
+  },
+  "g_balloon_6": {
+    "ko": "분홍 지그재그 열기구",
+    "en": "Pink Zigzag Balloon"
+  },
+  "g_balloon_7": {
+    "ko": "청록 체크 열기구",
+    "en": "Teal Checked Balloon"
+  },
+  "g_planet_0": {
+    "ko": "파란 고리 행성",
+    "en": "Blue Ringed Planet"
+  },
+  "g_rocket_0": {
+    "ko": "파란 로켓",
+    "en": "Blue Rocket"
+  },
+  "g_ufo_0": {
+    "ko": "파란 비행접시",
+    "en": "Blue UFO"
+  },
+  "g_planet_1": {
+    "ko": "노란 고리 행성",
+    "en": "Yellow Ringed Planet"
+  },
+  "g_rocket_1": {
+    "ko": "노란 로켓",
+    "en": "Yellow Rocket"
+  },
+  "g_ufo_1": {
+    "ko": "노란 비행접시",
+    "en": "Yellow UFO"
+  },
+  "g_planet_2": {
+    "ko": "주황 고리 행성",
+    "en": "Orange Ringed Planet"
+  },
+  "g_rocket_2": {
+    "ko": "주황 로켓",
+    "en": "Orange Rocket"
+  },
+  "g_ufo_2": {
+    "ko": "주황 비행접시",
+    "en": "Orange UFO"
+  },
+  "g_planet_3": {
+    "ko": "청록 고리 행성",
+    "en": "Teal Ringed Planet"
+  },
+  "g_rocket_3": {
+    "ko": "청록 로켓",
+    "en": "Teal Rocket"
+  },
+  "g_ufo_3": {
+    "ko": "청록 비행접시",
+    "en": "Teal UFO"
+  },
+  "g_vase_0": {
+    "ko": "분홍 꽃 화병",
+    "en": "Pink Flower Vase"
+  },
+  "g_vase_1": {
+    "ko": "파란 꽃 화병",
+    "en": "Blue Flower Vase"
+  },
+  "g_vase_2": {
+    "ko": "보라 꽃 화병",
+    "en": "Purple Flower Vase"
+  },
+  "g_vase_3": {
+    "ko": "청록 꽃 화병",
+    "en": "Teal Flower Vase"
+  },
+  "g_fruitbowl_0": {
+    "ko": "사과와 레몬",
+    "en": "Apples & Lemons"
+  },
+  "g_fruitbowl_1": {
+    "ko": "오렌지와 포도",
+    "en": "Oranges & Grapes"
+  },
+  "g_fruitbowl_2": {
+    "ko": "복숭아 접시",
+    "en": "Peach Plate"
+  },
+  "g_fruitbowl_3": {
+    "ko": "여름 과일 그릇",
+    "en": "Summer Fruit Bowl"
+  },
+  "g_car_0": {
+    "ko": "빨간 자동차",
+    "en": "Red Car"
+  },
+  "g_car_1": {
+    "ko": "파란 자동차",
+    "en": "Blue Car"
+  },
+  "g_car_2": {
+    "ko": "노란 자동차",
+    "en": "Yellow Car"
+  },
+  "g_bus_0": {
+    "ko": "노란 버스",
+    "en": "Yellow Bus"
+  },
+  "g_bus_1": {
+    "ko": "초록 버스",
+    "en": "Green Bus"
+  },
+  "g_engine_0": {
+    "ko": "빨간 증기기관차",
+    "en": "Red Steam Engine"
+  },
+  "g_engine_1": {
+    "ko": "초록 증기기관차",
+    "en": "Green Steam Engine"
+  },
+  "g_yacht_0": {
+    "ko": "보라 돛 요트",
+    "en": "Purple Yacht"
+  },
+  "g_yacht_1": {
+    "ko": "청록 돛 요트",
+    "en": "Teal Yacht"
+  },
+  "g_plane_0": {
+    "ko": "파란 비행기",
+    "en": "Blue Airplane"
+  },
+  "g_plane_1": {
+    "ko": "빨간 비행기",
+    "en": "Red Airplane"
+  },
+  "g_submarine_0": {
+    "ko": "노란 잠수함",
+    "en": "Yellow Submarine"
+  },
+  "g_submarine_1": {
+    "ko": "주황 잠수함",
+    "en": "Orange Submarine"
+  },
+  "g_tractor": {
+    "ko": "트랙터",
+    "en": "Tractor"
+  },
+  "g_castle_0": {
+    "ko": "보라 지붕 성",
+    "en": "Purple-roofed Castle"
+  },
+  "g_castle_1": {
+    "ko": "빨간 지붕 성",
+    "en": "Red-roofed Castle"
+  },
+  "g_windmill_0": {
+    "ko": "풍차",
+    "en": "Windmill"
+  },
+  "g_windmill_1": {
+    "ko": "노을 풍차",
+    "en": "Sunset Windmill"
+  },
+  "g_cottage_0": {
+    "ko": "빨간 지붕 오두막",
+    "en": "Red-roofed Cottage"
+  },
+  "g_cottage_1": {
+    "ko": "파란 지붕 오두막",
+    "en": "Blue-roofed Cottage"
+  },
+  "g_tent_0": {
+    "ko": "주황 캠핑 텐트",
+    "en": "Orange Camping Tent"
+  },
+  "g_tent_1": {
+    "ko": "청록 캠핑 텐트",
+    "en": "Teal Camping Tent"
+  },
+  "g_pagoda": {
+    "ko": "탑",
+    "en": "Pagoda"
+  },
+  "g_igloo": {
+    "ko": "이글루",
+    "en": "Igloo"
+  },
+  "g_tile0_0": {
+    "ko": "봄 별꽃 문양",
+    "en": "Spring Star Tile"
+  },
+  "g_tile0_1": {
+    "ko": "여름 별꽃 문양",
+    "en": "Summer Star Tile"
+  },
+  "g_tile0_2": {
+    "ko": "가을 별꽃 문양",
+    "en": "Autumn Star Tile"
+  },
+  "g_tile0_3": {
+    "ko": "겨울 별꽃 문양",
+    "en": "Winter Star Tile"
+  },
+  "g_tile1_0": {
+    "ko": "봄 눈꽃 문양",
+    "en": "Spring Snowflake Tile"
+  },
+  "g_tile1_1": {
+    "ko": "여름 눈꽃 문양",
+    "en": "Summer Snowflake Tile"
+  },
+  "g_tile1_2": {
+    "ko": "가을 눈꽃 문양",
+    "en": "Autumn Snowflake Tile"
+  },
+  "g_tile1_3": {
+    "ko": "겨울 눈꽃 문양",
+    "en": "Winter Snowflake Tile"
+  },
+  "g_tile2_0": {
+    "ko": "봄 장미창",
+    "en": "Spring Rose Window"
+  },
+  "g_tile2_1": {
+    "ko": "여름 장미창",
+    "en": "Summer Rose Window"
+  },
+  "g_tile2_2": {
+    "ko": "가을 장미창",
+    "en": "Autumn Rose Window"
+  },
+  "g_tile2_3": {
+    "ko": "겨울 장미창",
+    "en": "Winter Rose Window"
+  },
+  "g_tile3_0": {
+    "ko": "봄 만다라",
+    "en": "Spring Mandala"
+  },
+  "g_tile3_1": {
+    "ko": "여름 만다라",
+    "en": "Summer Mandala"
+  },
+  "g_tile3_2": {
+    "ko": "가을 만다라",
+    "en": "Autumn Mandala"
+  },
+  "g_tile3_3": {
+    "ko": "겨울 만다라",
+    "en": "Winter Mandala"
+  },
+  "g_tile4_0": {
+    "ko": "봄 꽃 타일",
+    "en": "Spring Flower Tile"
+  },
+  "g_tile4_1": {
+    "ko": "여름 꽃 타일",
+    "en": "Summer Flower Tile"
+  },
+  "g_tile4_2": {
+    "ko": "가을 꽃 타일",
+    "en": "Autumn Flower Tile"
+  },
+  "g_tile4_3": {
+    "ko": "겨울 꽃 타일",
+    "en": "Winter Flower Tile"
+  },
+  "g_tile5_0": {
+    "ko": "봄 바람개비 문양",
+    "en": "Spring Pinwheel Tile"
+  },
+  "g_tile5_1": {
+    "ko": "여름 바람개비 문양",
+    "en": "Summer Pinwheel Tile"
+  },
+  "g_tile5_2": {
+    "ko": "가을 바람개비 문양",
+    "en": "Autumn Pinwheel Tile"
+  },
+  "g_tile5_3": {
+    "ko": "겨울 바람개비 문양",
+    "en": "Winter Pinwheel Tile"
+  },
+  "g_food_burger": {
+    "ko": "햄버거",
+    "en": "Burger"
+  },
+  "g_food_pizza": {
+    "ko": "피자 조각",
+    "en": "Pizza Slice"
+  },
+  "g_food_sushi": {
+    "ko": "초밥",
+    "en": "Sushi"
+  },
+  "g_food_ramen": {
+    "ko": "라면 한 그릇",
+    "en": "Ramen Bowl"
+  },
+  "g_food_sandwich": {
+    "ko": "샌드위치",
+    "en": "Sandwich"
+  },
+  "g_food_onigiri": {
+    "ko": "주먹밥",
+    "en": "Rice Ball"
+  },
+  "g_food_dumpling": {
+    "ko": "만두",
+    "en": "Dumplings"
+  },
+  "g_food_popsicle": {
+    "ko": "아이스바",
+    "en": "Popsicle"
+  },
+  "g_food_egg": {
+    "ko": "달걀 프라이",
+    "en": "Fried Egg"
+  },
+  "g_food_hotdog": {
+    "ko": "핫도그",
+    "en": "Hot Dog"
+  },
+  "g_food_taco": {
+    "ko": "타코",
+    "en": "Taco"
+  },
+  "g_food_bento": {
+    "ko": "도시락",
+    "en": "Bento Box"
+  },
+  "g_inst_drum": {
+    "ko": "북",
+    "en": "Drum"
+  },
+  "g_inst_piano": {
+    "ko": "피아노 건반",
+    "en": "Piano Keys"
+  },
+  "g_inst_xylophone": {
+    "ko": "실로폰",
+    "en": "Xylophone"
+  },
+  "g_inst_trumpet": {
+    "ko": "트럼펫",
+    "en": "Trumpet"
   }
 }

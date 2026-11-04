@@ -4,10 +4,11 @@
 모든 명령은 `apps/bloom_wave` 에서 실행한다.
 
 ```sh
-dart run tool/levelgen/levelgen.dart build tool/levelgen/levels.config.json   # 1000 스테이지 생성 (4코어 약 4분)
+dart run tool/levelgen/levelgen.dart build tool/levelgen/levels.config.json   # 1000 스테이지 생성 (4코어 약 5분)
 dart run tool/levelgen/levelgen.dart build tool/levelgen/levels.config.json --threads 1 --limit 10   # 일부만 빠르게
 dart run tool/levelgen/levelgen.dart verify tool/levelgen/out/pack-01.json    # 팩 재검증 (실패 시 종료 코드 1)
-dart run tool/levelgen/levelgen.dart art      # src/art_source.dart 텍스트 아트 → art/*.png, art/names.json
+dart run tool/levelgen/levelgen.dart art      # 손그림(src/art_source.dart) + 코드 그림(src/art_gen.dart) → art/*.png, art/names.json
+dart run tool/levelgen/levelgen.dart sheet out.png [g_]   # 그림 목록 한 장(콘택트 시트) — 새 그림 검토용
 dart run tool/levelgen/levelgen.dart config   # levels.config.json 다시 만들기 (src/make_config.dart)
 dart run tool/levelgen/levelgen.dart icons <outDir>   # 앱 아이콘 원본 PNG (1024px, splash 2732px)
 flutter test test/levelgen
@@ -19,6 +20,8 @@ flutter test test/levelgen
 - 종료 코드: 성공 0, `verify` 실패 1, 잘못된 사용법 2.
 
 ## 그림(art)
+- 363장 = 손그림 90장(`src/art_source.dart`) + 코드 그림 273장(`src/art_gen.dart`: 풍경화·캐릭터·일러스트, 시드 고정이라 언제나 같은 그림).
+- 스테이지 배정(`src/make_config.dart`): 한 그림 최대 `maxUses`(3)번, 같은 그림 사이 `minGap`(100)스테이지 이상, 같은 유형(`familyOf`) 사이 `familyGap`(8)스테이지 이상.
 - 레벨 그림은 `art/<이름>.png` (1픽셀 = 1칸, 알파 < 128 은 빈 칸, 16×16 이하 권장). 이름은 `levels.config.json` 의 `art` 값.
 - 색이 `maxColors`(6)를 넘으면 가장 가까운 두 색을 칸 수가 적은 쪽 → 많은 쪽으로 합친다 (경고 출력). 3칸 미만인 색도 경고.
 - 표시 이름(ko/en)은 `art/names.json`. 지금 PNG 는 `src/art_source.dart` 의 텍스트 아트로 만든 플레이스홀더라,

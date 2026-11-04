@@ -58,5 +58,5 @@ dart run tool/levelgen/levelgen.dart build tool/levelgen/levels.config.json   # 
 - **광고 제거 상품**: Play Console 에 관리형 상품 `remove_ads` 를 만든다. 결제는 `StoreBilling`(in_app_purchase)이
   처리한다 — 실기기 결제는 아직 확인하지 못했다.
 - **업로드 키**: `android/key.properties` (storeFile, storePassword, keyAlias, keyPassword). git 에 올리지 않는다.
-- 레벨 그림은 아직 텍스트 아트를 변환한 플레이스홀더다 (`tool/levelgen/art/`).
+- 레벨 그림 363장(손그림 90 + 코드 그림 273: 풍경화·캐릭터·일러스트)은 아직 플레이스홀더 픽셀 아트다 (`tool/levelgen/art/`). 디자이너 PNG 로 같은 이름을 덮어쓰면 된다.
 - 아이콘: `android/app/src/main/res/mipmap-*` (TS 버전에서 옮김), 원본 `assets/icon/`.
