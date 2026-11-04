@@ -1,0 +1,6 @@
+node_modules/
+dist/
+tools/levelgen/out/previews/
+test-results/
+playwright-report/
+*.tsbuildinfo
