@@ -13,7 +13,9 @@ app               Vite + PixiJS 앱, Capacitor Android
 
 ## 사전 조건
 - Node.js 22.18 이상
-- Android 빌드: Android SDK(API 36), **JDK 21** (Capacitor 8 요구), `ANDROID_HOME`
+- Android 빌드: Android SDK(API 36), **JDK 21** (Capacitor 8 요구 — JDK 17로는 `invalid source release: 21`로 실패), `ANDROID_HOME`
+  - 다른 Flutter 앱은 JDK 17을 쓰므로, 이 앱을 빌드하는 셸에서만 `JAVA_HOME`을 JDK 21로 지정한다.
+  - 권한은 `VIBRATE`(햅틱)뿐이다. 인터넷 권한 없음.
 
 ## 명령
 ```sh
