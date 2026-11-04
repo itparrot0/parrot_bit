@@ -7,6 +7,7 @@ import 'package:bloom_wave/economy/gold.dart';
 import 'package:bloom_wave/save/save_store.dart';
 import 'package:bloom_wave/screens/game_screen.dart';
 import 'package:bloom_wave/ui/widgets.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../helpers.dart';
@@ -312,5 +313,61 @@ void main() {
     await tester.tap(byKey('btn-start'));
     await advance(tester, 400);
     expect(byKey('overlay-difficulty-hard'), findsOneWidget);
+  });
+
+  testWidgets('배너 광고: 스테이지 화면 맨 아래에만, 버튼과 겹치지 않음', (tester) async {
+    await phone(tester);
+    final h = Harness();
+    await tester.pumpWidget(h.app);
+    await tester.pump();
+    expect(byKey('banner-ad'), findsNothing); // 홈에는 없다
+    await tester.tap(byKey('btn-start'));
+    await advance(tester, 400);
+    expect(byKey('banner-ad'), findsOneWidget);
+    final banner = tester.getRect(byKey('banner-ad'));
+    final screen = tester.view.physicalSize / tester.view.devicePixelRatio;
+    expect(banner.bottom, closeTo(screen.height, 1));
+    expect(banner.width, closeTo(screen.width, 1));
+    // 하단 버튼·대기열은 배너 위에 있다
+    for (final k in ['btn-hint', 'btn-restart', 'lane-front-0']) {
+      expect(
+        tester.getRect(byKey(k)).bottom,
+        lessThanOrEqualTo(banner.top),
+        reason: k,
+      );
+    }
+    // 안내 패널을 닫아도, 일시정지해도 배너는 그대로
+    await dismissIntros(tester);
+    await tester.tap(byKey('btn-pause'));
+    await advance(tester, 300);
+    expect(byKey('banner-ad'), findsOneWidget);
+  });
+
+  testWidgets('광고 제거 구매자는 배너 없음, 게임 중 설정에서 사면 바로 사라짐', (tester) async {
+    await phone(tester);
+    final bought = Harness(data: SaveData(noAds: true));
+    await tester.pumpWidget(bought.app);
+    await tester.pump();
+    await tester.tap(byKey('btn-start'));
+    await advance(tester, 400);
+    expect(byKey('banner-ad'), findsNothing);
+
+    // 새 앱으로 다시 시작 (이전 앱의 화면 스택을 비운다)
+    await tester.pumpWidget(const SizedBox());
+    final h = Harness();
+    await tester.pumpWidget(h.app);
+    await tester.pump();
+    await tester.tap(byKey('btn-start'));
+    await advance(tester, 400);
+    await dismissIntros(tester);
+    expect(byKey('banner-ad'), findsOneWidget);
+    await tester.tap(byKey('btn-pause'));
+    await advance(tester, 300);
+    await tester.tap(byKey('btn-settings'));
+    await advance(tester, 300);
+    await tester.tap(byKey('btn-remove-ads'));
+    await advance(tester, 300);
+    expect(h.save.data.noAds, isTrue);
+    expect(byKey('banner-ad'), findsNothing);
   });
 }

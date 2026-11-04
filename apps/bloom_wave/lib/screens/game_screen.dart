@@ -1,4 +1,4 @@
-// 게임 화면. 상단 바 / 보드 / 활성 슬롯 / 대기열 / 하단 버튼(힌트·재시작).
+// 게임 화면. 상단 바 / 보드 / 활성 슬롯 / 대기열 / 하단 버튼(힌트·재시작) / 맨 아래 배너 광고.
 // 완성하면 Full Bloom 연출 + 골드 지급, 완성 화면에는 [홈] [다음 스테이지]만 있다 (2026-11-04).
 // 실패하면 [다시 하기] [홈]. 일시정지 메뉴에서 설정을 연다 (홈에는 시작 버튼만 있으므로).
 import 'dart:math' as math;
@@ -330,133 +330,164 @@ class GameScreenState extends State<GameScreen>
         if (!didPop) _back();
       },
       child: Scaffold(
-        body: LogicalCanvas(
-          builder: (context, top, bottom) {
-            final L = _layoutFor(top, bottom);
-            return Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Positioned.fill(
-                  child: CustomPaint(
-                    painter: GamePainter(
-                      controller,
-                      fx,
-                      L,
-                      skinId: app.save.data.skin.id,
+        body: _withBanner(
+          app,
+          LogicalCanvas(
+            builder: (context, top, bottom) {
+              final L = _layoutFor(top, bottom);
+              return Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Positioned.fill(
+                    child: CustomPaint(
+                      painter: GamePainter(
+                        controller,
+                        fx,
+                        L,
+                        skinId: app.save.data.skin.id,
+                      ),
                     ),
                   ),
-                ),
-                // 상단 바
-                At(
-                  x: 100,
-                  y: top + 110,
-                  w: 140,
-                  h: 140,
-                  child: CircleButton(
-                    key: const ValueKey('btn-back'),
-                    icon: Icons.chevron_left_rounded,
-                    tooltip: app.t('home'),
-                    onClick: app.sfx.click,
-                    onTap: _toHome,
-                  ),
-                ),
-                At(
-                  x: kW - 100,
-                  y: top + 110,
-                  w: 140,
-                  h: 140,
-                  child: CircleButton(
-                    key: const ValueKey('btn-pause'),
-                    icon: Icons.pause_rounded,
-                    tooltip: app.t('pause'),
-                    onClick: app.sfx.click,
-                    onTap: _showPause,
-                  ),
-                ),
-                At(
-                  x: kW / 2,
-                  y: top + 88,
-                  h: 90,
-                  child: Label(app.t('stage', {'n': widget.levelNo}), size: 56),
-                ),
-                At(
-                  x: kW / 2,
-                  y: top + 150,
-                  h: 60,
-                  child: Label(
-                    level.meta?.name?.of(app.save.data.settings.lang) ??
-                        level.id,
-                    size: 36,
-                    color: C.inkSoft,
-                    weight: FontWeight.w500,
-                  ),
-                ),
-                // 대기열 맨 앞 물방울: 누르고 있으면 보드에 그 색 미리보기,
-                // 동그라미 안에서 떼면 넣기, 누른 채 동그라미 밖으로 벗어나면 취소
-                for (var li = 0; li < L.laneXs.length; li++)
-                  Positioned(
-                    key: ValueKey('lane-front-$li'),
-                    left: L.laneXs[li] - L.hitR,
-                    top: L.laneTop - L.hitR,
-                    width: L.hitR * 2,
-                    height: L.hitR * 2,
-                    child: Listener(
-                      behavior: HitTestBehavior.opaque,
-                      onPointerDown: (ev) => _pressStart(li, ev.pointer),
-                      onPointerMove: (ev) {
-                        if (_pressPointer != ev.pointer) return;
-                        final d = ev.localPosition - Offset(L.hitR, L.hitR);
-                        if (d.distance > L.hitR) _cancelPress();
-                      },
-                      onPointerUp: (ev) {
-                        if (_pressPointer != ev.pointer) return;
-                        _cancelPress();
-                        tap(li);
-                      },
-                      onPointerCancel: (_) => _cancelPress(),
-                      child: const SizedBox.expand(),
+                  // 상단 바
+                  At(
+                    x: 100,
+                    y: top + 110,
+                    w: 140,
+                    h: 140,
+                    child: CircleButton(
+                      key: const ValueKey('btn-back'),
+                      icon: Icons.chevron_left_rounded,
+                      tooltip: app.t('home'),
+                      onClick: app.sfx.click,
+                      onTap: _toHome,
                     ),
                   ),
-                // 하단 버튼 (되돌리기는 2026-11-04 2차 피드백으로 삭제)
-                At(
-                  x: kW / 2 - 230,
-                  y: L.buttonsY,
-                  w: 440,
-                  h: 140,
-                  child: PillButton(
-                    app.t('hint'),
-                    key: const ValueKey('btn-hint'),
-                    w: 420,
-                    h: 120,
-                    color: C.panel,
-                    textColor: C.ink,
-                    size: 42,
-                    onClick: app.sfx.click,
-                    onTap: _hint,
+                  At(
+                    x: kW - 100,
+                    y: top + 110,
+                    w: 140,
+                    h: 140,
+                    child: CircleButton(
+                      key: const ValueKey('btn-pause'),
+                      icon: Icons.pause_rounded,
+                      tooltip: app.t('pause'),
+                      onClick: app.sfx.click,
+                      onTap: _showPause,
+                    ),
                   ),
-                ),
-                At(
-                  x: kW / 2 + 230,
-                  y: L.buttonsY,
-                  w: 440,
-                  h: 140,
-                  child: PillButton(
-                    app.t('restart'),
-                    key: const ValueKey('btn-restart'),
-                    w: 420,
-                    h: 120,
-                    color: C.panel,
-                    textColor: C.ink,
-                    size: 42,
-                    onClick: app.sfx.click,
-                    onTap: _restart,
+                  At(
+                    x: kW / 2,
+                    y: top + 88,
+                    h: 90,
+                    child: Label(
+                      app.t('stage', {'n': widget.levelNo}),
+                      size: 56,
+                    ),
                   ),
-                ),
-                ..._panelWidgets(app),
-              ],
-            );
-          },
+                  At(
+                    x: kW / 2,
+                    y: top + 150,
+                    h: 60,
+                    child: Label(
+                      level.meta?.name?.of(app.save.data.settings.lang) ??
+                          level.id,
+                      size: 36,
+                      color: C.inkSoft,
+                      weight: FontWeight.w500,
+                    ),
+                  ),
+                  // 대기열 맨 앞 물방울: 누르고 있으면 보드에 그 색 미리보기,
+                  // 동그라미 안에서 떼면 넣기, 누른 채 동그라미 밖으로 벗어나면 취소
+                  for (var li = 0; li < L.laneXs.length; li++)
+                    Positioned(
+                      key: ValueKey('lane-front-$li'),
+                      left: L.laneXs[li] - L.hitR,
+                      top: L.laneTop - L.hitR,
+                      width: L.hitR * 2,
+                      height: L.hitR * 2,
+                      child: Listener(
+                        behavior: HitTestBehavior.opaque,
+                        onPointerDown: (ev) => _pressStart(li, ev.pointer),
+                        onPointerMove: (ev) {
+                          if (_pressPointer != ev.pointer) return;
+                          final d = ev.localPosition - Offset(L.hitR, L.hitR);
+                          if (d.distance > L.hitR) _cancelPress();
+                        },
+                        onPointerUp: (ev) {
+                          if (_pressPointer != ev.pointer) return;
+                          _cancelPress();
+                          tap(li);
+                        },
+                        onPointerCancel: (_) => _cancelPress(),
+                        child: const SizedBox.expand(),
+                      ),
+                    ),
+                  // 하단 버튼 (되돌리기는 2026-11-04 2차 피드백으로 삭제)
+                  At(
+                    x: kW / 2 - 230,
+                    y: L.buttonsY,
+                    w: 440,
+                    h: 140,
+                    child: PillButton(
+                      app.t('hint'),
+                      key: const ValueKey('btn-hint'),
+                      w: 420,
+                      h: 120,
+                      color: C.panel,
+                      textColor: C.ink,
+                      size: 42,
+                      onClick: app.sfx.click,
+                      onTap: _hint,
+                    ),
+                  ),
+                  At(
+                    x: kW / 2 + 230,
+                    y: L.buttonsY,
+                    w: 440,
+                    h: 140,
+                    child: PillButton(
+                      app.t('restart'),
+                      key: const ValueKey('btn-restart'),
+                      w: 420,
+                      h: 120,
+                      color: C.panel,
+                      textColor: C.ink,
+                      size: 42,
+                      onClick: app.sfx.click,
+                      onTap: _restart,
+                    ),
+                  ),
+                  ..._panelWidgets(app),
+                ],
+              );
+            },
+          ),
         ),
+      ),
+    );
+  }
+
+  /// 스테이지 플레이 화면 아래 배너 광고 (2026-11-04). 게임 캔버스와 겹치지 않게 아래 띠를 따로 잡고,
+  /// 캔버스는 남은 높이에 맞춘다. 광고 제거 구매자는 배너 없이 전체 화면.
+  Widget _withBanner(AppServices app, Widget canvas) {
+    final banner = app.ads.banner(noAds: app.save.data.noAds);
+    if (banner == null) return canvas;
+    return ColoredBox(
+      color: C.bg,
+      child: Column(
+        children: [
+          Expanded(
+            // 아래 시스템 여백은 배너가 맡는다 (캔버스가 한 번 더 비키지 않게)
+            child: MediaQuery.removePadding(
+              context: context,
+              removeBottom: true,
+              child: canvas,
+            ),
+          ),
+          // 버튼과 배너 사이를 조금 띄운다 (잘못 누르기 방지)
+          const SizedBox(height: 8),
+          SafeArea(top: false, child: banner),
+        ],
       ),
     );
   }

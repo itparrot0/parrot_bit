@@ -31,7 +31,7 @@ test/                domain · game · app(화면 흐름) · levelgen
 - **게임**: 상단(홈·일시정지) / 보드 / 활성 슬롯 4칸 / 대기열 세로 줄 / 힌트·재시작.
   일시정지 메뉴: 계속하기 · 재시작 · **설정** · 홈.
 - **완성**: Full Bloom 연출 + **골드 무작위 지급** → [홈] [다음 스테이지] (마지막 스테이지는 [홈]만).
-  떠날 때 전면 광고 1회 (광고 제거 구매자는 없음).
+  떠날 때 전면 광고 1회 (광고 제거 구매자는 없음). 플레이 중에는 화면 맨 아래에 배너 광고(판과 겹치지 않음).
 - **실패**: [다시 하기] [홈], 광고 없음.
 
 골드 지급량은 `lib/economy/gold.dart`의 `goldReward` (현재 10~30), 뽑기 가격·반환율은 `lib/economy/gacha.dart`의 `GachaConfig`.
@@ -52,7 +52,7 @@ dart run tool/levelgen/levelgen.dart build tool/levelgen/levels.config.json   # 
 
 ## 출시 전 할 일
 
-- **AdMob 테스트 ID → 실제 ID**: `lib/platform/ads.dart`, `android/app/src/main/AndroidManifest.xml`,
+- **AdMob 테스트 ID → 실제 ID** (앱 ID, 전면·배너 광고 단위): `lib/platform/ads.dart`, `android/app/src/main/AndroidManifest.xml`,
   `ios/Runner/Info.plist`(GADApplicationIdentifier). 인터넷·광고 ID 권한은 google_mobile_ads 플러그인이
   추가하므로 Play 데이터 보안 양식에 광고를 반영한다.
 - **광고 제거 상품**: Play Console 에 관리형 상품 `remove_ads` 를 만든다. 결제는 `StoreBilling`(in_app_purchase)이

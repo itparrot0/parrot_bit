@@ -27,6 +27,12 @@ class FakeAds implements AdProvider {
   Future<void> init() async {}
   @override
   Future<void> showInterstitial() async => shown++;
+  @override
+  Widget? banner() => const SizedBox(
+    key: ValueKey('banner-ad'),
+    width: double.infinity,
+    height: 50,
+  );
 }
 
 class Harness {
