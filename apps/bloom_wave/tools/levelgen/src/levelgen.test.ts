@@ -48,15 +48,21 @@ test("생성 레벨은 verify 를 통과한다", () => {
 
 test("verify 는 총량 불일치·시작점 없는 덩어리를 잡는다", () => {
   const lv = runJob(job(0)).level;
-  assert.ok(checkLevel({ ...lv, queue: lv.queue.slice(1) }).some((e) => e.includes("drop total")));
+  assert.ok(checkLevel({ ...lv, lanes: [lv.lanes[0].slice(1), ...lv.lanes.slice(1)] }).some((e) => e.includes("drop total")));
   assert.ok(checkLevel({ ...lv, starts: [] }).some((e) => e.includes("no start")));
 });
 
-test("출시 팩: 120 레벨, 튜토리얼 1~2는 realtime false", () => {
+test("verify 는 대기열이 3줄 미만이면 잡는다", () => {
+  const lv = runJob(job(0)).level;
+  assert.ok(checkLevel({ ...lv, lanes: [lv.lanes.flat()] }).some((e) => e.includes("lanes")));
+});
+
+test("출시 팩: 120 레벨, 모두 3줄 이상, 튜토리얼 1~2는 realtime false", () => {
   const pack = JSON.parse(readFileSync(new URL("../out/pack-01.json", import.meta.url), "utf8"));
   assert.equal(pack.length, 120);
   assert.equal(pack[0].options?.realtime, false);
   assert.equal(pack[1].options?.realtime, false);
-  assert.equal(pack[2].options, undefined);
+  assert.equal(pack[2].options?.realtime, undefined);
+  assert.ok(pack.every((l: { lanes: unknown[] }) => l.lanes.length >= 3));
   assert.equal(new Set(pack.map((l: { id: string }) => l.id)).size, 120);
 });

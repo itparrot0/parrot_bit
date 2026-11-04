@@ -70,7 +70,7 @@ export async function build(configPath: string, flags: { threads?: number; limit
   const results = await runPool(jobs, threads, (r, done) => {
     const ms = r.tried.reduce((a, t) => a + t.ms, 0);
     console.log(`[${String(done).padStart(3)}/${jobs.length}] #${r.index + 1} ${r.level.id} seed=${r.seed} ` +
-      `win=${(r.report.randomWinRate * 100).toFixed(0)}% score=${r.report.score} (${ms}ms)`);
+      `${r.level.width}x${r.level.height} lanes=${r.level.lanes.length} win=${(r.report.randomWinRate * 100).toFixed(0)}% ${r.report.difficulty} score=${r.report.score} (${ms}ms)`);
   });
   const ordered = arrange(config, results);
   const levels = ordered.map((r) => r.level);
@@ -79,12 +79,12 @@ export async function build(configPath: string, flags: { threads?: number; limit
   mkdirSync(join(out, "previews"), { recursive: true });
   const packFile = join(out, `${config.pack}.json`);
   writeFileSync(packFile, serializePack(levels));
-  const csv = ["no,id,band,role,colors,cells,drops,peakSlots,avgSlots,star3Peak,randomWinRate,solverNodes,score,seed"];
+  const csv = ["no,id,band,role,size,lanes,colors,cells,drops,peakSlots,avgSlots,randomWinRate,difficulty,solverNodes,score,seed"];
   ordered.forEach((r, i) => {
     const spec = config.levels[r.index];
     const m = r.level.meta!;
-    csv.push([i + 1, r.level.id, spec.band, spec.role ?? "", r.report.colors, r.report.cells, r.report.drops, m.peakSlots,
-      m.avgSlots, m.star3Peak, m.randomWinRate, m.solverNodes, m.score, r.seed].join(","));
+    csv.push([i + 1, r.level.id, spec.band, spec.role ?? "", `${r.level.width}x${r.level.height}`, r.level.lanes.length,
+      r.report.colors, r.report.cells, r.report.drops, m.peakSlots, m.avgSlots, m.randomWinRate, m.difficulty, m.solverNodes, m.score, r.seed].join(","));
     writePreview(join(out, "previews", `${String(i + 1).padStart(3, "0")}-${r.level.id}.png`), r.level, createState(r.level));
   });
   writeFileSync(join(out, "report.csv"), csv.join("\n") + "\n");

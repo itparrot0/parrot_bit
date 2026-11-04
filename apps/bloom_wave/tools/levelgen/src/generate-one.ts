@@ -1,7 +1,6 @@
 // 설정 한 줄 → 시드별 생성 → 목표에 가장 가까운 레벨 하나 (worker 와 테스트가 함께 쓴다)
 import { DEFAULT_OPTIONS, type Level, type Options } from "@bloom-wave/core/engine";
 import { generate, type GenReport } from "@bloom-wave/core/generator";
-import { minPeakSlots } from "@bloom-wave/core/solver";
 import { readPngArt } from "./png.ts";
 import type { LevelSpec, PackConfig } from "./config.ts";
 
@@ -26,7 +25,7 @@ export function runJob(job: Job): JobResult {
     const t = Date.now();
     try {
       const r = generate(art, {
-        seed, starts: spec.starts, dropMin: spec.dropMin, dropMax: spec.dropMax,
+        seed, starts: spec.starts, dropMin: spec.dropMin, dropMax: spec.dropMax, lanes: spec.lanes, scale: spec.scale ?? 1,
         displacements: spec.displacements ?? defaults.displacements, targetWinRate: spec.targetWinRate,
         options, slotCount: defaults.slotCount, maxSolverNodes: defaults.maxSolverNodes,
       });
@@ -43,19 +42,19 @@ export function runJob(job: Job): JobResult {
   if (!best) throw new Error(`${spec.art}: no seed produced a level`);
   const { level: raw, ...report } = best.r;
   const id = spec.variant && spec.variant > 1 ? `${spec.art}-${spec.variant}` : spec.art;
-  const star3 = minPeakSlots(raw, options, defaults.maxSolverNodes) ?? report.peakSlots;
   const suffix = spec.variant && spec.variant > 1 ? " II" : "";
   const optDiff: Partial<Options> = {};
-  if (options.queuePick !== DEFAULT_OPTIONS.queuePick) optDiff.queuePick = options.queuePick;
+  if (options.visible !== DEFAULT_OPTIONS.visible) optDiff.visible = options.visible;
   if (options.realtime !== DEFAULT_OPTIONS.realtime) optDiff.realtime = options.realtime;
   const level: Level = {
     id, width: raw.width, height: raw.height, palette: raw.palette, cells: raw.cells, starts: raw.starts,
-    queue: raw.queue, slotCount: raw.slotCount,
+    lanes: raw.lanes, slotCount: raw.slotCount,
     ...(Object.keys(optDiff).length ? { options: optDiff } : {}),
     meta: {
-      score: report.score, peakSlots: report.peakSlots, avgSlots: report.avgSlots,
+      score: report.score, difficulty: report.difficulty, peakSlots: report.peakSlots, avgSlots: report.avgSlots,
       randomWinRate: Math.round(report.randomWinRate * 1000) / 1000, solverNodes: report.solverNodes,
-      star3Peak: star3, art: spec.art, name: { ko: job.names.ko + suffix, en: job.names.en + suffix },
+      art: spec.art, ...(spec.scale && spec.scale > 1 ? { scale: spec.scale } : {}),
+      name: { ko: job.names.ko + suffix, en: job.names.en + suffix },
     },
   };
   return { index: job.index, level, report, seed: best.seed, tried, warnings };

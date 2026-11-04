@@ -6,12 +6,13 @@
   "defaults": {
     "slotCount": 4,
     "options": {
-      "queuePick": 1,
-      "realtime": true
+      "realtime": true,
+      "visible": 2
     },
-    "displacements": 1500,
+    "displacements": 600,
     "maxSolverNodes": 50000,
-    "maxColors": 6
+    "maxColors": 6,
+    "maxSize": 24
   },
   "levels": [
     {
@@ -22,38 +23,42 @@
         1
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 6,
       "dropMax": 9,
       "displacements": 0,
       "targetWinRate": 1,
       "winRange": [
-        1,
+        0.9,
         1
       ],
       "options": {
-        "realtime": false
+        "realtime": false,
+        "visible": 3
       }
     },
     {
       "art": "sprout",
       "band": "tutorial",
-      "tutorial": "colors",
+      "tutorial": "lanes",
       "seeds": [
         1,
         2,
         3
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 5,
       "dropMax": 8,
       "displacements": 0,
       "targetWinRate": 1,
       "winRange": [
-        1,
+        0.8,
         1
       ],
       "options": {
-        "realtime": false
+        "realtime": false,
+        "visible": 3
       }
     },
     {
@@ -63,17 +68,22 @@
       "seeds": [
         1,
         2,
-        3
+        3,
+        4
       ],
       "starts": 2,
+      "lanes": 3,
       "dropMin": 4,
       "dropMax": 8,
       "displacements": 0,
       "targetWinRate": 1,
       "winRange": [
-        1,
+        0.7,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "sun",
@@ -86,14 +96,18 @@
         4
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 3,
       "dropMax": 6,
-      "displacements": 30,
-      "targetWinRate": 1,
+      "displacements": 0,
+      "targetWinRate": 0.9,
       "winRange": [
-        0.95,
+        0.6,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "snowflake",
@@ -102,17 +116,22 @@
       "seeds": [
         1,
         2,
-        3
+        3,
+        4
       ],
       "starts": 2,
+      "lanes": 3,
       "dropMin": 3,
       "dropMax": 6,
-      "displacements": 60,
-      "targetWinRate": 1,
+      "displacements": 0,
+      "targetWinRate": 0.9,
       "winRange": [
-        0.9,
+        0.6,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "tulip",
@@ -124,13 +143,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "starfish",
@@ -142,13 +166,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "candy",
@@ -160,13 +189,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "banana",
@@ -178,13 +212,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "bicycle",
@@ -196,13 +235,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "cherry",
@@ -214,13 +258,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "moon",
@@ -232,13 +281,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "daisy",
@@ -250,13 +304,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "lightning",
@@ -268,13 +327,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "maple_leaf",
@@ -286,13 +350,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "ladybug",
@@ -304,13 +373,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "chestnut",
@@ -322,13 +396,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "guitar",
@@ -340,13 +419,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "acorn",
@@ -358,13 +442,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "kite",
@@ -376,13 +465,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "chick",
@@ -394,13 +488,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "teapot",
@@ -412,13 +511,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "pudding",
@@ -430,13 +534,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "butterfly",
@@ -448,13 +557,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "grapes",
@@ -466,13 +580,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "lemon",
@@ -484,13 +603,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "jellyfish",
@@ -502,13 +626,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "turtle",
@@ -520,13 +649,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "umbrella",
@@ -538,13 +672,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "dragonfly",
@@ -557,13 +696,18 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
+      "lanes": 3,
+      "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.85,
+      "displacements": 200,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.7,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "mitten",
@@ -577,13 +721,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "car",
@@ -597,13 +745,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "rose",
@@ -617,13 +769,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "cherry_blossom",
@@ -637,13 +793,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "bee",
@@ -656,13 +816,18 @@
         4
       ],
       "starts": 2,
+      "lanes": 3,
       "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.9,
+      "displacements": 100,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.75,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "cloud",
@@ -676,13 +841,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "penguin",
@@ -696,13 +865,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "fish",
@@ -716,13 +889,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "shell",
@@ -736,13 +913,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "rocket",
@@ -756,13 +937,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "pineapple",
@@ -776,13 +961,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "fox",
@@ -796,13 +985,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "flowerpot",
@@ -816,13 +1009,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "mushroom",
@@ -836,13 +1033,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "watermelon_slice",
@@ -855,13 +1056,18 @@
         4
       ],
       "starts": 2,
+      "lanes": 3,
       "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.9,
+      "displacements": 100,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.75,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "christmas_tree",
@@ -875,13 +1081,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "ice_cream",
@@ -895,13 +1105,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "apple",
@@ -915,13 +1129,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "watering_can",
@@ -935,13 +1153,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "gift",
@@ -955,13 +1177,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "rabbit",
@@ -975,13 +1201,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "lotus",
@@ -995,13 +1225,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "cat",
@@ -1015,13 +1249,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "sailboat",
@@ -1035,13 +1273,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "pumpkin",
@@ -1054,13 +1296,18 @@
         4
       ],
       "starts": 2,
+      "lanes": 3,
       "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.9,
+      "displacements": 100,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.75,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "birdhouse",
@@ -1074,13 +1321,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "strawberry",
@@ -1094,13 +1345,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "peach",
@@ -1114,13 +1369,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "lighthouse",
@@ -1134,13 +1393,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "frog",
@@ -1154,13 +1417,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "beach_ball",
@@ -1174,13 +1441,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "octopus",
@@ -1194,13 +1465,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "cactus",
@@ -1214,13 +1489,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "house",
@@ -1234,13 +1513,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "snail",
@@ -1253,13 +1536,18 @@
         4
       ],
       "starts": 2,
+      "lanes": 3,
       "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.9,
+      "displacements": 100,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.75,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "snowman",
@@ -1273,13 +1561,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "cupcake",
@@ -1293,13 +1585,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "lollipop",
@@ -1313,13 +1609,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "whale",
@@ -1333,13 +1633,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "hot_air_balloon",
@@ -1353,13 +1657,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "macaron",
@@ -1373,13 +1681,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "train",
@@ -1393,13 +1705,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "watermelon",
@@ -1413,13 +1729,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "sunflower",
@@ -1433,13 +1753,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "sandcastle",
@@ -1452,13 +1776,18 @@
         4
       ],
       "starts": 2,
+      "lanes": 3,
       "dropMin": 3,
       "dropMax": 6,
-      "targetWinRate": 0.9,
+      "displacements": 100,
+      "targetWinRate": 0.6,
       "winRange": [
-        0.75,
+        0.4,
         1
-      ]
+      ],
+      "options": {
+        "visible": 3
+      }
     },
     {
       "art": "cake",
@@ -1472,13 +1801,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "donut",
@@ -1492,13 +1825,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "bouquet",
@@ -1512,13 +1849,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "owl",
@@ -1532,13 +1873,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
+        0.2,
+        0.45
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "garden_gate",
@@ -1553,38 +1898,22 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 4,
-      "targetWinRate": 0.5,
+      "targetWinRate": 0.3,
       "winRange": [
-        0.3,
-        0.7
-      ]
-    },
-    {
-      "art": "garden_gate",
-      "variant": 2,
-      "band": "hard",
-      "seeds": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
+        0.2,
+        0.45
       ],
-      "starts": 1,
-      "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
-      "winRange": [
-        0.05,
-        0.3
-      ]
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "owl",
       "variant": 2,
+      "scale": 2,
       "band": "hard",
       "seeds": [
         1,
@@ -1595,38 +1924,22 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
-    },
-    {
-      "art": "bouquet",
-      "variant": 2,
-      "band": "hard",
-      "seeds": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
+        0.02,
+        0.16
       ],
-      "starts": 1,
-      "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
-      "winRange": [
-        0.05,
-        0.3
-      ]
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "donut",
       "variant": 2,
+      "scale": 2,
       "band": "hard",
       "seeds": [
         1,
@@ -1637,37 +1950,22 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "cake",
       "variant": 2,
-      "band": "hard",
-      "role": "breather",
-      "seeds": [
-        1,
-        2,
-        3,
-        4
-      ],
-      "starts": 2,
-      "dropMin": 2,
-      "dropMax": 5,
-      "targetWinRate": 0.7,
-      "winRange": [
-        0.5,
-        1
-      ]
-    },
-    {
-      "art": "sandcastle",
-      "variant": 2,
+      "scale": 2,
       "band": "hard",
       "seeds": [
         1,
@@ -1678,17 +1976,22 @@
         6
       ],
       "starts": 1,
+      "lanes": 4,
       "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "sunflower",
       "variant": 2,
+      "scale": 2,
       "band": "hard",
       "seeds": [
         1,
@@ -1699,38 +2002,48 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "watermelon",
       "variant": 2,
+      "scale": 2,
       "band": "hard",
+      "role": "breather",
       "seeds": [
         1,
         2,
         3,
-        4,
-        5,
-        6
+        4
       ],
-      "starts": 1,
-      "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
+      "starts": 2,
+      "lanes": 3,
+      "dropMin": 3,
+      "dropMax": 6,
+      "displacements": 100,
+      "targetWinRate": 0.5,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.3,
+        1
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "train",
       "variant": 2,
+      "scale": 2,
       "band": "hard",
       "seeds": [
         1,
@@ -1741,17 +2054,22 @@
         6
       ],
       "starts": 1,
+      "lanes": 4,
       "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "macaron",
       "variant": 2,
+      "scale": 2,
       "band": "hard",
       "seeds": [
         1,
@@ -1762,17 +2080,22 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "hot_air_balloon",
       "variant": 2,
+      "scale": 2,
       "band": "hard",
       "seeds": [
         1,
@@ -1783,38 +2106,22 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
-    },
-    {
-      "art": "whale",
-      "variant": 2,
-      "band": "hard",
-      "seeds": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
+        0.02,
+        0.16
       ],
-      "starts": 1,
-      "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
-      "winRange": [
-        0.05,
-        0.3
-      ]
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "lollipop",
       "variant": 2,
+      "scale": 2,
       "band": "hard",
       "seeds": [
         1,
@@ -1825,17 +2132,22 @@
         6
       ],
       "starts": 1,
+      "lanes": 4,
       "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "cupcake",
       "variant": 2,
+      "scale": 2,
       "band": "hard",
       "seeds": [
         1,
@@ -1846,37 +2158,48 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "snowman",
       "variant": 2,
+      "scale": 2,
       "band": "hard",
-      "role": "breather",
       "seeds": [
         1,
         2,
         3,
-        4
+        4,
+        5,
+        6
       ],
-      "starts": 2,
-      "dropMin": 2,
-      "dropMax": 5,
-      "targetWinRate": 0.7,
+      "starts": 1,
+      "lanes": 3,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.5,
-        1
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "snail",
       "variant": 2,
+      "scale": 2,
       "band": "hard",
       "seeds": [
         1,
@@ -1887,17 +2210,22 @@
         6
       ],
       "starts": 1,
+      "lanes": 4,
       "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "house",
       "variant": 2,
+      "scale": 2,
       "band": "hard",
       "seeds": [
         1,
@@ -1908,17 +2236,22 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "cactus",
       "variant": 2,
+      "scale": 2,
       "band": "hard",
       "seeds": [
         1,
@@ -1929,143 +2262,22 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "octopus",
       "variant": 2,
-      "band": "hard",
-      "seeds": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      ],
-      "starts": 1,
-      "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
-      "winRange": [
-        0.05,
-        0.3
-      ]
-    },
-    {
-      "art": "beach_ball",
-      "variant": 2,
-      "band": "hard",
-      "seeds": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      ],
-      "starts": 1,
-      "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
-      "winRange": [
-        0.05,
-        0.3
-      ]
-    },
-    {
-      "art": "frog",
-      "variant": 2,
-      "band": "hard",
-      "seeds": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      ],
-      "starts": 1,
-      "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
-      "winRange": [
-        0.05,
-        0.3
-      ]
-    },
-    {
-      "art": "lighthouse",
-      "variant": 2,
-      "band": "hard",
-      "seeds": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      ],
-      "starts": 1,
-      "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
-      "winRange": [
-        0.05,
-        0.3
-      ]
-    },
-    {
-      "art": "peach",
-      "variant": 2,
-      "band": "hard",
-      "seeds": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      ],
-      "starts": 1,
-      "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
-      "winRange": [
-        0.05,
-        0.3
-      ]
-    },
-    {
-      "art": "strawberry",
-      "variant": 2,
-      "band": "hard",
-      "seeds": [
-        1,
-        2,
-        3,
-        4,
-        5,
-        6
-      ],
-      "starts": 1,
-      "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
-      "winRange": [
-        0.05,
-        0.3
-      ]
-    },
-    {
-      "art": "birdhouse",
-      "variant": 2,
+      "scale": 2,
       "band": "hard",
       "role": "breather",
       "seeds": [
@@ -2075,17 +2287,179 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
-      "dropMax": 5,
-      "targetWinRate": 0.7,
+      "lanes": 3,
+      "dropMin": 3,
+      "dropMax": 6,
+      "displacements": 100,
+      "targetWinRate": 0.5,
       "winRange": [
-        0.5,
+        0.3,
         1
-      ]
+      ],
+      "options": {
+        "visible": 2
+      }
+    },
+    {
+      "art": "beach_ball",
+      "variant": 2,
+      "scale": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "lanes": 3,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
+      "winRange": [
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
+    },
+    {
+      "art": "frog",
+      "variant": 2,
+      "scale": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "lanes": 3,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
+      "winRange": [
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
+    },
+    {
+      "art": "lighthouse",
+      "variant": 2,
+      "scale": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "lanes": 4,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
+      "winRange": [
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
+    },
+    {
+      "art": "peach",
+      "variant": 2,
+      "scale": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "lanes": 3,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
+      "winRange": [
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
+    },
+    {
+      "art": "strawberry",
+      "variant": 2,
+      "scale": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "lanes": 3,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
+      "winRange": [
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
+    },
+    {
+      "art": "birdhouse",
+      "variant": 2,
+      "scale": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "lanes": 4,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
+      "winRange": [
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "pumpkin",
       "variant": 2,
+      "scale": 2,
       "band": "hard",
       "seeds": [
         1,
@@ -2096,17 +2470,22 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "sailboat",
       "variant": 2,
+      "scale": 2,
       "band": "hard",
       "seeds": [
         1,
@@ -2117,17 +2496,22 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "cat",
       "variant": 2,
+      "scale": 2,
       "band": "hard",
       "seeds": [
         1,
@@ -2138,38 +2522,48 @@
         6
       ],
       "starts": 1,
+      "lanes": 4,
       "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "lotus",
       "variant": 2,
+      "scale": 2,
       "band": "hard",
+      "role": "breather",
       "seeds": [
         1,
         2,
         3,
-        4,
-        5,
-        6
+        4
       ],
-      "starts": 1,
-      "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
+      "starts": 2,
+      "lanes": 3,
+      "dropMin": 3,
+      "dropMax": 6,
+      "displacements": 100,
+      "targetWinRate": 0.5,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.3,
+        1
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "rabbit",
       "variant": 2,
+      "scale": 2,
       "band": "hard",
       "seeds": [
         1,
@@ -2180,16 +2574,125 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
-      "dropMax": 3,
-      "targetWinRate": 0.15,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
+    },
+    {
+      "art": "gift",
+      "variant": 2,
+      "scale": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "lanes": 4,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
+      "winRange": [
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
+    },
+    {
+      "art": "apple",
+      "variant": 2,
+      "scale": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "lanes": 3,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
+      "winRange": [
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
+    },
+    {
+      "art": "ice_cream",
+      "variant": 2,
+      "scale": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "lanes": 3,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
+      "winRange": [
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
+    },
+    {
+      "art": "christmas_tree",
+      "variant": 2,
+      "scale": 2,
+      "band": "hard",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "starts": 1,
+      "lanes": 4,
+      "dropMin": 1,
+      "dropMax": 4,
+      "targetWinRate": 0.08,
+      "winRange": [
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "rainbow",
+      "scale": 1,
       "band": "hard",
       "seeds": [
         1,
@@ -2200,16 +2703,21 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 3,
-      "targetWinRate": 0.15,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "coral_reef",
+      "scale": 1,
       "band": "hard",
       "seeds": [
         1,
@@ -2220,16 +2728,21 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 3,
-      "targetWinRate": 0.15,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "panda",
+      "scale": 1,
       "band": "hard",
       "seeds": [
         1,
@@ -2240,16 +2753,21 @@
         6
       ],
       "starts": 1,
+      "lanes": 4,
       "dropMin": 1,
       "dropMax": 3,
-      "targetWinRate": 0.15,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "night_sky",
+      "scale": 1,
       "band": "hard",
       "seeds": [
         1,
@@ -2260,16 +2778,21 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 3,
-      "targetWinRate": 0.15,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "carousel",
+      "scale": 1,
       "band": "hard",
       "role": "breather",
       "seeds": [
@@ -2279,16 +2802,22 @@
         4
       ],
       "starts": 2,
-      "dropMin": 2,
-      "dropMax": 5,
-      "targetWinRate": 0.7,
+      "lanes": 3,
+      "dropMin": 3,
+      "dropMax": 6,
+      "displacements": 100,
+      "targetWinRate": 0.5,
       "winRange": [
-        0.5,
+        0.3,
         1
-      ]
+      ],
+      "options": {
+        "visible": 2
+      }
     },
     {
       "art": "tea_party",
+      "scale": 1,
       "band": "hard",
       "seeds": [
         1,
@@ -2299,16 +2828,21 @@
         6
       ],
       "starts": 1,
+      "lanes": 4,
       "dropMin": 1,
       "dropMax": 3,
-      "targetWinRate": 0.15,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "picnic",
+      "scale": 1,
       "band": "hard",
       "seeds": [
         1,
@@ -2319,16 +2853,21 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 3,
-      "targetWinRate": 0.15,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "fruit_basket",
+      "scale": 1,
       "band": "hard",
       "seeds": [
         1,
@@ -2339,16 +2878,21 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 3,
-      "targetWinRate": 0.15,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "winter_cabin",
+      "scale": 1,
       "band": "hard",
       "seeds": [
         1,
@@ -2359,16 +2903,21 @@
         6
       ],
       "starts": 1,
+      "lanes": 4,
       "dropMin": 1,
       "dropMax": 3,
-      "targetWinRate": 0.15,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     },
     {
       "art": "rainbow_flower",
+      "scale": 1,
       "band": "hard",
       "role": "boss",
       "seeds": [
@@ -2380,13 +2929,17 @@
         6
       ],
       "starts": 1,
+      "lanes": 3,
       "dropMin": 1,
       "dropMax": 3,
-      "targetWinRate": 0.15,
+      "targetWinRate": 0.08,
       "winRange": [
-        0.05,
-        0.3
-      ]
+        0.02,
+        0.16
+      ],
+      "options": {
+        "visible": 1
+      }
     }
   ]
 }

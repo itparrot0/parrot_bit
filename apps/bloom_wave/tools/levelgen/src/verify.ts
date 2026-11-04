@@ -5,14 +5,17 @@ import { DIR8, EMPTY, levelOptions, type Level } from "@bloom-wave/core/engine";
 import { solve } from "@bloom-wave/core/solver";
 import { replay } from "@bloom-wave/core/generator";
 
-export function checkLevel(level: Level, maxNodes = 200_000): string[] {
+export function checkLevel(level: Level, maxNodes = 200_000, minLanes = 3): string[] {
   const errs: string[] = [];
   const n = level.width * level.height;
   if (level.cells.length !== n) errs.push(`cells length ${level.cells.length} != ${n}`);
   const cellCount = level.cells.filter((c) => c !== EMPTY).length;
-  const total = level.queue.reduce((a, d) => a + d.amount, 0);
+  const drops = (level.lanes ?? []).flat();
+  const total = drops.reduce((a, d) => a + d.amount, 0);
   if (total !== cellCount) errs.push(`drop total ${total} != cells ${cellCount}`);
-  if (level.queue.some((d) => d.amount <= 0 || d.color < 0 || d.color >= level.palette.length)) errs.push("bad drop in queue");
+  if (drops.some((d) => d.amount <= 0 || d.color < 0 || d.color >= level.palette.length)) errs.push("bad drop in queue");
+  if ((level.lanes ?? []).length < minLanes) errs.push(`only ${(level.lanes ?? []).length} queue lanes (min ${minLanes})`);
+  if ((level.lanes ?? []).some((l) => !l.length)) errs.push("empty queue lane");
   const seen = new Uint8Array(n);
   const starts = new Set(level.starts);
   for (let i = 0; i < n; i++) {
