@@ -11,10 +11,10 @@
 lib/
 ├── domain/          순수 Dart: engine(규칙) · solver · generator   ← 앱과 tool/levelgen 공유
 ├── game/            GameController(틱 타이머) · 연출 상태 · 보드/물방울 그리기 · 비슷한 색
-├── economy/gold.dart  완성 보상 골드 범위 (조절 지점)
+├── economy/         gold(완성 보상) · skins(꽃 스킨 목록) · gacha(뽑기 규칙·확률) — 조절 지점
 ├── save/            진행도·골드·설정 저장 (shared_preferences, schema 3)
 ├── platform/        광고(AdMob) · 결제(in_app_purchase) · 효과음 · 진동
-├── screens/         홈 · 게임 · 설정(일시정지 메뉴에서)
+├── screens/         홈 · 게임 · 설정(일시정지 메뉴에서) · 상점 · 스킨 뽑기
 └── app.dart, main.dart
 assets/levels/pack-01.json   출시 120 레벨 (tool/levelgen 이 만든다)
 tool/levelgen/       PNG → 클리어 보장 레벨 팩 CLI (build / verify) — tool/levelgen/README.md
@@ -23,14 +23,18 @@ test/                domain · game · app(화면 흐름) · levelgen
 
 ## 화면 흐름 (2026-11-04)
 
-- **홈**: 다음 스테이지 시작 버튼 하나 + 골드 잔액. 지난 스테이지를 다시 하는 메뉴(스테이지 맵·정원)는 없다.
+- **홈**: 다음 스테이지 시작 + 상점 + 스킨 뽑기 버튼, 골드 잔액. 지난 스테이지를 다시 하는 메뉴(스테이지 맵·정원)는 없다.
+- **상점**: 꽃 스킨 모음(조각 진행도·장착), 광고 제거, 스킨 뽑기로 가기.
+- **스킨 뽑기**: 100 골드로 가챠 머신을 돌려 꽃 스킨 퍼즐 조각 1개. 4조각 모으면 해금, 중복은 10 골드(10%) 반환,
+  해금한 스킨의 조각은 더 나오지 않는다. "확률 보기"는 규칙 함수의 값을 그대로 보여 준다.
+  연출은 뽑기 화면에서만 돈다 — 게임 보드는 스킨마다 미리 만든 경로 하나를 그려서 어떤 스킨이든 비용이 같다.
 - **게임**: 상단(홈·일시정지) / 보드 / 활성 슬롯 4칸 / 대기열 세로 줄 / 힌트·재시작.
   일시정지 메뉴: 계속하기 · 재시작 · **설정** · 홈.
 - **완성**: Full Bloom 연출 + **골드 무작위 지급** → [홈] [다음 스테이지] (마지막 스테이지는 [홈]만).
   떠날 때 전면 광고 1회 (광고 제거 구매자는 없음).
 - **실패**: [다시 하기] [홈], 광고 없음.
 
-골드 지급량은 `lib/economy/gold.dart`의 `goldReward` (현재 10~30) 한 곳만 바꾸면 된다.
+골드 지급량은 `lib/economy/gold.dart`의 `goldReward` (현재 10~30), 뽑기 가격·반환율은 `lib/economy/gacha.dart`의 `GachaConfig`.
 
 ## 명령
 

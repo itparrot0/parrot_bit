@@ -3,12 +3,18 @@
 //  - schema 1: stars(레벨별 별점)
 //  - schema 2 (2026-11-04): 별점 폐지 → cleared(완성 여부), noAds(광고 제거 구매)
 //  - schema 3 (2026-11-04, Flutter 전환): gold(골드 잔액). 지난 스테이지 다시 하기 없음 → unlocked 가 곧 다음 스테이지
+//  - schema 4 (2026-11-04): skins — 스킨별 모은 퍼즐 조각(pieces), 장착한 스킨(equipped).
+//    해금 여부는 따로 저장하지 않고 "조각을 모두 모았나"로 계산한다 (economy/skins.dart)
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../economy/gacha.dart';
+import '../economy/skins.dart';
+
 const saveKey = 'bloomwave.save';
-const saveSchema = 3;
+const saveSchema = 4;
 
 enum TickSpeed { normal, slow }
 
@@ -60,7 +66,10 @@ class SaveData {
     this.noAds = false,
     this.gold = 0,
     this.settings = const Settings(),
-  }) : cleared = cleared ?? <String>{};
+    Map<String, Set<int>>? skinPieces,
+    this.equippedSkin = defaultSkinId,
+  }) : cleared = cleared ?? <String>{},
+       skinPieces = skinPieces ?? <String, Set<int>>{};
 
   /// 다음에 할 스테이지 번호 (1부터). 완성한 스테이지는 다시 열지 않는다
   int unlocked;
@@ -75,6 +84,22 @@ class SaveData {
   int gold;
   Settings settings;
 
+  /// 스킨별로 모은 퍼즐 조각 번호
+  final Map<String, Set<int>> skinPieces;
+
+  /// 게임에서 쓰는 꽃 스킨
+  String equippedSkin;
+
+  /// 해금된 스킨인가 (기본 스킨이거나 조각을 모두 모음)
+  bool isUnlocked(SkinDef s) =>
+      s.isDefault || (skinPieces[s.id]?.length ?? 0) >= s.pieces;
+
+  /// 장착한 스킨 (해금 안 된 값이 들어 있으면 기본 스킨)
+  SkinDef get skin {
+    final s = skinById(equippedSkin);
+    return s != null && isUnlocked(s) ? s : skins.first;
+  }
+
   Map<String, dynamic> toJson() => {
     'schema': saveSchema,
     'unlocked': unlocked,
@@ -82,6 +107,13 @@ class SaveData {
     'noAds': noAds,
     'gold': gold,
     'settings': settings.toJson(),
+    'skins': {
+      'pieces': {
+        for (final e in skinPieces.entries)
+          if (e.value.isNotEmpty) e.key: (e.value.toList()..sort()),
+      },
+      'equipped': equippedSkin,
+    },
   };
 }
 
@@ -120,6 +152,24 @@ SaveData migrate(Object? raw, {String lang = 'ko'}) {
   // schema 2 → 3: 골드는 0에서 시작
   final g = raw['gold'];
   if (g is num && g >= 0) d.gold = g.floor();
+  // schema 3 → 4: 스킨 없음 (기본 스킨). 모르는 스킨·범위 밖 조각은 버린다
+  final sk = raw['skins'];
+  if (sk is Map) {
+    final pieces = sk['pieces'];
+    if (pieces is Map) {
+      pieces.forEach((k, v) {
+        final def = skinById('$k');
+        if (def == null || def.isDefault || v is! List) return;
+        final set = {
+          for (final i in v)
+            if (i is int && i >= 0 && i < def.pieces) i,
+        };
+        if (set.isNotEmpty) d.skinPieces[def.id] = set;
+      });
+    }
+    final eq = sk['equipped'];
+    if (eq is String && skinById(eq) != null) d.equippedSkin = eq;
+  }
   return d;
 }
 
@@ -184,6 +234,22 @@ class SaveStore {
     if (data.unlocked > total + 1) data.unlocked = total + 1;
     await save();
     return added;
+  }
+
+  /// 스킨 뽑기 한 번 (골드 차감·조각 추가·중복 반환을 한 번에 저장). 뽑을 수 없으면 StateError
+  Future<PullResult> pullSkin(math.Random rng) async {
+    final r = pull(data, rng);
+    await save();
+    return r;
+  }
+
+  /// 해금된 스킨만 장착할 수 있다
+  Future<bool> equipSkin(String id) async {
+    final s = skinById(id);
+    if (s == null || !data.isUnlocked(s)) return false;
+    data.equippedSkin = id;
+    await save();
+    return true;
   }
 
   Future<void> setNoAds(bool v) async {

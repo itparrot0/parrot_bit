@@ -176,7 +176,7 @@ void main() {
   });
 
   group('SaveStore', () {
-    test('저장 → 불러오기 왕복: 완성 여부·다음 스테이지·광고 제거·골드·설정 (schema 3)', () async {
+    test('저장 → 불러오기 왕복: 완성 여부·다음 스테이지·광고 제거·골드·설정', () async {
       final kv = MemoryStore();
       final a = SaveStore(kv);
       await a.load();
@@ -188,7 +188,7 @@ void main() {
         const Settings(tickSpeed: TickSpeed.slow, lang: 'en'),
       );
       final d = await SaveStore(kv).load();
-      expect(jsonDecode(kv.map[saveKey]!)['schema'], 3);
+      expect(jsonDecode(kv.map[saveKey]!)['schema'], saveSchema);
       expect(d.cleared, {'tulip'});
       expect(d.unlocked, 2);
       expect(d.noAds, isTrue);

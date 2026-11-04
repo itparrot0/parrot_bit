@@ -30,14 +30,19 @@ Flutter로도 충족되고 모노레포가 전부 Flutter라 옮겼다. TS 코�
 골드 잔액. 완성 시 골드 무작위 지급(`lib/economy/gold.dart`, 현재 10~30 — 플레이해 보고 조절), 완성 화면은
 [홈] [다음 스테이지]. 설정은 일시정지 메뉴로 옮겼다.
 
-**검증 (2026-11-04)**: `flutter test` 51개 통과(domain·TS 동등성·controller·save·화면 흐름·levelgen),
+**4차: 상점 · 꽃 스킨 뽑기 (2026-11-04)**: 홈에 상점·스킨 뽑기 버튼. 100 골드로 가챠 머신 → 꽃 스킨 퍼즐
+조각(스킨당 4개), 다 모으면 해금(해금 뒤 그 스킨 조각은 제외), 중복은 10% 반환. 확률 보기 있음. 스킨은
+개화 칸 꽃 모양만 바꾼다(경로 캐시, 게임 성능 그대로). 유료 재화 없음. 규칙은 `lib/economy/gacha.dart`,
+테스트 71개 통과(뽑기 규칙·확률·저장 schema 4·화면 흐름 포함).
+
+**검증 (Flutter 전환 시점)**: `flutter test` 51개 통과(domain·TS 동등성·controller·save·화면 흐름·levelgen),
 `flutter analyze` 깨끗, `levelgen verify` 120레벨 통과. 웹 빌드로 홈 → 1스테이지 → 완성(골드) → 광고 →
 2스테이지 흐름을 브라우저에서 확인. **Android 빌드는 이 클라우드 환경에서 못 했다** (Android SDK 다운로드
 호스트 dl.google.com 차단) — 로컬에서 `flutter build apk` 로 확인 필요.
 
 **다음 할 일**:
 1. 로컬에서 APK 빌드·실기기 확인 (광고 SDK·결제·효과음은 실기기에서 처음 돈다).
-2. 골드 지급량 조절, 골드 사용처(아이템·상점 — `docs/06_아이템_상점_가이드.md`).
+2. 골드 지급량·뽑기 가격 조절(플레이 후). 아이템(06 가이드 3장)은 아직.
 3. AdMob **테스트 ID → 실제 ID**, Play Console `remove_ads` 상품, 업로드 키(`android/key.properties`).
 4. 레벨 그림을 플레이스홀더에서 실제 아트로 교체 — `tool/levelgen/art/`.
 

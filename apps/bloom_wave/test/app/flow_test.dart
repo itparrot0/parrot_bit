@@ -50,12 +50,12 @@ Future<void> playToClear(WidgetTester tester) async {
 }
 
 void main() {
-  testWidgets('홈: 스테이지 시작 버튼 하나와 골드만 보인다', (tester) async {
+  testWidgets('홈: 스테이지 시작·상점·스킨 뽑기 버튼과 골드 (지난 스테이지 메뉴 없음)', (tester) async {
     await phone(tester);
     final h = Harness();
     await tester.pumpWidget(h.app);
     await tester.pump();
-    expect(find.byType(PillButton), findsOneWidget);
+    expect(find.byType(PillButton), findsNWidgets(3));
     expect(byKey('btn-start'), findsOneWidget);
     expect(find.text('스테이지 1 시작'), findsOneWidget);
     expect(

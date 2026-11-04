@@ -108,21 +108,6 @@ void drawSproutGlyph(
   canvas.restore();
 }
 
-void drawBloomGlyph(Canvas canvas, Offset c, double size, Color color) {
-  final p = Paint()..color = color;
-  inBox(canvas, c, size, () {
-    for (var i = 0; i < 5; i++) {
-      final a = -math.pi / 2 + i * 2 * math.pi / 5;
-      canvas.drawCircle(
-        Offset(64 + math.cos(a) * 26, 64 + math.sin(a) * 26),
-        22,
-        p,
-      );
-    }
-    canvas.drawCircle(const Offset(64, 64), 16, p);
-  });
-}
-
 /// 레벨 그림을 완성된(모두 개화한) 픽셀 아트로 그린다. silhouette 면 회색 실루엣
 void drawArt(
   Canvas canvas,

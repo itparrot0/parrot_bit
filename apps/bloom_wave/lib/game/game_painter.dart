@@ -5,16 +5,21 @@ import 'package:flutter/material.dart';
 
 import '../domain/engine.dart' as e;
 import '../ui/shapes.dart';
+import '../ui/skin_art.dart';
 import '../ui/theme.dart';
 import 'game_controller.dart';
 import 'game_fx.dart';
 import 'game_layout.dart';
 
 class GamePainter extends CustomPainter {
-  GamePainter(this.c, this.fx, this.L) : super(repaint: fx);
+  GamePainter(this.c, this.fx, this.L, {this.skinId = 'basic'})
+    : super(repaint: fx);
   final GameController c;
   final GameFx fx;
   final GameLayout L;
+
+  /// 개화 칸의 꽃 모양 (장착한 스킨)
+  final String skinId;
 
   late final List<Color> _colors = [
     for (final h in c.level.palette) hexColor(h),
@@ -140,11 +145,12 @@ class GamePainter extends CustomPainter {
         );
       } else if (st == e.bloom) {
         drawTile(canvas, Offset.zero, cs, col);
-        drawBloomGlyph(
+        drawSkinGlyph(
           canvas,
           Offset.zero,
           cs * 0.85,
           mix(col, Colors.white, 0.5),
+          skinId,
         );
       }
       if (preview == ci && st != e.bloom) {
@@ -275,7 +281,8 @@ class GamePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant GamePainter old) => old.c != c || old.fx != fx;
+  bool shouldRepaint(covariant GamePainter old) =>
+      old.c != c || old.fx != fx || old.skinId != skinId;
 }
 
 /// 레벨 그림(완성 모습) 한 장

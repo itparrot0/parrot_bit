@@ -1,4 +1,4 @@
-// 홈: 스테이지 시작 버튼 하나 (2026-11-04). 지난 스테이지를 고르는 메뉴는 없다.
+// 홈: 스테이지 시작 버튼 + 상점·스킨 뽑기 버튼 (2026-11-04). 지난 스테이지를 고르는 메뉴는 없다.
 // 위쪽에는 골드 잔액, 가운데에는 가장 최근에 완성한 그림(없으면 첫 그림의 실루엣).
 // 뒤로 가기는 종료 확인.
 import 'dart:math' as math;
@@ -11,7 +11,9 @@ import '../app.dart';
 import '../game/game_painter.dart';
 import '../ui/theme.dart';
 import '../ui/widgets.dart';
+import 'gacha_screen.dart';
 import 'game_screen.dart';
+import 'shop_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -49,6 +51,10 @@ class _HomeScreenState extends State<HomeScreen>
             FadeTransition(opacity: a, child: child),
       ),
     );
+  }
+
+  void _open(Widget screen) {
+    Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => screen));
   }
 
   @override
@@ -115,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen>
               if (next != null)
                 At(
                   x: kW / 2,
-                  y: kH - bottom - 560,
+                  y: kH - bottom - 590,
                   w: 800,
                   h: 200,
                   child: PillButton(
@@ -131,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen>
               else ...[
                 At(
                   x: kW / 2,
-                  y: kH - bottom - 600,
+                  y: kH - bottom - 630,
                   w: 1000,
                   h: 120,
                   child: Label(
@@ -143,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
                 At(
                   x: kW / 2,
-                  y: kH - bottom - 500,
+                  y: kH - bottom - 530,
                   w: 1000,
                   h: 100,
                   child: Label(
@@ -154,6 +160,49 @@ class _HomeScreenState extends State<HomeScreen>
                   ),
                 ),
               ],
+              // 상점 · 스킨 뽑기 (2026-11-04)
+              At(
+                x: kW / 2 - 185,
+                y: kH - bottom - 360,
+                w: 380,
+                h: 170,
+                child: PillButton(
+                  app.t('openShop'),
+                  key: const ValueKey('btn-shop'),
+                  w: 350,
+                  h: 140,
+                  color: C.panel,
+                  textColor: C.ink,
+                  leading: const Icon(
+                    Icons.storefront_rounded,
+                    size: 56,
+                    color: C.accentDark,
+                  ),
+                  onClick: app.sfx.click,
+                  onTap: () => _open(const ShopScreen()),
+                ),
+              ),
+              At(
+                x: kW / 2 + 185,
+                y: kH - bottom - 360,
+                w: 380,
+                h: 170,
+                child: PillButton(
+                  app.t('skinGacha'),
+                  key: const ValueKey('btn-gacha'),
+                  w: 350,
+                  h: 140,
+                  color: C.gold,
+                  textColor: C.ink,
+                  leading: const Icon(
+                    Icons.local_florist_rounded,
+                    size: 56,
+                    color: C.ink,
+                  ),
+                  onClick: app.sfx.click,
+                  onTap: () => _open(const GachaScreen()),
+                ),
+              ),
               if (_exitDialog)
                 OverlayPanel(
                   key: const ValueKey('overlay-exit'),

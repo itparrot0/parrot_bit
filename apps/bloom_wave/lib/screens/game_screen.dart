@@ -337,7 +337,14 @@ class GameScreenState extends State<GameScreen>
               clipBehavior: Clip.none,
               children: [
                 Positioned.fill(
-                  child: CustomPaint(painter: GamePainter(controller, fx, L)),
+                  child: CustomPaint(
+                    painter: GamePainter(
+                      controller,
+                      fx,
+                      L,
+                      skinId: app.save.data.skin.id,
+                    ),
+                  ),
                 ),
                 // 상단 바
                 At(
