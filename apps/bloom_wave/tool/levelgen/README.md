@@ -4,7 +4,7 @@
 모든 명령은 `apps/bloom_wave` 에서 실행한다.
 
 ```sh
-dart run tool/levelgen/levelgen.dart build tool/levelgen/levels.config.json   # 120레벨 생성 (4코어 약 1분 반)
+dart run tool/levelgen/levelgen.dart build tool/levelgen/levels.config.json   # 1000 스테이지 생성 (4코어 약 4분)
 dart run tool/levelgen/levelgen.dart build tool/levelgen/levels.config.json --threads 1 --limit 10   # 일부만 빠르게
 dart run tool/levelgen/levelgen.dart verify tool/levelgen/out/pack-01.json    # 팩 재검증 (실패 시 종료 코드 1)
 dart run tool/levelgen/levelgen.dart art      # src/art_source.dart 텍스트 아트 → art/*.png, art/names.json

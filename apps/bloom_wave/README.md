@@ -5,7 +5,7 @@
 
 **Flutter 앱이다 (2026-11-04 TypeScript에서 전환).** 규칙 엔진·솔버·생성기는 Flutter 없이 도는
 순수 Dart(`lib/domain/`)이고, 앱과 레벨 생성기가 같은 파일을 쓴다. 전환 직전 TS 결과와 같다는 것을
-`test/domain/ts_parity_test.dart`가 확인한다(120레벨 솔버 해법·노드 수, 생성 레벨 바이트 단위).
+`test/domain/ts_parity_test.dart`가 확인한다(전환 당시 120레벨 팩 `test/fixtures/pack-01-ts.json`의 솔버 해법·노드 수, 생성 레벨 바이트 단위).
 
 ```
 lib/
@@ -16,7 +16,7 @@ lib/
 ├── platform/        광고(AdMob) · 결제(in_app_purchase) · 효과음 · 진동
 ├── screens/         홈 · 게임 · 설정(일시정지 메뉴에서) · 상점 · 스킨 뽑기
 └── app.dart, main.dart
-assets/levels/pack-01.json   출시 120 레벨 (tool/levelgen 이 만든다)
+assets/levels/pack-01.json   출시 1000 스테이지 (tool/levelgen 이 만든다, 2~4스테이지마다 어려움 등급)
 tool/levelgen/       PNG → 클리어 보장 레벨 팩 CLI (build / verify) — tool/levelgen/README.md
 test/                domain · game · app(화면 흐름) · levelgen
 ```
@@ -47,7 +47,7 @@ flutter run -d chrome           # 브라우저 플레이 테스트 (광고는 �
 flutter build apk --release     # APK (android/key.properties 없으면 디버그 키로 서명)
 flutter build appbundle         # 스토어용 AAB (android/key.properties 필요)
 dart run tool/levelgen/levelgen.dart verify tool/levelgen/out/pack-01.json
-dart run tool/levelgen/levelgen.dart build tool/levelgen/levels.config.json   # 약 1~2분, assets 로 복사
+dart run tool/levelgen/levelgen.dart build tool/levelgen/levels.config.json   # 1000 스테이지 약 4분, assets 로 복사
 ```
 
 ## 출시 전 할 일

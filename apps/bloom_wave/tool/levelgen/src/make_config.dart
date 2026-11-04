@@ -1,9 +1,11 @@
 // levels.config.json 을 만든다 (한 번 만들고 커밋한 뒤 사람이 손으로 고쳐도 된다).
-// 01_게임기획서.md 7.3 난이도 곡선: 튜토리얼 1~5 / 입문 6~30 / 중급 31~80 / 상급 81~120.
+// 1000 스테이지 (2026-11-04): 튜토리얼 1~5, 그 뒤로 2~4스테이지마다 무작위 등급의 어려움 스테이지 + 사이사이 노말.
+// (그전 120 스테이지 구간 배치는 git 기록 d3ab45e 의 이 파일)
 import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:bloom_wave/domain/engine.dart';
+import 'package:bloom_wave/domain/generator.dart';
 
 import 'art_source.dart';
 import 'config.dart';
@@ -23,6 +25,70 @@ int _big(String name) {
 }
 
 const _v3 = PartialOptions(visible: 3);
+
+/// 출시 팩 스테이지 수
+const totalStages = 1000;
+
+/// 다음 어려움 스테이지까지 거리: 2~4
+int _gap(double Function() rng) => 2 + (rng() * 3).floor();
+
+/// 등급별 생성 조건. target·range 는 무작위 클리어율 목표 (등급 경계: 30% / 15% / 8%)
+({
+  int starts,
+  int lanes,
+  int dropMin,
+  int dropMax,
+  int displacements,
+  num target,
+  (num, num) range,
+})
+_preset(Difficulty tier, int n, double Function() rng) => switch (tier) {
+  Difficulty.normal when n <= 30 => (
+    starts: 2,
+    lanes: 3,
+    dropMin: 3,
+    dropMax: 6,
+    displacements: 200,
+    target: 0.6,
+    range: (0.4, 1),
+  ),
+  Difficulty.normal => (
+    starts: rng() < 0.5 ? 1 : 2,
+    lanes: 3,
+    dropMin: 2,
+    dropMax: 5,
+    displacements: 200,
+    target: 0.5,
+    range: (0.3, 1),
+  ),
+  Difficulty.hard => (
+    starts: 1,
+    lanes: 3,
+    dropMin: 1,
+    dropMax: 4,
+    displacements: 600,
+    target: 0.22,
+    range: (0.15, 0.3),
+  ),
+  Difficulty.superHard => (
+    starts: 1,
+    lanes: rng() < 0.5 ? 3 : 4,
+    dropMin: 1,
+    dropMax: 4,
+    displacements: 600,
+    target: 0.11,
+    range: (0.08, 0.15),
+  ),
+  Difficulty.megaHard => (
+    starts: 1,
+    lanes: 4,
+    dropMin: 1,
+    dropMax: 3,
+    displacements: 600,
+    target: 0.04,
+    range: (0, 0.08),
+  ),
+};
 
 PackConfig makeConfig() {
   // 대기열은 항상 3줄 이상 (2026-11-04 결정). visible = 줄마다 미리 보이는 물방울 수 (2026-11-04 2차: 모든 레벨 3 = 탭할 1개 + 다음 2개)
@@ -70,127 +136,76 @@ PackConfig makeConfig() {
       return d != 0 ? d : pos[a]! - pos[b]!;
     });
 
-  // 구간별 그림 배정
-  final intro = pool.sublist(0, 25); // 6~30
-  final mid = pool.sublist(25, 75); // 31~80
-  final hardUnique = pool.sublist(75); // 81~ (가장 큰 그림)
-  // 중급 그림을 해상도 2배로 키워 한 번 더 ("II"). 확대 후 24칸을 넘지 않는 그림만
-  final hardRepeat = pool
-      .sublist(0, 75)
-      .where((n) => _big(n) * 2 <= 24)
-      .toList()
-      .reversed
-      .take(30)
-      .toList();
+  // ---- 1000 스테이지 (2026-11-04) ----
+  // 6스테이지부터 2~4스테이지마다 "어려움" 스테이지가 하나씩 끼고, 그 사이는 노말.
+  // 어려움의 등급(Hard / Super Hard / Mega Hard)은 무작위. 단 입문 구간(~30)은 Hard 만.
+  // 같은 설정이면 언제나 같은 배치가 나온다 (시드 고정).
+  final rng = mulberry32(20261104);
+  final tiers = <int, Difficulty>{};
+  for (var p = tutorial.length + _gap(rng); p <= totalStages; p += _gap(rng)) {
+    tiers[p] = p <= 30
+        ? Difficulty.hard
+        : const [
+            Difficulty.hard,
+            Difficulty.superHard,
+            Difficulty.megaHard,
+          ][(rng() * 3).floor()];
+  }
 
+  final uses = <String, int>{}; // 그림별 사용 횟수 → variant 번호 (id: <그림>-<n>)
+  String? prev;
   final levels = <LevelSpec>[...tutorial];
-  const seeds = [1, 2, 3, 4, 5, 6];
-
-  // 입문: 큰 물방울, 시작 지점 여러 곳, 3개씩 미리 보임. 마지막(30)은 보스.
-  for (var i = 0; i < intro.length; i++) {
+  for (var n = tutorial.length + 1; n <= totalStages; n++) {
+    final tier = tiers[n] ?? Difficulty.normal;
+    // 그림 고르기: 초반 노말은 단순한 그림부터, Super/Mega Hard 는 복잡한 절반에서.
+    // 그 안에서 가장 적게 쓴 그림 (같으면 무작위), 바로 앞 스테이지와 같은 그림은 피한다.
+    final List<String> allowed = switch (tier) {
+      Difficulty.normal when n <= 30 => pool.sublist(0, 30),
+      Difficulty.normal when n <= 100 => pool.sublist(0, 60),
+      Difficulty.superHard ||
+      Difficulty.megaHard => pool.sublist(pool.length ~/ 3),
+      _ => pool,
+    };
+    final cands = allowed.where((a) => a != prev).toList();
+    final least = cands.map((a) => uses[a] ?? 0).reduce(math.min);
+    final pick = cands.where((a) => (uses[a] ?? 0) == least).toList();
+    final art = pick[(rng() * pick.length).floor()];
+    prev = art;
+    final variant = (uses[art] = (uses[art] ?? 0) + 1);
+    // Mega Hard 는 해상도 2배 그림을 반쯤 섞는다 (칸이 많아져 더 어렵다)
+    final scale =
+        tier == Difficulty.megaHard && _big(art) * 2 <= 24 && rng() < 0.5
+        ? 2
+        : null;
+    final p = _preset(tier, n, rng);
     levels.add(
       LevelSpec(
-        art: intro[i],
-        band: 'intro',
-        role: i == intro.length - 1 ? 'boss' : null,
-        seeds: seeds.sublist(0, 4),
-        starts: 2,
-        lanes: 3,
-        dropMin: 3,
-        dropMax: 6,
-        displacements: 200,
-        targetWinRate: 0.6,
-        winRange: (0.4, 1),
+        art: art,
+        variant: variant > 1 ? variant : null,
+        scale: scale,
+        band: 'stage',
+        seeds: const [1, 2, 3, 4, 5, 6],
+        starts: p.starts,
+        lanes: p.lanes,
+        dropMin: p.dropMin,
+        dropMax: scale != null ? p.dropMax + 1 : p.dropMax,
+        displacements: p.displacements,
+        targetWinRate: p.target,
+        winRange: p.range,
         options: _v3,
+        difficulty: tier.name,
       ),
     );
   }
-  // 중급: 시작 지점 1곳, 물방울 1~4. 10레벨마다 숨 돌리기, 마지막(80) 보스.
-  for (var i = 0; i < mid.length; i++) {
-    final art = mid[i];
-    final breather = i % 10 == 4;
-    final boss = i == mid.length - 1;
-    levels.add(
-      breather
-          ? LevelSpec(
-              art: art,
-              band: 'mid',
-              role: 'breather',
-              seeds: seeds.sublist(0, 4),
-              starts: 2,
-              lanes: 3,
-              dropMin: 3,
-              dropMax: 6,
-              displacements: 100,
-              targetWinRate: 0.6,
-              winRange: (0.4, 1),
-              options: _v3,
-            )
-          : LevelSpec(
-              art: art,
-              band: 'mid',
-              role: boss ? 'boss' : null,
-              seeds: seeds,
-              starts: 1,
-              lanes: 3,
-              dropMin: 1,
-              dropMax: 4,
-              targetWinRate: 0.3,
-              winRange: (0.2, 0.45),
-              options: _v3,
-            ),
-    );
-  }
-  // 상급: 해상도 2배 그림 + 가장 큰 그림, 대기열 3~4줄. 마지막(120)은 가장 큰 그림.
-  final hard = <({String art, int? variant, int scale})>[
-    for (final art in hardRepeat) (art: art, variant: 2, scale: 2),
-    for (final art in hardUnique) (art: art, variant: null, scale: 1),
-  ];
-  final last = hard.removeAt(hard.indexWhere((h) => h.art == hardUnique.last));
-  hard.add(last);
-  for (var i = 0; i < hard.length; i++) {
-    final (:art, :variant, :scale) = hard[i];
-    final breather = i % 10 == 4;
-    final lanes = i % 3 == 2 ? 4 : 3;
-    levels.add(
-      breather
-          ? LevelSpec(
-              art: art,
-              variant: variant,
-              scale: scale,
-              band: 'hard',
-              role: 'breather',
-              seeds: seeds.sublist(0, 4),
-              starts: 2,
-              lanes: 3,
-              dropMin: 3,
-              dropMax: 6,
-              displacements: 100,
-              targetWinRate: 0.5,
-              winRange: (0.3, 1),
-              options: _v3,
-            )
-          : LevelSpec(
-              art: art,
-              variant: variant,
-              scale: scale,
-              band: 'hard',
-              role: i == hard.length - 1 ? 'boss' : null,
-              seeds: seeds,
-              starts: 1,
-              lanes: lanes,
-              dropMin: 1,
-              dropMax: scale > 1 ? 4 : 3,
-              targetWinRate: 0.08,
-              winRange: (0.02, 0.16),
-              options: _v3,
-            ),
-    );
-  }
 
+  final count = {for (final t in Difficulty.values) t: 0};
+  for (var n = tutorial.length + 1; n <= totalStages; n++) {
+    count[tiers[n] ?? Difficulty.normal] =
+        count[tiers[n] ?? Difficulty.normal]! + 1;
+  }
   stdout.writeln(
-    'levels: ${levels.length} (tutorial ${tutorial.length}, intro ${intro.length}, '
-    'mid ${mid.length}, hard ${hard.length})',
+    'levels: ${levels.length} (tutorial ${tutorial.length}, '
+    '${[for (final t in Difficulty.values) '${t.name} ${count[t]}'].join(', ')})',
   );
   return PackConfig(
     pack: 'pack-01',

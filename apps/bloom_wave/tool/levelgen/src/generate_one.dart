@@ -50,13 +50,42 @@ class JobResult {
   final List<String> warnings;
 }
 
+/// 같은 그림의 n 번째 레벨 이름 뒤에 붙는 로마 숫자 (2 → II, 14 → XIV)
+String roman(int n) {
+  const v = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
+  const r = [
+    'M',
+    'CM',
+    'D',
+    'CD',
+    'C',
+    'XC',
+    'L',
+    'XL',
+    'X',
+    'IX',
+    'V',
+    'IV',
+    'I',
+  ];
+  final b = StringBuffer();
+  for (var i = 0; i < v.length; i++) {
+    while (n >= v[i]) {
+      b.write(r[i]);
+      n -= v[i];
+    }
+  }
+  return b.toString();
+}
+
 JobResult runJob(Job job) {
   final spec = job.spec, defaults = job.defaults;
-  final (:art, :warnings) = readPngArt(
+  final (:art, warnings: imported) = readPngArt(
     job.artPath,
     spec.art,
     defaults.maxColors,
   );
+  final warnings = [...imported];
   // {...DEFAULT_OPTIONS, ...defaults.options, ...spec.options}
   final options = (spec.options ?? const PartialOptions()).over(
     defaults.options,
@@ -65,37 +94,96 @@ JobResult runJob(Job job) {
   ({GenReport r, int seed, double d})? best;
   final lo = spec.winRange.$1, hi = spec.winRange.$2;
   final target = spec.targetWinRate;
-  for (final seed in spec.seeds) {
-    final sw = Stopwatch()..start();
-    try {
-      final r = generate(
-        art,
-        GenParams(
-          seed: seed,
-          starts: spec.starts,
-          dropMin: spec.dropMin,
-          dropMax: spec.dropMax,
-          lanes: spec.lanes,
-          scale: spec.scale ?? 1,
-          displacements: spec.displacements ?? defaults.displacements,
-          targetWinRate: target.toDouble(),
-          options: options,
-          slotCount: defaults.slotCount,
-          maxSolverNodes: defaults.maxSolverNodes,
-        ),
-      );
-      tried.add(Tried(seed, r.randomWinRate, r.score, sw.elapsedMilliseconds));
-      // 구간 안이면 목표와의 거리, 밖이면 구간까지의 거리 + 1 (구간 안을 항상 우선)
-      final w = r.randomWinRate;
-      final inRange = w >= lo && w <= hi;
-      final double d = inRange
-          ? (w - target).abs().toDouble()
-          : 1 + math.min((w - lo).abs(), (w - hi).abs()).toDouble();
-      if (best == null || d < best.d) best = (r: r, seed: seed, d: d);
-      if (inRange && (w - target).abs() < 0.05) break; // 충분히 가까우면 그만
-    } catch (e) {
-      tried.add(
-        Tried(seed, double.nan, double.nan, sw.elapsedMilliseconds, '$e'),
+  final want = spec.difficulty == null
+      ? null
+      : Difficulty.parse(spec.difficulty!);
+  // 등급을 지정한 레벨: 시드를 다 써도 그 등급이 안 나오면 조건을 조금씩 조이거나(너무 쉬움) 풀어서(너무 어려움) 다시
+  var dropMin = spec.dropMin, dropMax = spec.dropMax, lanes = spec.lanes;
+  var starts = spec.starts;
+  var displacements = spec.displacements ?? defaults.displacements;
+  ({GenReport r, int seed, double d})? hit;
+  for (var round = 0; round < (want == null ? 1 : 4) && hit == null; round++) {
+    if (round > 0 && best != null) {
+      final tooEasy = best.r.randomWinRate > target;
+      if (tooEasy) {
+        starts = 1;
+        lanes = math.min(4, lanes + 1);
+        dropMax = math.max(dropMin + 1, dropMax - 1);
+        dropMin = math.max(1, dropMin - 1);
+        displacements = math.max(displacements, 600);
+      } else {
+        dropMin += 1;
+        dropMax += 1;
+        starts += 1;
+        lanes = math.max(3, lanes - 1);
+      }
+    }
+    for (final seed in spec.seeds) {
+      final sw = Stopwatch()..start();
+      try {
+        final r = generate(
+          art,
+          GenParams(
+            seed: seed + round * 1000,
+            starts: starts,
+            dropMin: dropMin,
+            dropMax: dropMax,
+            lanes: lanes,
+            scale: spec.scale ?? 1,
+            displacements: displacements,
+            targetWinRate: target.toDouble(),
+            options: options,
+            slotCount: defaults.slotCount,
+            maxSolverNodes: defaults.maxSolverNodes,
+          ),
+        );
+        tried.add(
+          Tried(
+            seed + round * 1000,
+            r.randomWinRate,
+            r.score,
+            sw.elapsedMilliseconds,
+          ),
+        );
+        // 구간 안이면 목표와의 거리, 밖이면 구간까지의 거리 + 1 (구간 안을 항상 우선)
+        final w = r.randomWinRate;
+        final inRange = w >= lo && w <= hi;
+        final double d = inRange
+            ? (w - target).abs().toDouble()
+            : 1 + math.min((w - lo).abs(), (w - hi).abs()).toDouble();
+        if (best == null || d < best.d) {
+          best = (r: r, seed: seed + round * 1000, d: d);
+        }
+        if (want != null) {
+          if (r.difficulty == want) {
+            if (hit == null || d < hit.d) {
+              hit = (r: r, seed: seed + round * 1000, d: d);
+            }
+            if ((w - target).abs() < 0.05) break;
+          }
+          continue;
+        }
+        if (inRange && (w - target).abs() < 0.05) break; // 충분히 가까우면 그만
+      } catch (e) {
+        tried.add(
+          Tried(
+            seed + round * 1000,
+            double.nan,
+            double.nan,
+            sw.elapsedMilliseconds,
+            '$e',
+          ),
+        );
+      }
+    }
+  }
+  if (want != null) {
+    if (hit != null) {
+      best = hit;
+    } else if (best != null) {
+      warnings.add(
+        '${spec.art}${spec.variant != null ? '-${spec.variant}' : ''}: '
+        '${want.name} 을(를) 만들지 못함 → ${best.r.difficulty.name} (win ${best.r.randomWinRate})',
       );
     }
   }
@@ -103,7 +191,7 @@ JobResult runJob(Job job) {
   final report = best.r, raw = report.level;
   final v2 = spec.variant != null && spec.variant! > 1;
   final id = v2 ? '${spec.art}-${spec.variant}' : spec.art;
-  final suffix = v2 ? ' II' : '';
+  final suffix = v2 ? ' ${roman(spec.variant!)}' : '';
   final level = Level(
     id: id,
     width: raw.width,

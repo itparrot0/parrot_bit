@@ -35,6 +35,10 @@ Flutter로도 충족되고 모노레포가 전부 Flutter라 옮겼다. TS 코�
 개화 칸 꽃 모양만 바꾼다(경로 캐시, 게임 성능 그대로). 유료 재화 없음. 규칙은 `lib/economy/gacha.dart`,
 테스트 71개 통과(뽑기 규칙·확률·저장 schema 4·화면 흐름 포함).
 
+**5차: 1000 스테이지 (2026-11-04)**: 튜토리얼 1~5 + 6~1000. 2~4스테이지마다 어려움 1개(Hard/Super/Mega 무작위,
+~30은 Hard만), 사이는 노말 — 노말 670, Hard 118, Super Hard 105, Mega Hard 107. 생성기가 설정한 등급이 나올
+때까지 재시도해 1000개 모두 일치(테스트로 고정). 4코어 약 4분, verify 6초. 그림은 90장이라 반복(II, III…).
+
 **검증 (Flutter 전환 시점)**: `flutter test` 51개 통과(domain·TS 동등성·controller·save·화면 흐름·levelgen),
 `flutter analyze` 깨끗, `levelgen verify` 120레벨 통과. 웹 빌드로 홈 → 1스테이지 → 완성(골드) → 광고 →
 2스테이지 흐름을 브라우저에서 확인. **Android 빌드는 이 클라우드 환경에서 못 했다** (Android SDK 다운로드

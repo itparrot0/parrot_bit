@@ -41,6 +41,7 @@ class LevelSpec {
     required this.winRange,
     this.displacements,
     this.options,
+    this.difficulty,
   });
 
   /// `art/<art>.png`
@@ -74,6 +75,11 @@ class LevelSpec {
   final int? displacements;
   final PartialOptions? options;
 
+  /// 이 난이도 등급(normal/hard/superHard/megaHard)이 나올 때까지 시드를 바꾸고, 그래도 안 나오면
+  /// 물방울 크기·줄 수를 조금씩 조여(풀어) 다시 시도한다 (2026-11-04, 1000 스테이지 팩).
+  /// 없으면 예전처럼 winRange 기준으로 고른다.
+  final String? difficulty;
+
   factory LevelSpec.fromJson(Map<String, dynamic> j) {
     final wr = j['winRange'] as List;
     return LevelSpec(
@@ -94,6 +100,7 @@ class LevelSpec {
       options: j['options'] == null
           ? null
           : PartialOptions.fromJson(j['options'] as Map<String, dynamic>),
+      difficulty: j['difficulty'] as String?,
     );
   }
 
@@ -114,6 +121,7 @@ class LevelSpec {
     'targetWinRate': targetWinRate,
     'winRange': [winRange.$1, winRange.$2],
     if (options != null) 'options': options!.toJson(),
+    'difficulty': ?difficulty,
   };
 }
 

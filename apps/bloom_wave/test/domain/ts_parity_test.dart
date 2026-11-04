@@ -1,5 +1,6 @@
 // Flutter 전환(2026-11-04) 검증: Dart 엔진·솔버·생성기가 TS 버전과 같은 결과를 내는가.
-// test/fixtures/ts_reference.json 은 전환 직전 TS 코드(packages/core)로 만든 기준값이다.
+// test/fixtures/ts_reference.json 은 전환 직전 TS 코드(packages/core)로 만든 기준값이고,
+// pack-01-ts.json 은 그때의 120 스테이지 팩이다 (출시 팩은 2026-11-04 에 1000 스테이지로 바뀌었다).
 import 'dart:convert';
 import 'dart:io';
 
@@ -18,7 +19,7 @@ void main() {
           as Map<String, dynamic>;
   final pack = [
     for (final j
-        in jsonDecode(File('assets/levels/pack-01.json').readAsStringSync())
+        in jsonDecode(File('test/fixtures/pack-01-ts.json').readAsStringSync())
             as List)
       Level.fromJson(j as Map<String, dynamic>),
   ];
@@ -90,7 +91,7 @@ void main() {
 
   test('팩 JSON 왕복: 읽고 다시 쓰면 같은 값', () {
     final raw =
-        jsonDecode(File('assets/levels/pack-01.json').readAsStringSync())
+        jsonDecode(File('test/fixtures/pack-01-ts.json').readAsStringSync())
             as List;
     for (var i = 0; i < raw.length; i++) {
       expect(jsonEncode(pack[i].toJson()), jsonEncode(raw[i]));

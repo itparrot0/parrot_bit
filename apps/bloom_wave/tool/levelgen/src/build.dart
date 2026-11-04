@@ -55,7 +55,7 @@ Future<List<JobResult>> runPool(
   return results;
 }
 
-/// 구간 안에서: 숨 돌리기/보스는 설정 위치에 고정, 나머지는 score 오름차순으로 채운다. 튜토리얼은 설정 순서 그대로.
+/// 구간 안에서: 숨 돌리기/보스는 설정 위치에 고정, 나머지는 score 오름차순으로 채운다. 튜토리얼·stage 는 설정 순서 그대로.
 List<JobResult> arrange(PackConfig config, List<JobResult> results) {
   final byIndex = {for (final r in results) r.index: r};
   final out = <JobResult>[];
@@ -65,7 +65,8 @@ List<JobResult> arrange(PackConfig config, List<JobResult> results) {
       for (var i = 0; i < config.levels.length; i++)
         if (config.levels[i].band == band) i,
     ];
-    if (band == 'tutorial') {
+    // 튜토리얼과 1000 스테이지 팩(stage)은 설정 순서 그대로 — 등급 배치가 설정에 들어 있다
+    if (band == 'tutorial' || band == 'stage') {
       out.addAll(idx.map((i) => byIndex[i]!));
       continue;
     }
