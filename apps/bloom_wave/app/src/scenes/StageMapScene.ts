@@ -1,8 +1,8 @@
-// 스테이지 맵: 레벨을 순서대로, 별점과 잠금 상태
+// 스테이지 맵: 레벨을 순서대로, 완성 여부와 잠금 상태 (별점 없음)
 import { Container, Graphics } from "pixi.js";
 import type { Ctx, Scene } from "../app";
 import { C, W, H } from "../ui/theme";
-import { iconButton, label, stars, starPath } from "../ui/widgets";
+import { iconButton, label } from "../ui/widgets";
 import { ScrollView } from "../ui/scroll";
 import { t, type Key } from "../i18n/i18n";
 import { sfx } from "../audio/audio";
@@ -18,7 +18,7 @@ export class StageMapScene implements Scene {
   readonly name = "map";
   readonly view = new Container();
   private scroll: ScrollView;
-  private starText;
+  private countText;
 
   constructor(private ctx: Ctx) {
     const top = ctx.safeTop;
@@ -28,13 +28,10 @@ export class StageMapScene implements Scene {
     back.onTap = () => ctx.back();
     const title = label(t("stages"), 60);
     title.position.set(W / 2, top + 110);
-    this.starText = label("", 42, C.inkSoft);
-    this.starText.position.set(W - 150, top + 110);
-    const st = new Graphics();
-    starPath(st, 0, 0, 26, 12);
-    st.fill({ color: C.gold });
-    st.position.set(W - 240, top + 108);
-    this.view.addChild(back, title, st, this.starText);
+    this.countText = label("", 36, C.inkSoft, { fontWeight: "600" });
+    this.countText.anchor.set(1, 0.5);
+    this.countText.position.set(W - 50, top + 110);
+    this.view.addChild(back, title, this.countText);
     const y0 = top + 220;
     this.scroll = new ScrollView(W, H - y0 - ctx.safeBottom);
     this.scroll.y = y0;
@@ -45,7 +42,7 @@ export class StageMapScene implements Scene {
   private build() {
     const c = this.scroll.content;
     c.removeChildren().forEach((x) => x.destroy({ children: true }));
-    const { unlocked, stars: got } = this.ctx.save.data;
+    const { unlocked, cleared } = this.ctx.save.data;
     const levels = this.ctx.levels;
     let y = 0;
     let total = 0;
@@ -63,8 +60,8 @@ export class StageMapScene implements Scene {
         y += 110;
       }
       const lv = levels[n - 1];
-      const s = got[lv.id] ?? 0;
-      total += s;
+      const s = !!cleared[lv.id];
+      if (s) total++;
       const open = n <= unlocked;
       const item = new Container();
       item.position.set(x0 + col * CELL, y + CELL / 2);
@@ -78,7 +75,14 @@ export class StageMapScene implements Scene {
       const num = label(open ? String(n) : "🔒", open ? 56 : 46, open && n === unlocked && !s ? 0xffffff : C.ink);
       num.y = -12;
       item.addChild(num);
-      if (s) { const ss = stars(s, 34, 4); ss.y = 46; item.addChild(ss); }
+      if (s) {
+        // 완성 표시: 초록 꽃 배지
+        const b = new Graphics().circle(0, 0, 22).fill({ color: C.accent });
+        b.position.set(52, -52);
+        const chk = label("✓", 30, 0xffffff);
+        chk.position.set(52, -54);
+        item.addChild(b, chk);
+      }
       if (open) {
         item.eventMode = "static";
         item.cursor = "pointer";
@@ -92,7 +96,7 @@ export class StageMapScene implements Scene {
     if (col) y += CELL;
     this.scroll.contentHeight = y + 60;
     this.scroll.scrollTo(unlockedY);
-    this.starText.text = `${total} / ${levels.length * 3}`;
+    this.countText.text = t("clearedCount", { n: total, total: levels.length });
   }
 
   enter() { this.build(); }

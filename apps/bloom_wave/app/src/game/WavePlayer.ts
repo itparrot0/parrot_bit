@@ -18,11 +18,12 @@ export class WavePlayer {
   }
 
   play(ev: TickEvent, tickMs: number) {
-    const budget = tickMs * 0.6;
+    // 2026-11-04 피드백: 연출이 너무 빨라 약 2배로 늦춤. 다음 틱 전에 끝나도록 틱 간격의 80% 안에 맞춘다
+    const budget = tickMs * 0.8;
     let any = false;
     for (const b of ev.blooms) {
       any = true;
-      const stagger = this.fast ? 0 : Math.min(20, budget / Math.max(1, b.cells.length));
+      const stagger = this.fast ? 0 : Math.min(40, budget / Math.max(1, b.cells.length));
       const from = this.drops.slotCenter(b.slot);
       const color = hexToNum(this.level.palette[b.color]);
       b.cells.forEach((i, k) => {
@@ -32,15 +33,15 @@ export class WavePlayer {
       this.drops.pulseSlot(b.slot);
     }
     // 전염: 개화와 같은 프레임 (조금 늦게 돋아 보이도록)
-    const sStagger = this.fast ? 0 : Math.min(12, budget / Math.max(1, ev.sprouted.length));
-    ev.sprouted.forEach((i, k) => this.board.sproutCell(i, 40 + k * sStagger));
+    const sStagger = this.fast ? 0 : Math.min(24, budget / Math.max(1, ev.sprouted.length));
+    ev.sprouted.forEach((i, k) => this.board.sproutCell(i, 80 + k * sStagger));
     if (any) { sfx.bloom(); hapticLight(); }
   }
 
   private stream(from: { x: number; y: number }, to: { x: number; y: number }, color: number, delay: number) {
     const g = new Graphics();
     this.fx.addChild(g);
-    tweens.add(170, (k) => {
+    tweens.add(320, (k) => {
       g.clear();
       const head = Math.min(1, k * 1.6), tail = Math.max(0, k * 1.6 - 0.6);
       const p = (u: number) => ({ x: from.x + (to.x - from.x) * u, y: from.y + (to.y - from.y) * u - Math.sin(u * Math.PI) * 60 });

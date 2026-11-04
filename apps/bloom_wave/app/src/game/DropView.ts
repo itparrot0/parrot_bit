@@ -43,6 +43,7 @@ export class DropView extends Container {
   private slotDrops: DropSprite[] = [];
   private lanes: { bg: Graphics; drops: DropSprite[]; more: Text; hit: Graphics }[] = [];
   private bounceT = -1;
+  private bounceLanes: number[] = [];
   private visibleCount: number;
   onTap: (lane: number) => void = () => {};
 
@@ -52,6 +53,7 @@ export class DropView extends Container {
     L.slots.forEach((p, i) => {
       const g = new Graphics();
       g.position.set(p.x, p.y);
+      g.label = `slot-bg-${i}`;
       this.slotBg.push(g);
       const d = new DropSprite(L.slotR * 0.8);
       d.position.set(p.x, p.y);
@@ -143,7 +145,7 @@ export class DropView extends Container {
     this.sync(s, slot);
     v.visible = true;
     tweens.cancel(v);
-    tweens.add(300, (k) => {
+    tweens.add(380, (k) => {
       const mx = (from.x + to.x) / 2, my = Math.min(from.y, to.y) - 160;
       const a = (1 - k) * (1 - k), b = 2 * (1 - k) * k, c = k * k;
       v.position.set(a * from.x + b * mx + c * to.x, a * from.y + b * my + c * to.y);
@@ -171,14 +173,23 @@ export class DropView extends Container {
   }
 
   /** 웨이브가 멈추면 맨 앞 물방울들이 살짝 튄다 ("이제 넣어야 한다") */
-  bounceFront() { this.bounceT = 0; }
+  bounceFront() { this.bounceLaneList(this.lanes.map((_, i) => i)); }
+
+  /** 힌트: 탭할 줄 하나만 튄다 */
+  bounceLane(lane: number) { if (this.lanes[lane]) this.bounceLaneList([lane]); }
+
+  private bounceLaneList(list: number[]) {
+    for (const l of this.lanes) l.drops[0].y = this.L.laneTop;
+    this.bounceLanes = list;
+    this.bounceT = 0;
+  }
 
   update(dt: number) {
     if (this.bounceT < 0) return;
     this.bounceT += dt;
     const k = this.bounceT / 900;
     const off = Math.abs(Math.sin(k * Math.PI * 2)) * 22 * Math.max(0, 1 - k);
-    for (const l of this.lanes) l.drops[0].y = this.L.laneTop - off;
+    for (const li of this.bounceLanes) this.lanes[li].drops[0].y = this.L.laneTop - off;
     if (k >= 1) { this.bounceT = -1; for (const l of this.lanes) l.drops[0].y = this.L.laneTop; }
   }
 

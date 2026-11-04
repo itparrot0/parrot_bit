@@ -47,8 +47,8 @@ export class TitleScene implements Scene {
   /** 가장 최근에 깬 그림(없으면 첫 그림의 실루엣) */
   private drawArt() {
     this.art.removeChildren().forEach((c) => c.destroy());
-    const { stars } = this.ctx.save.data;
-    const done = this.ctx.levels.filter((l) => stars[l.id]);
+    const { cleared } = this.ctx.save.data;
+    const done = this.ctx.levels.filter((l) => cleared[l.id]);
     const lv = done[done.length - 1] ?? this.ctx.levels.find((l) => l.id === "tulip") ?? this.ctx.levels[0];
     this.art.addChild(artGraphic(lv, 480, { silhouette: !done.length }));
   }

@@ -17,14 +17,20 @@ export class BoardView extends Container {
   private bg = new Graphics();
   readonly boardW: number;
   readonly boardH: number;
+  /** 테두리(여백)까지 포함한 바깥 크기 */
+  readonly outerW: number;
+  readonly outerH: number;
 
+  /** maxW·maxH 는 테두리까지 포함한 최대 크기 */
   constructor(private level: Level, maxW: number, maxH: number) {
     super();
     this.eventMode = "none";
-    this.cellSize = Math.floor(Math.min(maxW / level.width, maxH / level.height));
+    this.cellSize = Math.floor(Math.min(maxW / (level.width + 0.7), maxH / (level.height + 0.7)));
     this.boardW = this.cellSize * level.width;
     this.boardH = this.cellSize * level.height;
     const pad = Math.round(this.cellSize * 0.35);
+    this.outerW = this.boardW + pad * 2;
+    this.outerH = this.boardH + pad * 2;
     this.bg.roundRect(-this.boardW / 2 - pad, -this.boardH / 2 - pad, this.boardW + pad * 2, this.boardH + pad * 2, 36).fill({ color: BOARD_BG });
     this.addChild(this.bg);
     const cs = this.cellSize;
@@ -93,7 +99,7 @@ export class BoardView extends Container {
     if (!v) return;
     tweens.add(70, () => {}, { delay, owner: this, done: () => {
       this.setCell(i, BLOOM);
-      tweens.add(150, (t) => {
+      tweens.add(260, (t) => {
         const s = t < 0.5 ? 0.6 + (1.15 - 0.6) * (t / 0.5) : 1.15 - 0.15 * ((t - 0.5) / 0.5);
         v.root.scale.set(s);
       }, { ease: ease.linear, owner: this });
@@ -107,7 +113,7 @@ export class BoardView extends Container {
     tweens.add(60, () => {}, { delay, owner: this, done: () => {
       this.setCell(i, SPROUT);
       const base = (this.cellSize * 0.95) / v.glyph.texture.width;
-      tweens.add(160, (t) => v.glyph.scale.set(base, base * (0.3 + 0.7 * t)), { ease: ease.outBack, owner: this,
+      tweens.add(260, (t) => v.glyph.scale.set(base, base * (0.3 + 0.7 * t)), { ease: ease.outBack, owner: this,
         done: () => v.glyph.scale.set(base) });
     } });
   }
@@ -129,7 +135,7 @@ export class BoardView extends Container {
     this.views.forEach((v, i) => {
       if (!v) return;
       const x = i % this.level.width, y = Math.floor(i / this.level.width);
-      tweens.add(380, (t) => v.root.scale.set(1 + 0.18 * Math.sin(t * Math.PI)), { delay: (x + y) * 35, ease: ease.linear, owner: this });
+      tweens.add(520, (t) => v.root.scale.set(1 + 0.18 * Math.sin(t * Math.PI)), { delay: (x + y) * 35, ease: ease.linear, owner: this });
     });
   }
 

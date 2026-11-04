@@ -136,10 +136,10 @@ export class GameController {
   resume() { this.paused = false; this.acc = 0; }
 
   /** 힌트: 지금 상태에서 솔버가 찾은 다음 수 */
-  hint(maxNodes = 30_000): { action: "tap" | "wait" | null; result: SolveResult } {
+  hint(maxNodes = 30_000): { action: "tap" | "wait" | null; lane: number; result: SolveResult } {
     const r = solveFrom(this.level, this.state, this.options, maxNodes);
     const a = r.solution[0];
-    return { action: a ? (a.type === "deploy" ? "tap" : "wait") : null, result: r };
+    return { action: a ? (a.type === "deploy" ? "tap" : "wait") : null, lane: a?.type === "deploy" ? a.lane : -1, result: r };
   }
 
   private afterChange() {

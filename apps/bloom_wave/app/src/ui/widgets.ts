@@ -79,28 +79,6 @@ export class Overlay extends Container {
   }
 }
 
-export function stars(n: number, size = 56, gap = 10): Container {
-  const c = new Container();
-  for (let i = 0; i < 3; i++) {
-    const g = new Graphics();
-    starPath(g, 0, 0, size / 2, size / 4.4);
-    g.fill({ color: i < n ? C.gold : 0xd9d2c5 });
-    g.x = (i - 1) * (size + gap);
-    c.addChild(g);
-  }
-  return c;
-}
-
-export function starPath(g: Graphics, cx: number, cy: number, r1: number, r2: number) {
-  const pts: number[] = [];
-  for (let i = 0; i < 10; i++) {
-    const r = i % 2 ? r2 : r1;
-    const a = -Math.PI / 2 + (i * Math.PI) / 5;
-    pts.push(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
-  }
-  g.poly(pts);
-}
-
 export class Toggle extends Container {
   private bg = new Graphics();
   private knob = new Graphics();

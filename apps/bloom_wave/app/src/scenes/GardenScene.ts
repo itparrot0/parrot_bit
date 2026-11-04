@@ -28,7 +28,7 @@ export class GardenScene implements Scene {
     // 그림별로 처음 나오는 레벨
     const arts = new Map<string, Level>();
     for (const l of ctx.levels) { const a = l.meta?.art ?? l.id; if (!arts.has(a)) arts.set(a, l); }
-    const cleared = new Set(ctx.levels.filter((l) => ctx.save.data.stars[l.id]).map((l) => l.meta?.art ?? l.id));
+    const cleared = new Set(ctx.levels.filter((l) => ctx.save.data.cleared[l.id]).map((l) => l.meta?.art ?? l.id));
     const count = label(t("gardenCount", { n: cleared.size, total: arts.size }), 40, C.inkSoft);
     count.position.set(W / 2, top + 200);
     this.view.addChild(count);

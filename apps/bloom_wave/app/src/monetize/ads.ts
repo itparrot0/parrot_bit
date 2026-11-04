@@ -5,6 +5,7 @@
 // android/app/src/main/AndroidManifest.xml 의 APPLICATION_ID 를 실제 값으로 바꾼다.
 // 지금 값은 Google이 공개한 테스트 ID 라서 실제 수익이 나지 않는다.
 import { AdMob, InterstitialAdPluginEvents } from "@capacitor-community/admob";
+import type { PluginListenerHandle } from "@capacitor/core";
 import { isNative } from "../platform";
 
 export const ADMOB = {
@@ -35,16 +36,17 @@ class AdMobProvider implements AdProvider {
   }
   async showInterstitial() {
     if (!this.ready) { await this.prepare(); if (!this.ready) return; }
+    const handles: PluginListenerHandle[] = [];
     await new Promise<void>((resolve) => {
       let done = false;
       const finish = () => { if (!done) { done = true; resolve(); } };
-      void AdMob.addListener(InterstitialAdPluginEvents.Dismissed, finish);
-      void AdMob.addListener(InterstitialAdPluginEvents.FailedToShow, finish);
+      void AdMob.addListener(InterstitialAdPluginEvents.Dismissed, finish).then((h) => handles.push(h));
+      void AdMob.addListener(InterstitialAdPluginEvents.FailedToShow, finish).then((h) => handles.push(h));
       AdMob.showInterstitial().catch(finish);
       setTimeout(finish, 60_000);
     });
     this.ready = false;
-    void AdMob.removeAllListeners().catch(() => {});
+    for (const h of handles) void h.remove().catch(() => {});
     void this.prepare(); // 다음 광고 미리 받기
   }
 }
