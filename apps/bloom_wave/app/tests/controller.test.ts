@@ -3,7 +3,9 @@ import { type Level, BLOOM } from "@bloom-wave/core/engine";
 import { generate } from "@bloom-wave/core/generator";
 import { solve } from "@bloom-wave/core/solver";
 import { ARTS } from "@bloom-wave/core/arts";
-import { GameController, TICK_MS, UNDO_LIMIT } from "../src/game/GameController";
+import { GameController, TICK_MS } from "../src/game/GameController";
+import { colorDistance, firstSimilarLevel, similarPair } from "../src/game/colors";
+import { levelOptions } from "@bloom-wave/core/engine";
 import { SaveStore, memoryStore, migrate, SAVE_KEY } from "../src/save/save";
 import pack from "../src/levels/pack-01.json";
 
@@ -79,34 +81,10 @@ describe("GameController", () => {
     expect(c.tap(0)).toEqual({ ok: false, reason: "wait" });
   });
 
-  it("되돌리기: 마지막 탭 직전으로, 일시정지 상태로 돌아간다", () => {
-    const c = new GameController(line([{ color: 0, amount: 2 }, { color: 1, amount: 1 }, { color: 0, amount: 2 }]), { manual: true });
-    c.tap(0);
-    c.step();
-    c.step();
-    const before = Array.from(c.state.cell);
-    c.tap(0);
-    c.step();
-    expect(c.undo()).toBe(true);
-    expect(Array.from(c.state.cell)).toEqual(before);
-    expect(qlen(c)).toBe(2);
-    expect(c.paused).toBe(true);
-    expect(c.undo()).toBe(true);
-    expect(qlen(c)).toBe(3);
-    expect(c.undo()).toBe(false);
-  });
-
-  it(`되돌리기 스택은 최대 ${UNDO_LIMIT}개`, () => {
-    const n = 60;
-    const lv: Level = { id: "u", width: n, height: 1, palette: ["#f00"], cells: new Array(n).fill(0), starts: [0],
-      lanes: [new Array(n).fill(0).map(() => ({ color: 0, amount: 1 })), [], []], slotCount: 4 };
-    const c = new GameController(lv, { manual: true });
-    let taps = 0;
-    while (c.status === "playing") { if (c.tap(0).ok) taps++; else c.step(); }
-    expect(taps).toBe(n);
-    let undos = 0;
-    while (c.undo()) undos++;
-    expect(undos).toBe(UNDO_LIMIT);
+  it("되돌리기 기능은 없다 (2026-11-04 2차 피드백으로 삭제)", () => {
+    const c = new GameController(line([{ color: 0, amount: 2 }]), { manual: true });
+    expect("undo" in c).toBe(false);
+    expect("canUndo" in c).toBe(false);
   });
 
   it("솔버 해법대로 두면 클리어된다 (3줄 대기열, 별점 없음)", () => {
@@ -124,7 +102,6 @@ describe("GameController", () => {
     c.tap(0); c.step();
     c.restart();
     expect(qlen(c)).toBe(3);
-    expect(c.canUndo).toBe(false);
     expect(c.peak).toBe(0);
   });
 
@@ -182,8 +159,21 @@ describe("SaveStore", () => {
 });
 
 describe("pack-01", () => {
-  it("모든 레벨이 3줄 이상 대기열", () => {
-    for (const lv of pack as unknown as Level[]) expect(lv.lanes.length).toBeGreaterThanOrEqual(3);
+  it("모든 레벨이 3줄 이상 대기열, 줄마다 3개(탭할 1개 + 다음 2개) 보임", () => {
+    for (const lv of pack as unknown as Level[]) {
+      expect(lv.lanes.length).toBeGreaterThanOrEqual(3);
+      expect(levelOptions(lv).visible).toBe(3);
+    }
+  });
+
+  it("비슷한 색 도움말은 낮은 스테이지(30 이하)에서 처음 나온다", () => {
+    const levels = pack as unknown as Level[];
+    const n = firstSimilarLevel(levels);
+    expect(n).toBeGreaterThan(1);
+    expect(n).toBeLessThanOrEqual(30);
+    expect(similarPair(levels[n - 1])).not.toBeNull();
+    expect(colorDistance("#FFFFFF", "#FFFFFF")).toBe(0);
+    expect(colorDistance("#E5484D", "#3E9BDB")).toBeGreaterThan(50);
   });
 
 

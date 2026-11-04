@@ -49,9 +49,9 @@ export type Options = {
   realtime: boolean; // 웨이브가 진행 중일 때도 탭할 수 있나 (기본 true)
   visible: number; // 줄마다 앞에서 몇 개까지 보여 주나 (표시 전용, 규칙에는 영향 없음)
 };
-export const DEFAULT_OPTIONS: Options = { realtime: true, visible: 2 };
+export const DEFAULT_OPTIONS: Options = { realtime: true, visible: 3 };
 // 비교·튜토리얼용: 웨이브가 멈춘 뒤에만 탭
-export const TURN_BASED: Options = { realtime: false, visible: 2 };
+export const TURN_BASED: Options = { realtime: false, visible: 3 };
 
 export function levelOptions(level: Level): Options {
   return { ...DEFAULT_OPTIONS, ...(level.options ?? {}) };

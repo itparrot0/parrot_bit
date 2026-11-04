@@ -10,7 +10,6 @@ const ko = {
   stage: "스테이지 {n}",
   stages: "스테이지",
   back: "뒤로",
-  undo: "되돌리기",
   hint: "힌트",
   restart: "재시작",
   pause: "일시정지",
@@ -37,7 +36,7 @@ const ko = {
   failedSub: "4칸이 모두 쓸 수 없는 물방울로 찼습니다",
   hintTap: "지금 넣으세요",
   hintWait: "조금 기다리세요",
-  hintNone: "이 상태에서는 클리어할 수 없어요. 되돌려 보세요",
+  hintNone: "이 상태에서는 완성할 수 없어요. 재시작해 보세요",
   hintSlow: "힌트를 찾지 못했어요",
   sound: "사운드",
   vibration: "진동",
@@ -63,6 +62,8 @@ const ko = {
   tutorial_lanes: "물방울 줄이 여러 개예요.\n아무 줄이나 맨 위 물방울을 탭할 수 있어요.\n어느 줄을 먼저 쓸지가 승부를 가릅니다.",
   tutorial_realtime: "꽃이 퍼지는 도중에도 다음 물방울을 넣을 수 있어요.\n지금 넣을지, 기다릴지 골라 보세요.",
   tutorial_waiting: "아직 같은 색 싹이 없는 물방울을 넣으면\n싹이 생길 때까지 슬롯 한 칸을 차지한 채 기다립니다.",
+  tutorial_hold: "물방울을 꾹 누르고 있으면\n보드에서 그 색 칸만 또렷하게 보여 줘요.\n동그라미 안에서 손을 떼면 넣고,\n누른 채 동그라미 밖으로 빼면 취소돼요.",
+  tutorial_similar: "이 그림에는 비슷한 색이 있어요.\n헷갈리면 물방울을 꾹 눌러\n어느 칸의 색인지 먼저 확인하세요.\n아니면 동그라미 밖으로 빼서 취소!",
   tutorial_slots: "슬롯 4칸이 모두 퍼질 수 없는 물방울로 차면 집니다.\n슬롯이 3칸 차면 빨갛게 경고해요.",
 };
 
@@ -78,7 +79,6 @@ const en: Record<Key, string> = {
   stage: "Stage {n}",
   stages: "Stages",
   back: "Back",
-  undo: "Undo",
   hint: "Hint",
   restart: "Restart",
   pause: "Paused",
@@ -105,7 +105,7 @@ const en: Record<Key, string> = {
   failedSub: "All 4 slots hold drops that can't spread",
   hintTap: "Drop it now",
   hintWait: "Wait a moment",
-  hintNone: "Can't be cleared from here. Try undo",
+  hintNone: "Can't be completed from here. Try restarting",
   hintSlow: "Couldn't find a hint",
   sound: "Sound",
   vibration: "Vibration",
@@ -131,6 +131,8 @@ const en: Record<Key, string> = {
   tutorial_lanes: "There are several lanes of drops.\nYou can tap the top drop of any lane.\nWhich lane you use first decides the game.",
   tutorial_realtime: "You can drop the next one while the wave is still spreading.\nDrop now, or wait?",
   tutorial_waiting: "A drop with no sprouts of its color yet\nsits in a slot until that color wakes up.",
+  tutorial_hold: "Press and hold a drop\nto highlight the cells of its color on the board.\nLift inside the circle to drop it,\nor slide out of the circle to cancel.",
+  tutorial_similar: "This picture has colors that look alike.\nIf unsure, press and hold a drop\nto check which cells it matches.\nSlide out of the circle to cancel.",
   tutorial_slots: "You lose when all 4 slots hold drops that can't spread.\nThe slots turn red when 3 are taken.",
 };
 

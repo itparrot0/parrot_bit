@@ -7,12 +7,13 @@ import { tweens, ease } from "../ui/tween";
 
 export const BOARD_BG = 0x2f2a25;
 
-type CellView = { root: Container; tile: Sprite; glyph: Sprite; glow: Sprite; st: number; color: number };
+type CellView = { root: Container; tile: Sprite; glyph: Sprite; glow: Sprite; st: number; color: number; ci: number };
 
 export class BoardView extends Container {
   readonly cellSize: number;
   private views: (CellView | null)[] = [];
   private glowColor: number | null = null;
+  private previewColor: number | null = null; // 팔레트 인덱스 (물방울을 누르고 있는 동안)
   private glowT = 0;
   private bg = new Graphics();
   readonly boardW: number;
@@ -49,7 +50,7 @@ export class BoardView extends Container {
       glow.visible = false;
       root.addChild(tile, glyph, glow);
       this.addChild(root);
-      this.views.push({ root, tile, glyph, glow, st: -99, color: hexToNum(level.palette[level.cells[i]]) });
+      this.views.push({ root, tile, glyph, glow, st: -99, color: hexToNum(level.palette[level.cells[i]]), ci: level.cells[i] });
     }
   }
 
@@ -90,7 +91,24 @@ export class BoardView extends Container {
       v.tile.tint = v.color;
       v.glyph.texture = TEX.bloom; v.glyph.tint = mix(v.color, 0xffffff, 0.5); v.glyph.width = v.glyph.height = cs * 0.85;
     }
-    v.glow.visible = st === SPROUT && this.glowColor === v.color;
+    this.applyGlow(v);
+  }
+
+  private applyGlow(v: CellView) {
+    if (this.previewColor !== null) {
+      const on = v.ci === this.previewColor;
+      v.root.alpha = on ? 1 : 0.22;
+      v.glow.visible = on && v.st !== BLOOM;
+      return;
+    }
+    v.root.alpha = 1;
+    v.glow.visible = v.st === SPROUT && this.glowColor === v.color;
+  }
+
+  /** 물방울을 누르고 있는 동안: 그 색 칸만 또렷하게 + 빛남, 나머지는 흐리게 (null = 끔) */
+  preview(colorIndex: number | null) {
+    this.previewColor = colorIndex;
+    for (const v of this.views) if (v) this.applyGlow(v);
   }
 
   /** 개화 연출: scale 0.6 → 1.15 → 1 */
@@ -121,7 +139,7 @@ export class BoardView extends Container {
   /** 맨 앞 물방울과 같은 색 발아 칸을 은은하게 빛나게 (null = 끔) */
   highlight(colorIndex: number | null) {
     this.glowColor = colorIndex === null ? null : hexToNum(this.level.palette[colorIndex]);
-    for (const v of this.views) if (v) v.glow.visible = v.st === SPROUT && this.glowColor === v.color;
+    for (const v of this.views) if (v) this.applyGlow(v);
   }
 
   update(dt: number) {

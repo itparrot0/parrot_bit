@@ -12,7 +12,7 @@ const size = (name: string) => {
 
 const big = (name: string) => { const a = ART_SOURCES.find((x) => x.name === name)!; return Math.max(a.rows.length, ...a.rows.map((r) => r.length)); };
 
-// 대기열은 항상 3줄 이상 (2026-11-04 결정). visible = 줄마다 미리 보이는 물방울 수 (적을수록 예측이 어려움)
+// 대기열은 항상 3줄 이상 (2026-11-04 결정). visible = 줄마다 미리 보이는 물방울 수 (2026-11-04 2차: 모든 레벨 3 = 탭할 1개 + 다음 2개)
 const tutorial: LevelSpec[] = [
   { art: "dewdrop", band: "tutorial", tutorial: "wave", seeds: [1], starts: 1, lanes: 3, dropMin: 6, dropMax: 9, displacements: 0, targetWinRate: 1, winRange: [0.9, 1], options: { realtime: false, visible: 3 } },
   { art: "sprout", band: "tutorial", tutorial: "lanes", seeds: [1, 2, 3], starts: 1, lanes: 3, dropMin: 5, dropMax: 8, displacements: 0, targetWinRate: 1, winRange: [0.8, 1], options: { realtime: false, visible: 3 } },
@@ -44,7 +44,7 @@ mid.forEach((art, i) => {
   const boss = i === mid.length - 1;
   levels.push(breather
     ? { art, band: "mid", role: "breather", seeds: seeds.slice(0, 4), starts: 2, lanes: 3, dropMin: 3, dropMax: 6, displacements: 100, targetWinRate: 0.6, winRange: [0.4, 1], options: { visible: 3 } }
-    : { art, band: "mid", role: boss ? "boss" : undefined, seeds, starts: 1, lanes: 3, dropMin: 1, dropMax: 4, targetWinRate: 0.3, winRange: [0.2, 0.45], options: { visible: 2 } });
+    : { art, band: "mid", role: boss ? "boss" : undefined, seeds, starts: 1, lanes: 3, dropMin: 1, dropMax: 4, targetWinRate: 0.3, winRange: [0.2, 0.45], options: { visible: 3 } });
 });
 // 상급: 해상도 2배 그림 + 가장 큰 그림, 대기열 3~4줄, 맨 앞만 보임. 마지막(120)은 가장 큰 그림.
 const hard = [
@@ -57,14 +57,14 @@ hard.forEach(({ art, variant, scale }, i) => {
   const breather = i % 10 === 4;
   const lanes = i % 3 === 2 ? 4 : 3;
   levels.push(breather
-    ? { art, variant, scale, band: "hard", role: "breather", seeds: seeds.slice(0, 4), starts: 2, lanes: 3, dropMin: 3, dropMax: 6, displacements: 100, targetWinRate: 0.5, winRange: [0.3, 1], options: { visible: 2 } }
-    : { art, variant, scale, band: "hard", role: i === hard.length - 1 ? "boss" : undefined, seeds, starts: 1, lanes, dropMin: 1, dropMax: scale > 1 ? 4 : 3, targetWinRate: 0.08, winRange: [0.02, 0.16], options: { visible: 1 } });
+    ? { art, variant, scale, band: "hard", role: "breather", seeds: seeds.slice(0, 4), starts: 2, lanes: 3, dropMin: 3, dropMax: 6, displacements: 100, targetWinRate: 0.5, winRange: [0.3, 1], options: { visible: 3 } }
+    : { art, variant, scale, band: "hard", role: i === hard.length - 1 ? "boss" : undefined, seeds, starts: 1, lanes, dropMin: 1, dropMax: scale > 1 ? 4 : 3, targetWinRate: 0.08, winRange: [0.02, 0.16], options: { visible: 3 } });
 });
 
 const config: PackConfig = {
   pack: "pack-01",
   copyTo: ["../../app/src/levels/pack-01.json"],
-  defaults: { slotCount: 4, options: { realtime: true, visible: 2 }, displacements: 600, maxSolverNodes: 50000, maxColors: 6, maxSize: 24 },
+  defaults: { slotCount: 4, options: { realtime: true, visible: 3 }, displacements: 600, maxSolverNodes: 50000, maxColors: 6, maxSize: 24 },
   levels,
 };
 writeFileSync(new URL("../levels.config.json", import.meta.url), JSON.stringify(config, null, 2) + "\n");

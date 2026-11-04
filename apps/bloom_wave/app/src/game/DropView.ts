@@ -1,6 +1,8 @@
 // 활성 슬롯(보드 아래 한 줄)과 대기열(세로 줄 여러 개).
 // 줄마다 맨 위가 탭할 물방울이고, 그 아래로 options.visible 개까지만 보이며 나머지는 숫자로만 표시한다.
-import { Container, Graphics, Sprite, Text } from "pixi.js";
+// 입력 (2026-11-04 2차): 맨 위 동그라미를 누르고 있는 동안 onPress(lane) 로 보드에 같은 색 칸을 미리 보여 주고,
+// 동그라미 안에서 떼면 탭, 누른 채 동그라미 밖으로 벗어나면 선택 취소.
+import { Container, Graphics, Sprite, Text, type FederatedPointerEvent } from "pixi.js";
 import type { Drop, Level, State } from "@bloom-wave/core/engine";
 import { TEX } from "../ui/textures";
 import { C, hexToNum, mix } from "../ui/theme";
@@ -46,6 +48,10 @@ export class DropView extends Container {
   private bounceLanes: number[] = [];
   private visibleCount: number;
   onTap: (lane: number) => void = () => {};
+  /** 누르기 시작(lane) / 끝·취소(null). 보드 색 미리보기용 */
+  onPress: (lane: number | null) => void = () => {};
+  private press: { lane: number; id: number } | null = null;
+  private hitR = 0;
 
   constructor(private level: Level, private L: DropLayout, visible: number) {
     super();
@@ -87,16 +93,52 @@ export class DropView extends Container {
       const more = label("", 38, C.inkSoft);
       more.position.set(x, L.laneBottom - 34);
       root.addChild(more);
-      // 줄 전체가 터치 영역 (한 손 조작)
-      const hit = new Graphics().rect(x - L.laneW / 2, L.laneTop - frontR - 30, L.laneW, h).fill({ color: 0xffffff, alpha: 0.001 });
+      // 터치 영역 = 맨 위 물방울의 동그라미. 누르고 있으면 미리보기, 안에서 떼면 탭, 밖으로 벗어나면 취소
+      this.hitR = frontR + 24;
+      const hit = new Graphics().circle(x, L.laneTop, this.hitR).fill({ color: 0xffffff, alpha: 0.001 });
       hit.eventMode = "static";
       hit.cursor = "pointer";
       hit.label = `lane-hit-${li}`;
-      hit.on("pointerdown", () => this.onTap(li));
+      hit.on("pointerdown", (e: FederatedPointerEvent) => this.pressStart(li, e));
+      hit.on("globalpointermove", (e: FederatedPointerEvent) => this.pressMove(li, e));
+      hit.on("pointerup", (e: FederatedPointerEvent) => this.pressEnd(li, e, true));
+      hit.on("pointerupoutside", (e: FederatedPointerEvent) => this.pressEnd(li, e, false));
+      hit.on("pointercancel", (e: FederatedPointerEvent) => this.pressEnd(li, e, false));
       root.addChild(hit);
       this.lanes.push({ bg, drops, more, hit });
       this.addChild(root);
     });
+  }
+
+  private pressStart(li: number, e: FederatedPointerEvent) {
+    if (this.press) this.cancelPress();
+    if (!this.lanes[li].drops[0].visible) return;
+    this.press = { lane: li, id: e.pointerId };
+    this.lanes[li].drops[0].scale.set(1.1);
+    this.onPress(li);
+  }
+
+  private pressMove(li: number, e: FederatedPointerEvent) {
+    const p = this.press;
+    if (!p || p.lane !== li || p.id !== e.pointerId) return;
+    const q = this.toLocal(e.global);
+    if (Math.hypot(q.x - this.L.laneXs[li], q.y - this.L.laneTop) > this.hitR) this.cancelPress();
+  }
+
+  private pressEnd(li: number, e: FederatedPointerEvent, inside: boolean) {
+    const p = this.press;
+    if (!p || p.lane !== li || p.id !== e.pointerId) return;
+    this.cancelPress();
+    if (inside) this.onTap(li);
+  }
+
+  /** 누르고 있던 물방울 선택 취소 (밖으로 벗어남, 화면 전환 등) */
+  cancelPress() {
+    const p = this.press;
+    if (!p) return;
+    this.press = null;
+    this.lanes[p.lane].drops[0].scale.set(1);
+    this.onPress(null);
   }
 
   private drawSlots(occupied: number) {

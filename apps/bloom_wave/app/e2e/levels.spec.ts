@@ -15,7 +15,7 @@ async function openLevel(page: Page, n: number) {
   await page.evaluate((n) => {
     const B = (window as any).__bloom;
     B.open(n);
-    for (let k = 0; k < 4; k++) {
+    for (let k = 0; k < 6; k++) {
       const v = B.game().view;
       const btn = v.getChildByLabel("btn-difficulty-ok", true) ?? v.getChildByLabel("btn-tutorial-ok", true);
       if (!btn) break;
@@ -170,7 +170,7 @@ test("레이아웃: 보드·슬롯·대기열·버튼이 서로 겹치지 않는
       const g = (window as any).__bloom.game();
       const b = (l: string) => { const o = g.view.getChildByLabel(l, true); const r = o.getBounds(); return { top: r.y, bottom: r.y + r.height, left: r.x, right: r.x + r.width }; };
       const boardB = g.board.getBounds();
-      return { board: { top: boardB.y, bottom: boardB.y + boardB.height, left: boardB.x, right: boardB.x + boardB.width }, slot: b("slot-bg-0"), lane: b("lane-hit-0"), undo: b("btn-undo"), w: window.innerWidth };
+      return { board: { top: boardB.y, bottom: boardB.y + boardB.height, left: boardB.x, right: boardB.x + boardB.width }, slot: b("slot-bg-0"), lane: b("lane-hit-0"), undo: b("btn-hint"), w: window.innerWidth };
     });
     expect(r.board.bottom).toBeLessThanOrEqual(r.slot.top);
     expect(r.slot.bottom).toBeLessThanOrEqual(r.lane.top);
@@ -179,6 +179,80 @@ test("레이아웃: 보드·슬롯·대기열·버튼이 서로 겹치지 않는
     expect(r.board.right).toBeLessThanOrEqual(r.w);
     await page.screenshot({ path: `test-results/layout-${n}.png` });
   }
+  expect(errors).toEqual([]);
+});
+
+test("물방울을 누르고 있으면 보드에 그 색 미리보기, 동그라미 밖으로 빼면 선택 취소", async ({ page }) => {
+  const errors = await boot(page);
+  await openLevel(page, 9);
+  const front = await page.evaluate(() => {
+    const g = (window as any).__bloom.game();
+    const p = g.view.getChildByLabel("lane-front-0", true).getGlobalPosition();
+    return { x: p.x, y: p.y, color: g.controller.front(0).color, len: g.controller.state.lanes[0].length };
+  });
+  const state = () => page.evaluate(() => { const g = (window as any).__bloom.game(); return { preview: g.board.previewColor, len: g.controller.state.lanes[0].length }; });
+  // 누르고 있는 동안: 미리보기
+  await page.mouse.move(front.x, front.y);
+  await page.mouse.down();
+  await page.waitForTimeout(100);
+  expect(await state()).toEqual({ preview: front.color, len: front.len });
+  await page.screenshot({ path: "test-results/hold-preview.png" });
+  // 동그라미 안에서 조금 움직여도 유지
+  await page.mouse.move(front.x + 15, front.y + 10);
+  expect((await state()).preview).toBe(front.color);
+  // 밖으로 벗어나면 취소, 떼어도 탭되지 않음
+  await page.mouse.move(front.x, front.y - 250, { steps: 5 });
+  expect((await state()).preview).toBeNull();
+  await page.mouse.up();
+  expect(await state()).toEqual({ preview: null, len: front.len });
+  // 다시 누르고 안에서 떼면 탭
+  await page.mouse.move(front.x, front.y);
+  await page.mouse.down();
+  await page.mouse.up();
+  expect(await state()).toEqual({ preview: null, len: front.len - 1 });
+  expect(errors).toEqual([]);
+});
+
+test("도움말: 1스테이지는 길게 누르기 안내, 비슷한 색이 처음 나오는 스테이지는 비슷한 색 안내", async ({ page }) => {
+  const errors = await boot(page);
+  const seen = async (n: number) => page.evaluate((n) => {
+    const B = (window as any).__bloom;
+    B.open(n);
+    const keys: string[] = [];
+    for (let k = 0; k < 6; k++) {
+      const v = B.game().view;
+      const box = v.getChildByLabel("overlay-tutorial", true);
+      const btn = v.getChildByLabel("btn-difficulty-ok", true) ?? v.getChildByLabel("btn-tutorial-ok", true);
+      if (!btn) break;
+      if (box) keys.push(box.children[1].label);
+      btn.onTap();
+    }
+    return keys;
+  }, n);
+  expect(await seen(1)).toEqual(["tutorial-wave", "tutorial-hold"]);
+  await page.evaluate(() => (window as any).__bloom.open(9));
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: "test-results/tutorial-similar.png" });
+  expect(await seen(9)).toEqual(["tutorial-similar"]);
+  expect(await seen(10)).toEqual([]);
+  expect(errors).toEqual([]);
+});
+
+test("완성 화면에는 다음 스테이지 버튼만 있다 (다시 하기·맵 없음)", async ({ page }) => {
+  const errors = await boot(page);
+  await openLevel(page, 2);
+  expect((await solveAndPlay(page)).status).toBe("cleared");
+  await page.waitForFunction(() => !!(window as any).__bloom.ctx.current.view.getChildByLabel("btn-next", true), null, { timeout: 8000 });
+  const labels = await page.evaluate(() => {
+    const o = (window as any).__bloom.game().view.getChildByLabel("overlay-clear", true);
+    const out: string[] = [];
+    const walk = (c: any) => { if (c.label?.startsWith("btn-")) out.push(c.label); c.children?.forEach(walk); };
+    walk(o);
+    return out;
+  });
+  expect(labels).toEqual(["btn-next"]);
+  await page.waitForTimeout(600);
+  await page.screenshot({ path: "test-results/clear-next-only.png" });
   expect(errors).toEqual([]);
 });
 

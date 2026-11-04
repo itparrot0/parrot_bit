@@ -1,24 +1,21 @@
-// 게임 한 판의 진행: core 엔진 호출, 고정 간격 틱 타이머, 되돌리기 스택, 일시정지.
+// 게임 한 판의 진행: core 엔진 호출, 고정 간격 틱 타이머, 일시정지. (되돌리기는 2026-11-04 2차 피드백으로 삭제)
 // 규칙은 전부 @bloom-wave/core 가 정한다. 여기서는 "언제 tick/deploy 를 부르는가"만 다룬다.
 import {
   type Drop, type Level, type Options, type State, type TickEvent,
-  cloneState, createState, deploy, isActive, legalActions, levelOptions, queueLength, tick,
+  createState, deploy, isActive, legalActions, levelOptions, queueLength, tick,
 } from "@bloom-wave/core/engine";
 import { solveFrom, type SolveResult } from "@bloom-wave/core/solver";
 
 // 2026-11-04 플레이 피드백: 150ms는 너무 빨라 기본을 300ms로. 규칙(클리어 가능 여부)은 틱 단위라 바뀌지 않는다
 export const TICK_MS = { normal: 300, slow: 450 } as const;
-export const UNDO_LIMIT = 50;
 
 export type TapResult = { ok: true; slot: number; drop: Drop; lane: number } | { ok: false; reason: "full" | "wait" | "over" | "empty" };
-
-type Snapshot = { state: State; peak: number; ticks: number };
 
 export type ControllerEvents = {
   tick?: (ev: TickEvent, c: GameController) => void;
   deploy?: (slot: number, drop: Drop, lane: number, c: GameController) => void;
   status?: (status: State["status"], c: GameController) => void;
-  reset?: (c: GameController) => void; // 재시작·되돌리기로 상태가 통째로 바뀜
+  reset?: (c: GameController) => void; // 재시작으로 상태가 통째로 바뀜
   idle?: (c: GameController) => void; // 웨이브가 멈춤 (이제 넣어야 함)
 };
 
@@ -34,7 +31,6 @@ export class GameController {
   peak = 0;
   ticks = 0;
   private acc = 0;
-  private undoStack: Snapshot[] = [];
   private wasActive = false;
   private on: ControllerEvents = {};
 
@@ -51,7 +47,6 @@ export class GameController {
   get status() { return this.state.status; }
   get active() { return isActive(this.state); }
   get occupied() { return this.state.slots.filter(Boolean).length; }
-  get canUndo() { return this.undoStack.length > 0; }
   get queueLeft() { return queueLength(this.state); }
 
   /** lane 줄의 맨 앞 물방울 */
@@ -73,8 +68,6 @@ export class GameController {
     if (s.status !== "playing") return { ok: false, reason: "over" };
     if (!s.lanes[lane]?.length) return { ok: false, reason: "empty" };
     if (!this.canTap(lane)) return { ok: false, reason: s.slots.includes(null) ? "wait" : "full" };
-    this.undoStack.push({ state: cloneState(s), peak: this.peak, ticks: this.ticks });
-    if (this.undoStack.length > UNDO_LIMIT) this.undoStack.shift();
     const drop = { ...s.lanes[lane][0] };
     const slot = deploy(this.level, s, lane);
     this.peak = Math.max(this.peak, this.occupied);
@@ -106,23 +99,8 @@ export class GameController {
     }
   }
 
-  undo(): boolean {
-    const snap = this.undoStack.pop();
-    if (!snap) return false;
-    this.state = snap.state;
-    this.peak = snap.peak;
-    this.ticks = snap.ticks;
-    this.acc = 0;
-    this.paused = true; // 되돌리면 일시정지 상태로 시작
-    this.wasActive = isActive(this.state);
-    this.on.reset?.(this);
-    this.on.status?.(this.state.status, this);
-    return true;
-  }
-
   restart() {
     this.state = createState(this.level);
-    this.undoStack = [];
     this.peak = 0;
     this.ticks = 0;
     this.acc = 0;
