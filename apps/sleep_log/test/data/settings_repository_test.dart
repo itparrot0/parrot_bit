@@ -35,4 +35,16 @@ void main() {
     await repository.saveSafetyNoticeEnabled(false);
     expect(await repository.loadSafetyNoticeEnabled(), isFalse);
   });
+
+  test('안내를 마지막으로 띄운 날을 단계별로 저장한다', () async {
+    final repository = SettingsRepository(InMemoryKeyValueStore());
+    const day = DiaryDate(2026, 11, 5);
+
+    expect(await repository.loadLastShown(SafetyAdvice.restSuggestion), isNull);
+
+    await repository.saveLastShown(SafetyAdvice.restSuggestion, day);
+
+    expect(await repository.loadLastShown(SafetyAdvice.restSuggestion), day);
+    expect(await repository.loadLastShown(SafetyAdvice.supportContact), isNull);
+  });
 }

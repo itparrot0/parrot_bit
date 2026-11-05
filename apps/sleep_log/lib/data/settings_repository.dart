@@ -9,6 +9,8 @@ final class SettingsRepository {
 
   static const String targetMinutesKey = 'sleep_log.target_minutes';
   static const String safetyNoticeKey = 'sleep_log.safety_notice_enabled';
+  static const String restShownKey = 'sleep_log.safety_rest_last_shown';
+  static const String supportShownKey = 'sleep_log.safety_support_last_shown';
 
   final KeyValueStore _store;
 
@@ -39,4 +41,28 @@ final class SettingsRepository {
 
   Future<void> saveSafetyNoticeEnabled(bool enabled) =>
       _store.setBool(safetyNoticeKey, enabled);
+
+  /// [advice] 단계 안내를 마지막으로 띄운 날. 띄운 적이 없으면 null.
+  /// 14일 재노출 금지에 쓴다 ([SafetyNoticePolicy]).
+  Future<DiaryDate?> loadLastShown(SafetyAdvice advice) async {
+    final key = _shownKey(advice);
+    if (key == null) {
+      return null;
+    }
+    final raw = await _store.getString(key);
+    return raw == null ? null : DiaryDate.tryParseIso(raw);
+  }
+
+  Future<void> saveLastShown(SafetyAdvice advice, DiaryDate date) async {
+    final key = _shownKey(advice);
+    if (key != null) {
+      await _store.setString(key, date.toIso());
+    }
+  }
+
+  static String? _shownKey(SafetyAdvice advice) => switch (advice) {
+    SafetyAdvice.restSuggestion => restShownKey,
+    SafetyAdvice.supportContact => supportShownKey,
+    SafetyAdvice.none => null,
+  };
 }

@@ -86,3 +86,50 @@ class SafetyNoticeEnabled extends AsyncNotifier<bool> {
     state = AsyncData(enabled);
   }
 }
+
+/// 달력 상단에 지금 띄울 안전 안내 (PRD §9-2). 띄울 게 없으면 [SafetyAdvice.none].
+///
+/// **앱을 열 때 한 번 정한다.** 기록 목록은 watch하지 않고 읽기만 한다 — 기록을
+/// 저장한 직후 방금 적은 감정에 앱이 바로 반응하면 참견처럼 느껴진다. 그래서
+/// 오늘 저장한 기록은 다음에 앱을 열 때 반영된다. 설정에서 끄면 즉시 사라진다.
+///
+/// 띄우기로 정한 순간 노출 날짜를 저장한다 — 닫든 말든 14일 쉬는 기간이 시작된다.
+final safetyBannerProvider = AsyncNotifierProvider<SafetyBanner, SafetyAdvice>(
+  SafetyBanner.new,
+);
+
+class SafetyBanner extends AsyncNotifier<SafetyAdvice> {
+  @override
+  Future<SafetyAdvice> build() async {
+    final enabled = await ref.watch(safetyNoticeEnabledProvider.future);
+    if (!enabled) {
+      return SafetyAdvice.none;
+    }
+    // 저장소에서 직접 한 번 읽는다. diaryEntriesProvider를 읽으면, 아무도 그걸
+    // 보고 있지 않을 때(Riverpod 3는 듣는 이 없는 Provider를 멈춘다) 끝나지 않는다.
+    final entries = await ref.read(diaryRepositoryProvider).watchAll().first;
+    final today = ref.read(todayProvider);
+    final settings = ref.read(settingsRepositoryProvider);
+
+    final advice = SafetyCheck.evaluate(
+      entries: entries,
+      target: ref.read(sleepTargetProvider),
+      today: today,
+    );
+    final decision = SafetyNoticePolicy.decide(
+      advice: advice,
+      today: today,
+      lastRestShown: await settings.loadLastShown(SafetyAdvice.restSuggestion),
+      lastSupportShown: await settings.loadLastShown(
+        SafetyAdvice.supportContact,
+      ),
+    );
+    if (decision != SafetyAdvice.none) {
+      await settings.saveLastShown(decision, today);
+    }
+    return decision;
+  }
+
+  /// 사용자가 닫았다. 이번 실행 동안 다시 보이지 않는다.
+  void dismiss() => state = const AsyncData(SafetyAdvice.none);
+}

@@ -6,10 +6,11 @@ import '../app/router.dart';
 import '../data/providers.dart';
 import '../domain/domain.dart';
 import '../widgets/calendar/month_calendar.dart';
+import '../widgets/safety_banner.dart';
 
 /// 홈 — 월간 달력. 날짜 칸에 z 단계를 표시한다 (PRD §4).
 ///
-/// 구현 예정: 안전 배너(PRD §9-2) 노출.
+/// 안전 배너(PRD §9-2)가 뜨는 유일한 곳이다 — 맨 위, 닫을 수 있게.
 class CalendarScreen extends ConsumerWidget {
   const CalendarScreen({super.key});
 
@@ -18,6 +19,7 @@ class CalendarScreen extends ConsumerWidget {
     final today = ref.watch(todayProvider);
     final entries = ref.watch(diaryEntriesProvider);
     final target = ref.watch(sleepTargetProvider);
+    final banner = ref.watch(safetyBannerProvider).value ?? SafetyAdvice.none;
     final view = CalendarView.from(
       entries: entries.value ?? const [],
       target: target,
@@ -44,6 +46,12 @@ class CalendarScreen extends ConsumerWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
+              if (banner != SafetyAdvice.none)
+                SafetyBannerCard(
+                  advice: banner,
+                  onDismiss: () =>
+                      ref.read(safetyBannerProvider.notifier).dismiss(),
+                ),
               // 오늘 기록이 없을 때만 (screen-flow §5). 기록을 읽기 전에는
               // 띄우지 않는다 — 떴다가 사라지면 깜박인다.
               if (entries.hasValue && !view.hasTodayEntry)

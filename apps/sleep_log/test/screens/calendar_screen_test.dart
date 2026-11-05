@@ -91,6 +91,7 @@ void main() {
     Future<void> pumpScreen(
       WidgetTester tester, {
       required Stream<List<DiaryEntry>> entries,
+      SafetyAdvice banner = SafetyAdvice.none,
     }) async {
       await tester.pumpWidget(
         ProviderScope(
@@ -98,6 +99,7 @@ void main() {
             todayProvider.overrideWithValue(today),
             diaryEntriesProvider.overrideWith((ref) => entries),
             sleepTargetProvider.overrideWithValue(target),
+            safetyBannerProvider.overrideWith(() => _FixedBanner(banner)),
           ],
           child: const MaterialApp(home: CalendarScreen()),
         ),
@@ -143,5 +145,59 @@ void main() {
       expect(find.byTooltip('리포트'), findsOneWidget);
       expect(find.byTooltip('설정'), findsOneWidget);
     });
+
+    testWidgets('띄울 안내가 없으면 배너가 없다', (tester) async {
+      await pumpScreen(tester, entries: Stream.value(const []));
+
+      expect(find.byKey(const Key('safetyBanner')), findsNothing);
+    });
+
+    testWidgets('1단계는 수면을 권하고 연락처는 보이지 않는다', (tester) async {
+      await pumpScreen(
+        tester,
+        entries: Stream.value(const []),
+        banner: SafetyAdvice.restSuggestion,
+      );
+
+      expect(find.byKey(const Key('safetyBanner')), findsOneWidget);
+      expect(find.textContaining('일찍 잠자리에'), findsOneWidget);
+      expect(find.text('109'), findsNothing);
+    });
+
+    testWidgets('2단계는 상담 연락처를 보여 준다', (tester) async {
+      await pumpScreen(
+        tester,
+        entries: Stream.value(const []),
+        banner: SafetyAdvice.supportContact,
+      );
+
+      expect(find.text('혹시 도움이 필요하다면'), findsOneWidget);
+      expect(find.textContaining('109'), findsOneWidget);
+      expect(find.textContaining('1577-0199'), findsOneWidget);
+    });
+
+    testWidgets('닫으면 사라지고 달력은 그대로다', (tester) async {
+      await pumpScreen(
+        tester,
+        entries: Stream.value(const []),
+        banner: SafetyAdvice.supportContact,
+      );
+
+      await tester.tap(find.byTooltip('닫기'));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('safetyBanner')), findsNothing);
+      expect(find.text('오늘 기록'), findsOneWidget);
+    });
   });
+}
+
+/// 저장소를 거치지 않고 정해진 안내를 내놓는 배너.
+class _FixedBanner extends SafetyBanner {
+  _FixedBanner(this.advice);
+
+  final SafetyAdvice advice;
+
+  @override
+  Future<SafetyAdvice> build() async => advice;
 }
