@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:bloom_wave/economy/skins.dart';
@@ -50,13 +51,20 @@ void main() {
     }
   });
 
-  test('애니메이션 길이가 기본 속도의 틱 예산(360ms) 안에 든다', () {
-    final m = {
-      'sprout': {'frameMs': defaultFrameMs},
-      'bloom': {'frameMs': defaultFrameMs},
-    };
-    expect(sproutFrames * frameMsFor(m, 'sprout'), lessThanOrEqualTo(360));
-    expect(bloomFrames * frameMsFor(m, 'bloom'), lessThanOrEqualTo(360));
+  test('애니메이션 길이(anim.json × 프레임 수)가 기본 속도의 틱 예산(360ms) 안에 든다', () {
+    final m =
+        jsonDecode(File('assets/anim/anim.json').readAsStringSync())
+            as Map<String, dynamic>;
+    for (final name in ['sprout', for (final s in skins) 'bloom_${s.id}']) {
+      final b = File('assets/anim/$name.png').readAsBytesSync();
+      final w = ByteData.sublistView(b, 16, 20).getUint32(0);
+      final h = ByteData.sublistView(b, 20, 24).getUint32(0);
+      expect(
+        w ~/ h * frameMsFor(m, name),
+        lessThanOrEqualTo(360),
+        reason: name,
+      );
+    }
   });
 
   testWidgets('파일이 없으면 코드 그림으로 시트를 만든다', (tester) async {
@@ -76,7 +84,7 @@ void main() {
     await tester.runAsync(() => sp.ensure('sakura'));
     expect(sp.ready('sakura'), isTrue);
     expect(sp.bloomOf('sakura')!.frames, bloomFrames);
-    expect(sp.sprout!.frameMs, defaultFrameMs);
-    expect(sp.seed!.light, isNull);
+    expect(sp.sprout!.frameMs, 40);
+    expect(sp.seed!.light, isNotNull);
   });
 }

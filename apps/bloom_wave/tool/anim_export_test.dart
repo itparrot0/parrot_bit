@@ -21,7 +21,10 @@ const onlyPreview = bool.fromEnvironment('ONLY_PREVIEW');
 Future<Uint8List> _png(ui.Image im) async =>
     (await im.toByteData(format: ui.ImageByteFormat.png))!.buffer.asUint8List();
 
-/// 미리보기 칸 색 (스킨마다 하나)
+/// 윗줄(기본 꽃) 칸 색: 그림에 자주 나오는 색들
+const _rowColors = [0xF19CBB, 0xE5484D, 0xF5D90A, 0x3E9BDB, 0x8E4EC6, 0xF2EEE8];
+
+/// 아랫줄 칸 색 (스킨마다 하나)
 const _sample = [0x46A758, 0xF5D90A, 0xE5484D, 0xF19CBB, 0xF76B15, 0x3E9BDB];
 
 void main() {
@@ -62,7 +65,8 @@ void main() {
     final sprout = (await load('sprout'))!,
         sproutL = await load('sprout_light');
     const cell = 128, pad = 16;
-    final w = skins.length * (cell + pad) + pad, h = cell + pad * 2;
+    // 윗줄: 기본 꽃을 여러 칸 색으로, 아랫줄: 스킨마다
+    final w = skins.length * (cell + pad) + pad, h = 2 * (cell + pad) + pad;
     // 타임라인 (40ms 단위): 씨앗 6 → 발아 → 멈춤 6 → 개화 → 멈춤 12
     const step = 40.0;
     final sproutMs = frameMsFor(manifest, 'sprout');
@@ -86,9 +90,10 @@ void main() {
     for (var ms = 0.0; ms < total; ms += step) {
       final frame = img.Image(width: w, height: h);
       img.fill(frame, color: img.ColorRgb8(0x2F, 0x2A, 0x25));
-      for (var k = 0; k < skins.length; k++) {
-        final col = _sample[k % _sample.length];
-        final ox = pad + k * (cell + pad), oy = pad;
+      for (var j = 0; j < skins.length * 2; j++) {
+        final k = j % skins.length, top = j < skins.length;
+        final col = top ? _rowColors[k % _rowColors.length] : _sample[k];
+        final ox = pad + k * (cell + pad), oy = pad + (top ? 0 : cell + pad);
         img.Image tint;
         img.Image? light;
         int f;
@@ -100,7 +105,7 @@ void main() {
           f = spriteFrameAt(t, sproutN, sproutMs);
         } else {
           t -= sproutDur + 6 * step;
-          final b = blooms[k];
+          final b = blooms[top ? 0 : k];
           (tint, light) = (b.$1, b.$2);
           f = spriteFrameAt(t, b.$3, b.$4);
         }

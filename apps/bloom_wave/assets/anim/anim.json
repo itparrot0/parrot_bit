@@ -3,9 +3,9 @@
     "frameMs": 0
   },
   "sprout": {
-    "frameMs": 32.0
+    "frameMs": 40
   },
   "bloom": {
-    "frameMs": 32.0
+    "frameMs": 40
   }
 }
