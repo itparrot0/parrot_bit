@@ -33,6 +33,11 @@ class CalendarScreen extends ConsumerWidget {
             icon: const Icon(Icons.insights_outlined),
             tooltip: '리포트',
           ),
+          IconButton(
+            onPressed: () => context.pushNamed(Routes.settings),
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: '설정',
+          ),
         ],
       ),
       body: SafeArea(

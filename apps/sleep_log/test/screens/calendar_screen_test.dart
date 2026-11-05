@@ -137,10 +137,11 @@ void main() {
       expect(find.text(SleepMark.enough.label), findsOneWidget);
     });
 
-    testWidgets('앱바의 리포트 버튼이 보인다', (tester) async {
+    testWidgets('앱바에 리포트·설정 버튼이 있다', (tester) async {
       await pumpScreen(tester, entries: Stream.value(const []));
 
       expect(find.byTooltip('리포트'), findsOneWidget);
+      expect(find.byTooltip('설정'), findsOneWidget);
     });
   });
 }

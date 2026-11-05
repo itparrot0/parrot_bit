@@ -26,4 +26,13 @@ void main() {
 
     expect(await repository.loadTarget(), isNull);
   });
+
+  test('안전 안내는 정한 적이 없으면 켜짐', () async {
+    final repository = SettingsRepository(InMemoryKeyValueStore());
+
+    expect(await repository.loadSafetyNoticeEnabled(), isTrue);
+
+    await repository.saveSafetyNoticeEnabled(false);
+    expect(await repository.loadSafetyNoticeEnabled(), isFalse);
+  });
 }

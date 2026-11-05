@@ -71,3 +71,18 @@ class SavedSleepTarget extends Notifier<SleepTarget?> {
 final sleepTargetProvider = Provider<SleepTarget>(
   (ref) => ref.watch(savedSleepTargetProvider) ?? SleepTarget.defaultTarget,
 );
+
+/// 안전 안내 배너를 띄울지 (PRD §9-2, 기본 켜짐). 설정에서 끌 수 있다.
+final safetyNoticeEnabledProvider =
+    AsyncNotifierProvider<SafetyNoticeEnabled, bool>(SafetyNoticeEnabled.new);
+
+class SafetyNoticeEnabled extends AsyncNotifier<bool> {
+  @override
+  Future<bool> build() =>
+      ref.watch(settingsRepositoryProvider).loadSafetyNoticeEnabled();
+
+  Future<void> set(bool enabled) async {
+    await ref.read(settingsRepositoryProvider).saveSafetyNoticeEnabled(enabled);
+    state = AsyncData(enabled);
+  }
+}

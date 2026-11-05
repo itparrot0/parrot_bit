@@ -25,7 +25,7 @@ void main() {
   }
 
   String shownTarget(WidgetTester tester) =>
-      tester.widget<Text>(find.byKey(const Key('onboarding.target'))).data!;
+      tester.widget<Text>(find.byKey(const Key('targetStepper.value'))).data!;
 
   IconButton button(WidgetTester tester, String tooltip) => tester.widget(
     find.ancestor(
@@ -43,6 +43,7 @@ void main() {
     expect(shownTarget(tester), '7시간 30분');
 
     await tester.tap(find.byTooltip('30분 줄이기'));
+    await tester.pump();
     await tester.tap(find.byTooltip('30분 줄이기'));
     await tester.pump();
     expect(shownTarget(tester), '6시간 30분');

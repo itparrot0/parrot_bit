@@ -8,6 +8,7 @@ final class SettingsRepository {
   SettingsRepository(this._store);
 
   static const String targetMinutesKey = 'sleep_log.target_minutes';
+  static const String safetyNoticeKey = 'sleep_log.safety_notice_enabled';
 
   final KeyValueStore _store;
 
@@ -31,4 +32,11 @@ final class SettingsRepository {
 
   Future<void> saveTarget(SleepTarget target) =>
       _store.setInt(targetMinutesKey, target.duration.inMinutes);
+
+  /// 안전 안내 배너를 띄울지 (PRD §9-2). **기본 켜짐** — 정한 적이 없으면 true.
+  Future<bool> loadSafetyNoticeEnabled() async =>
+      await _store.getBool(safetyNoticeKey) ?? true;
+
+  Future<void> saveSafetyNoticeEnabled(bool enabled) =>
+      _store.setBool(safetyNoticeKey, enabled);
 }
