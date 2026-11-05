@@ -1,5 +1,7 @@
 // levels.config.json 을 만든다 (한 번 만들고 커밋한 뒤 사람이 손으로 고쳐도 된다).
 // 1000 스테이지 (2026-11-04): 튜토리얼 1~5, 그 뒤로 2~4스테이지마다 무작위 등급의 어려움 스테이지 + 사이사이 노말.
+// 2000 스테이지 (2026-11-05): 1~1000 은 그대로(같은 시드·같은 그림 목록으로 같은 결과), 1001~2000 은 별도 시드로 이어 붙이고
+// 고해상도 그림(art_hires.dart, h_)을 먼저 쓴다.
 // (그전 120 스테이지 구간 배치는 git 기록 d3ab45e 의 이 파일)
 import 'dart:io';
 import 'dart:math' as math;
@@ -31,7 +33,10 @@ int _big(String name) {
 const _v3 = PartialOptions(visible: 3);
 
 /// 출시 팩 스테이지 수
-const totalStages = 1000;
+const totalStages = 2000;
+
+/// 1차 구간 (이 안은 2026-11-05 이전 팩과 똑같이 나온다)
+const firstPart = 1000;
 
 /// "?" 물방울 스테이지: [mysteryFrom] 부터 [mysteryEvery] 스테이지마다 (노말이면 가장 가까운 어려움 스테이지)
 const mysteryFrom = 100, mysteryEvery = 18;
@@ -153,7 +158,11 @@ PackConfig makeConfig() {
   final used = tutorial.map((t) => t.art).toSet();
   final names = [
     for (final a in _allArts)
-      if (!used.contains(a.name)) a.name,
+      if (!used.contains(a.name) && !a.name.startsWith('h_')) a.name,
+  ];
+  final hiresNames = [
+    for (final a in _allArts)
+      if (a.name.startsWith('h_')) a.name,
   ];
   // JS 의 Array.sort 처럼 안정 정렬 (복잡도가 같으면 원래 순서)
   final pos = {for (var i = 0; i < names.length; i++) names[i]: i};
@@ -169,7 +178,9 @@ PackConfig makeConfig() {
   // 같은 설정이면 언제나 같은 배치가 나온다 (시드 고정).
   final rng = mulberry32(20261104);
   final tiers = <int, Difficulty>{};
-  for (var p = tutorial.length + _gap(rng); p <= totalStages; p += _gap(rng)) {
+  var lastHard = 0;
+  for (var p = tutorial.length + _gap(rng); p <= firstPart; p += _gap(rng)) {
+    lastHard = p;
     tiers[p] = p <= 30
         ? Difficulty.hard
         : const [
@@ -177,6 +188,19 @@ PackConfig makeConfig() {
             Difficulty.superHard,
             Difficulty.megaHard,
           ][(rng() * 3).floor()];
+  }
+  // 1001~2000: 따로 정한 시드로 같은 규칙 (1~1000 의 난수 흐름을 건드리지 않는다)
+  final rng2 = mulberry32(20261105);
+  var start2 = lastHard + _gap(rng2);
+  while (start2 <= firstPart) {
+    start2 += _gap(rng2);
+  }
+  for (var p = start2; p <= totalStages; p += _gap(rng2)) {
+    tiers[p] = const [
+      Difficulty.hard,
+      Difficulty.superHard,
+      Difficulty.megaHard,
+    ][(rng2() * 3).floor()];
   }
 
   // 그림 배정 규칙 (2026-11-04):
@@ -187,60 +211,66 @@ PackConfig makeConfig() {
   //  - 그 안에서 가장 적게 쓴 그림, 같으면 무작위
   // "?" 물방울 스테이지 (2026-11-05): 100스테이지부터 18스테이지마다 하나. 목표 스테이지가 노말이면
   // 가장 가까운 노말 아닌 스테이지로(같은 거리면 앞쪽). 그래서 간격이 정확히 18은 아니다
-  final mystery = <int>{};
-  for (
-    var target = mysteryFrom;
-    target <= totalStages;
-    target += mysteryEvery
-  ) {
-    for (var d = 0; d <= mysteryEvery; d++) {
-      final cands = [target - d, if (d > 0) target + d];
-      final hit = cands.where(
-        (n) =>
-            n >= mysteryFrom &&
-            n <= totalStages &&
-            tiers.containsKey(n) &&
-            !mystery.contains(n),
-      );
-      if (hit.isNotEmpty) {
-        mystery.add(hit.first);
-        break;
+  // 구간별로 따로 고른다 (1~1000 은 예전과 같게): 목표 수열은 이어지고, 고르는 범위만 구간 안
+  Set<int> every(int from, int step, int lo, int hi, Set<int> taken) {
+    final out = <int>{};
+    for (var target = from; target <= hi; target += step) {
+      if (target < lo - step) continue;
+      for (var d = 0; d <= step; d++) {
+        final cands = [target - d, if (d > 0) target + d];
+        final hit = cands.where(
+          (n) =>
+              n >= math.max(from, lo) &&
+              n <= hi &&
+              tiers.containsKey(n) &&
+              !taken.contains(n) &&
+              !out.contains(n),
+        );
+        if (hit.isNotEmpty) {
+          out.add(hit.first);
+          break;
+        }
       }
     }
+    return out;
   }
 
-  final sets = <int>{};
-  for (var target = setsFrom; target <= totalStages; target += setsEvery) {
-    for (var d = 0; d <= setsEvery; d++) {
-      final cands = [target - d, if (d > 0) target + d];
-      final hit = cands.where(
-        (n) =>
-            n >= setsFrom &&
-            n <= totalStages &&
-            tiers.containsKey(n) &&
-            !mystery.contains(n) &&
-            !sets.contains(n),
-      );
-      if (hit.isNotEmpty) {
-        sets.add(hit.first);
-        break;
-      }
-    }
-  }
+  final mystery = {...every(mysteryFrom, mysteryEvery, 1, firstPart, const {})};
+  mystery.addAll(
+    every(mysteryFrom, mysteryEvery, firstPart + 1, totalStages, mystery),
+  );
+  final sets = {...every(setsFrom, setsEvery, 1, firstPart, mystery)};
+  sets.addAll(
+    every(setsFrom, setsEvery, firstPart + 1, totalStages, {
+      ...mystery,
+      ...sets,
+    }),
+  );
 
   final uses = <String, int>{}; // 그림별 사용 횟수 → variant 번호 (id: <그림>-<n>)
   final lastUse = <String, int>{};
   final lastFamily = <String, int>{};
   final levels = <LevelSpec>[...tutorial];
+  final hiresPool = [...hiresNames]
+    ..sort((a, b) => _complexity(a).compareTo(_complexity(b)));
+  final allPool = [...pool, ...hiresPool];
   for (var n = tutorial.length + 1; n <= totalStages; n++) {
+    final second = n > firstPart;
+    final r = second ? rng2 : rng;
+    final from = second ? allPool : pool;
     final tier = tiers[n] ?? Difficulty.normal;
-    final List<String> preferred = switch (tier) {
-      Difficulty.normal when n <= 30 => pool.sublist(0, 60),
-      Difficulty.normal when n <= 100 => pool.sublist(0, pool.length ~/ 2),
-      Difficulty.superHard ||
-      Difficulty.megaHard => pool.sublist(pool.length ~/ 3),
-      _ => pool,
-    };
+    final List<String> preferred = second
+        ? hiresPool
+        : switch (tier) {
+            Difficulty.normal when n <= 30 => pool.sublist(0, 60),
+            Difficulty.normal when n <= 100 => pool.sublist(
+              0,
+              pool.length ~/ 2,
+            ),
+            Difficulty.superHard ||
+            Difficulty.megaHard => pool.sublist(pool.length ~/ 3),
+            _ => pool,
+          };
     bool free(String a) =>
         (uses[a] ?? 0) < maxUses && n - (lastUse[a] ?? -minGap) >= minGap;
     bool spaced(String a) =>
@@ -251,30 +281,30 @@ PackConfig makeConfig() {
     ];
     if (cands.isEmpty) {
       cands = [
-        for (final a in pool)
+        for (final a in from)
           if (free(a) && spaced(a)) a,
       ];
     }
     if (cands.isEmpty) {
       cands = [
-        for (final a in pool)
+        for (final a in from)
           if (free(a)) a,
       ];
     }
     if (cands.isEmpty) {
       throw StateError(
-        'stage $n: 쓸 수 있는 그림이 없다 (그림 ${pool.length}장, 최대 $maxUses번, 간격 $minGap)',
+        'stage $n: 쓸 수 있는 그림이 없다 (그림 ${from.length}장, 최대 $maxUses번, 간격 $minGap)',
       );
     }
     final least = cands.map((a) => uses[a] ?? 0).reduce(math.min);
     final pick = cands.where((a) => (uses[a] ?? 0) == least).toList();
-    final art = pick[(rng() * pick.length).floor()];
+    final art = pick[(r() * pick.length).floor()];
     lastUse[art] = n;
     lastFamily[familyOf(art)] = n;
     final variant = (uses[art] = (uses[art] ?? 0) + 1);
     final sc = _scaleFor(art);
     final scale = sc > 1 ? sc : null;
-    final p = _preset(tier, n, rng);
+    final p = _preset(tier, n, r);
     levels.add(
       LevelSpec(
         art: art,

@@ -1850,5 +1850,1221 @@
   "c_glass4_1": {
     "ko": "붉은 무지개 아치 창",
     "en": "Crimson Rainbow Arch Window"
+  },
+  "h_vista_lake_dawn": {
+    "ko": "새벽 설산 호수",
+    "en": "Alpine Lake at Dawn"
+  },
+  "h_vista_lake_day": {
+    "ko": "한낮 설산 호수",
+    "en": "Alpine Lake at Midday"
+  },
+  "h_vista_lake_sunset": {
+    "ko": "노을 설산 호수",
+    "en": "Alpine Lake at Sunset"
+  },
+  "h_vista_lake_night": {
+    "ko": "달밤 설산 호수",
+    "en": "Alpine Lake at Moonlit"
+  },
+  "h_vista_lake_dusk": {
+    "ko": "보랏빛 저녁 설산 호수",
+    "en": "Alpine Lake at Violet Dusk"
+  },
+  "h_vista_harbor_dawn": {
+    "ko": "새벽 항구 마을",
+    "en": "Harbor Town at Dawn"
+  },
+  "h_vista_harbor_day": {
+    "ko": "한낮 항구 마을",
+    "en": "Harbor Town at Midday"
+  },
+  "h_vista_harbor_sunset": {
+    "ko": "노을 항구 마을",
+    "en": "Harbor Town at Sunset"
+  },
+  "h_vista_harbor_night": {
+    "ko": "달밤 항구 마을",
+    "en": "Harbor Town at Moonlit"
+  },
+  "h_vista_harbor_dusk": {
+    "ko": "보랏빛 저녁 항구 마을",
+    "en": "Harbor Town at Violet Dusk"
+  },
+  "h_vista_windmill_dawn": {
+    "ko": "새벽 밀밭 풍차",
+    "en": "Windmill in the Wheat at Dawn"
+  },
+  "h_vista_windmill_day": {
+    "ko": "한낮 밀밭 풍차",
+    "en": "Windmill in the Wheat at Midday"
+  },
+  "h_vista_windmill_sunset": {
+    "ko": "노을 밀밭 풍차",
+    "en": "Windmill in the Wheat at Sunset"
+  },
+  "h_vista_windmill_night": {
+    "ko": "달밤 밀밭 풍차",
+    "en": "Windmill in the Wheat at Moonlit"
+  },
+  "h_vista_windmill_dusk": {
+    "ko": "보랏빛 저녁 밀밭 풍차",
+    "en": "Windmill in the Wheat at Violet Dusk"
+  },
+  "h_vista_river_dawn": {
+    "ko": "새벽 숲속 강",
+    "en": "Forest River at Dawn"
+  },
+  "h_vista_river_day": {
+    "ko": "한낮 숲속 강",
+    "en": "Forest River at Midday"
+  },
+  "h_vista_river_sunset": {
+    "ko": "노을 숲속 강",
+    "en": "Forest River at Sunset"
+  },
+  "h_vista_river_night": {
+    "ko": "달밤 숲속 강",
+    "en": "Forest River at Moonlit"
+  },
+  "h_vista_river_dusk": {
+    "ko": "보랏빛 저녁 숲속 강",
+    "en": "Forest River at Violet Dusk"
+  },
+  "h_vista_canyon_dawn": {
+    "ko": "새벽 붉은 협곡",
+    "en": "Red Canyon at Dawn"
+  },
+  "h_vista_canyon_day": {
+    "ko": "한낮 붉은 협곡",
+    "en": "Red Canyon at Midday"
+  },
+  "h_vista_canyon_sunset": {
+    "ko": "노을 붉은 협곡",
+    "en": "Red Canyon at Sunset"
+  },
+  "h_vista_canyon_night": {
+    "ko": "달밤 붉은 협곡",
+    "en": "Red Canyon at Moonlit"
+  },
+  "h_vista_canyon_dusk": {
+    "ko": "보랏빛 저녁 붉은 협곡",
+    "en": "Red Canyon at Violet Dusk"
+  },
+  "h_vista_palm_dawn": {
+    "ko": "새벽 열대 해변",
+    "en": "Tropical Beach at Dawn"
+  },
+  "h_vista_palm_day": {
+    "ko": "한낮 열대 해변",
+    "en": "Tropical Beach at Midday"
+  },
+  "h_vista_palm_sunset": {
+    "ko": "노을 열대 해변",
+    "en": "Tropical Beach at Sunset"
+  },
+  "h_vista_palm_night": {
+    "ko": "달밤 열대 해변",
+    "en": "Tropical Beach at Moonlit"
+  },
+  "h_vista_palm_dusk": {
+    "ko": "보랏빛 저녁 열대 해변",
+    "en": "Tropical Beach at Violet Dusk"
+  },
+  "h_vista_snowtown_dawn": {
+    "ko": "새벽 눈 내린 마을",
+    "en": "Snowy Village at Dawn"
+  },
+  "h_vista_snowtown_day": {
+    "ko": "한낮 눈 내린 마을",
+    "en": "Snowy Village at Midday"
+  },
+  "h_vista_snowtown_sunset": {
+    "ko": "노을 눈 내린 마을",
+    "en": "Snowy Village at Sunset"
+  },
+  "h_vista_snowtown_night": {
+    "ko": "달밤 눈 내린 마을",
+    "en": "Snowy Village at Moonlit"
+  },
+  "h_vista_snowtown_dusk": {
+    "ko": "보랏빛 저녁 눈 내린 마을",
+    "en": "Snowy Village at Violet Dusk"
+  },
+  "h_vista_volcano_dawn": {
+    "ko": "새벽 화산섬",
+    "en": "Volcano Island at Dawn"
+  },
+  "h_vista_volcano_day": {
+    "ko": "한낮 화산섬",
+    "en": "Volcano Island at Midday"
+  },
+  "h_vista_volcano_sunset": {
+    "ko": "노을 화산섬",
+    "en": "Volcano Island at Sunset"
+  },
+  "h_vista_volcano_night": {
+    "ko": "달밤 화산섬",
+    "en": "Volcano Island at Moonlit"
+  },
+  "h_vista_volcano_dusk": {
+    "ko": "보랏빛 저녁 화산섬",
+    "en": "Volcano Island at Violet Dusk"
+  },
+  "h_vista_terrace_dawn": {
+    "ko": "새벽 계단식 논",
+    "en": "Rice Terraces at Dawn"
+  },
+  "h_vista_terrace_day": {
+    "ko": "한낮 계단식 논",
+    "en": "Rice Terraces at Midday"
+  },
+  "h_vista_terrace_sunset": {
+    "ko": "노을 계단식 논",
+    "en": "Rice Terraces at Sunset"
+  },
+  "h_vista_terrace_night": {
+    "ko": "달밤 계단식 논",
+    "en": "Rice Terraces at Moonlit"
+  },
+  "h_vista_terrace_dusk": {
+    "ko": "보랏빛 저녁 계단식 논",
+    "en": "Rice Terraces at Violet Dusk"
+  },
+  "h_vista_castle_dawn": {
+    "ko": "새벽 언덕 위 성",
+    "en": "Hilltop Castle at Dawn"
+  },
+  "h_vista_castle_day": {
+    "ko": "한낮 언덕 위 성",
+    "en": "Hilltop Castle at Midday"
+  },
+  "h_vista_castle_sunset": {
+    "ko": "노을 언덕 위 성",
+    "en": "Hilltop Castle at Sunset"
+  },
+  "h_vista_castle_night": {
+    "ko": "달밤 언덕 위 성",
+    "en": "Hilltop Castle at Moonlit"
+  },
+  "h_vista_castle_dusk": {
+    "ko": "보랏빛 저녁 언덕 위 성",
+    "en": "Hilltop Castle at Violet Dusk"
+  },
+  "h_vista_city_dawn": {
+    "ko": "새벽 강가의 도시",
+    "en": "Riverside City at Dawn"
+  },
+  "h_vista_city_day": {
+    "ko": "한낮 강가의 도시",
+    "en": "Riverside City at Midday"
+  },
+  "h_vista_city_sunset": {
+    "ko": "노을 강가의 도시",
+    "en": "Riverside City at Sunset"
+  },
+  "h_vista_city_night": {
+    "ko": "달밤 강가의 도시",
+    "en": "Riverside City at Moonlit"
+  },
+  "h_vista_city_dusk": {
+    "ko": "보랏빛 저녁 강가의 도시",
+    "en": "Riverside City at Violet Dusk"
+  },
+  "h_vista_bridge_dawn": {
+    "ko": "새벽 돌다리",
+    "en": "Stone Bridge at Dawn"
+  },
+  "h_vista_bridge_day": {
+    "ko": "한낮 돌다리",
+    "en": "Stone Bridge at Midday"
+  },
+  "h_vista_bridge_sunset": {
+    "ko": "노을 돌다리",
+    "en": "Stone Bridge at Sunset"
+  },
+  "h_vista_bridge_night": {
+    "ko": "달밤 돌다리",
+    "en": "Stone Bridge at Moonlit"
+  },
+  "h_vista_bridge_dusk": {
+    "ko": "보랏빛 저녁 돌다리",
+    "en": "Stone Bridge at Violet Dusk"
+  },
+  "h_vista_falls_dawn": {
+    "ko": "새벽 절벽 폭포",
+    "en": "Cliff Waterfall at Dawn"
+  },
+  "h_vista_falls_day": {
+    "ko": "한낮 절벽 폭포",
+    "en": "Cliff Waterfall at Midday"
+  },
+  "h_vista_falls_sunset": {
+    "ko": "노을 절벽 폭포",
+    "en": "Cliff Waterfall at Sunset"
+  },
+  "h_vista_falls_night": {
+    "ko": "달밤 절벽 폭포",
+    "en": "Cliff Waterfall at Moonlit"
+  },
+  "h_vista_falls_dusk": {
+    "ko": "보랏빛 저녁 절벽 폭포",
+    "en": "Cliff Waterfall at Violet Dusk"
+  },
+  "h_vista_lavender_dawn": {
+    "ko": "새벽 라벤더 들판",
+    "en": "Lavender Fields at Dawn"
+  },
+  "h_vista_lavender_day": {
+    "ko": "한낮 라벤더 들판",
+    "en": "Lavender Fields at Midday"
+  },
+  "h_vista_lavender_sunset": {
+    "ko": "노을 라벤더 들판",
+    "en": "Lavender Fields at Sunset"
+  },
+  "h_vista_lavender_night": {
+    "ko": "달밤 라벤더 들판",
+    "en": "Lavender Fields at Moonlit"
+  },
+  "h_vista_lavender_dusk": {
+    "ko": "보랏빛 저녁 라벤더 들판",
+    "en": "Lavender Fields at Violet Dusk"
+  },
+  "h_vista_lighthouse_dawn": {
+    "ko": "새벽 파도 치는 등대",
+    "en": "Lighthouse in the Waves at Dawn"
+  },
+  "h_vista_lighthouse_day": {
+    "ko": "한낮 파도 치는 등대",
+    "en": "Lighthouse in the Waves at Midday"
+  },
+  "h_vista_lighthouse_sunset": {
+    "ko": "노을 파도 치는 등대",
+    "en": "Lighthouse in the Waves at Sunset"
+  },
+  "h_vista_lighthouse_night": {
+    "ko": "달밤 파도 치는 등대",
+    "en": "Lighthouse in the Waves at Moonlit"
+  },
+  "h_vista_lighthouse_dusk": {
+    "ko": "보랏빛 저녁 파도 치는 등대",
+    "en": "Lighthouse in the Waves at Violet Dusk"
+  },
+  "h_vista_onsen_dawn": {
+    "ko": "새벽 산속 온천",
+    "en": "Mountain Hot Spring at Dawn"
+  },
+  "h_vista_onsen_day": {
+    "ko": "한낮 산속 온천",
+    "en": "Mountain Hot Spring at Midday"
+  },
+  "h_vista_onsen_sunset": {
+    "ko": "노을 산속 온천",
+    "en": "Mountain Hot Spring at Sunset"
+  },
+  "h_vista_onsen_night": {
+    "ko": "달밤 산속 온천",
+    "en": "Mountain Hot Spring at Moonlit"
+  },
+  "h_vista_onsen_dusk": {
+    "ko": "보랏빛 저녁 산속 온천",
+    "en": "Mountain Hot Spring at Violet Dusk"
+  },
+  "h_mandala_1": {
+    "ko": "봄빛 꽃 만다라",
+    "en": "Spring Flower Mandala"
+  },
+  "h_mandala_2": {
+    "ko": "봄빛 별 만다라",
+    "en": "Spring Star Mandala"
+  },
+  "h_mandala_3": {
+    "ko": "봄빛 물결 만다라",
+    "en": "Spring Wave Mandala"
+  },
+  "h_mandala_4": {
+    "ko": "봄빛 연꽃 만다라",
+    "en": "Spring Lotus Mandala"
+  },
+  "h_mandala_5": {
+    "ko": "봄빛 눈꽃 만다라",
+    "en": "Spring Snowflake Mandala"
+  },
+  "h_mandala_6": {
+    "ko": "바다 꽃 만다라",
+    "en": "Ocean Flower Mandala"
+  },
+  "h_mandala_7": {
+    "ko": "바다 별 만다라",
+    "en": "Ocean Star Mandala"
+  },
+  "h_mandala_8": {
+    "ko": "바다 물결 만다라",
+    "en": "Ocean Wave Mandala"
+  },
+  "h_mandala_9": {
+    "ko": "바다 연꽃 만다라",
+    "en": "Ocean Lotus Mandala"
+  },
+  "h_mandala_10": {
+    "ko": "바다 눈꽃 만다라",
+    "en": "Ocean Snowflake Mandala"
+  },
+  "h_mandala_11": {
+    "ko": "노을 꽃 만다라",
+    "en": "Sunset Flower Mandala"
+  },
+  "h_mandala_12": {
+    "ko": "노을 별 만다라",
+    "en": "Sunset Star Mandala"
+  },
+  "h_mandala_13": {
+    "ko": "노을 물결 만다라",
+    "en": "Sunset Wave Mandala"
+  },
+  "h_mandala_14": {
+    "ko": "노을 연꽃 만다라",
+    "en": "Sunset Lotus Mandala"
+  },
+  "h_mandala_15": {
+    "ko": "노을 눈꽃 만다라",
+    "en": "Sunset Snowflake Mandala"
+  },
+  "h_mandala_16": {
+    "ko": "보랏빛 꽃 만다라",
+    "en": "Amethyst Flower Mandala"
+  },
+  "h_mandala_17": {
+    "ko": "보랏빛 별 만다라",
+    "en": "Amethyst Star Mandala"
+  },
+  "h_mandala_18": {
+    "ko": "보랏빛 물결 만다라",
+    "en": "Amethyst Wave Mandala"
+  },
+  "h_mandala_19": {
+    "ko": "보랏빛 연꽃 만다라",
+    "en": "Amethyst Lotus Mandala"
+  },
+  "h_mandala_20": {
+    "ko": "보랏빛 눈꽃 만다라",
+    "en": "Amethyst Snowflake Mandala"
+  },
+  "h_mandala_21": {
+    "ko": "숲 꽃 만다라",
+    "en": "Forest Flower Mandala"
+  },
+  "h_mandala_22": {
+    "ko": "숲 별 만다라",
+    "en": "Forest Star Mandala"
+  },
+  "h_mandala_23": {
+    "ko": "숲 물결 만다라",
+    "en": "Forest Wave Mandala"
+  },
+  "h_mandala_24": {
+    "ko": "숲 연꽃 만다라",
+    "en": "Forest Lotus Mandala"
+  },
+  "h_mandala_25": {
+    "ko": "숲 눈꽃 만다라",
+    "en": "Forest Snowflake Mandala"
+  },
+  "h_mandala_26": {
+    "ko": "사탕 꽃 만다라",
+    "en": "Candy Flower Mandala"
+  },
+  "h_mandala_27": {
+    "ko": "사탕 별 만다라",
+    "en": "Candy Star Mandala"
+  },
+  "h_mandala_28": {
+    "ko": "사탕 물결 만다라",
+    "en": "Candy Wave Mandala"
+  },
+  "h_mandala_29": {
+    "ko": "사탕 연꽃 만다라",
+    "en": "Candy Lotus Mandala"
+  },
+  "h_mandala_30": {
+    "ko": "사탕 눈꽃 만다라",
+    "en": "Candy Snowflake Mandala"
+  },
+  "h_mandala_31": {
+    "ko": "황금 꽃 만다라",
+    "en": "Golden Flower Mandala"
+  },
+  "h_mandala_32": {
+    "ko": "황금 별 만다라",
+    "en": "Golden Star Mandala"
+  },
+  "h_mandala_33": {
+    "ko": "황금 물결 만다라",
+    "en": "Golden Wave Mandala"
+  },
+  "h_mandala_34": {
+    "ko": "황금 연꽃 만다라",
+    "en": "Golden Lotus Mandala"
+  },
+  "h_mandala_35": {
+    "ko": "황금 눈꽃 만다라",
+    "en": "Golden Snowflake Mandala"
+  },
+  "h_mandala_36": {
+    "ko": "얼음 꽃 만다라",
+    "en": "Frost Flower Mandala"
+  },
+  "h_mandala_37": {
+    "ko": "얼음 별 만다라",
+    "en": "Frost Star Mandala"
+  },
+  "h_mandala_38": {
+    "ko": "얼음 물결 만다라",
+    "en": "Frost Wave Mandala"
+  },
+  "h_mandala_39": {
+    "ko": "얼음 연꽃 만다라",
+    "en": "Frost Lotus Mandala"
+  },
+  "h_mandala_40": {
+    "ko": "얼음 눈꽃 만다라",
+    "en": "Frost Snowflake Mandala"
+  },
+  "h_quilt_1": {
+    "ko": "봄빛 바람개비 퀼트",
+    "en": "Spring Pinwheel Quilt"
+  },
+  "h_quilt_2": {
+    "ko": "봄빛 별 퀼트",
+    "en": "Spring Star Quilt"
+  },
+  "h_quilt_3": {
+    "ko": "봄빛 통나무집 퀼트",
+    "en": "Spring Log Cabin Quilt"
+  },
+  "h_quilt_4": {
+    "ko": "봄빛 다이아몬드 퀼트",
+    "en": "Spring Diamond Quilt"
+  },
+  "h_quilt_5": {
+    "ko": "봄빛 조각보",
+    "en": "Spring Patchwork Wrap"
+  },
+  "h_quilt_6": {
+    "ko": "바다 바람개비 퀼트",
+    "en": "Ocean Pinwheel Quilt"
+  },
+  "h_quilt_7": {
+    "ko": "바다 별 퀼트",
+    "en": "Ocean Star Quilt"
+  },
+  "h_quilt_8": {
+    "ko": "바다 통나무집 퀼트",
+    "en": "Ocean Log Cabin Quilt"
+  },
+  "h_quilt_9": {
+    "ko": "바다 다이아몬드 퀼트",
+    "en": "Ocean Diamond Quilt"
+  },
+  "h_quilt_10": {
+    "ko": "바다 조각보",
+    "en": "Ocean Patchwork Wrap"
+  },
+  "h_quilt_11": {
+    "ko": "노을 바람개비 퀼트",
+    "en": "Sunset Pinwheel Quilt"
+  },
+  "h_quilt_12": {
+    "ko": "노을 별 퀼트",
+    "en": "Sunset Star Quilt"
+  },
+  "h_quilt_13": {
+    "ko": "노을 통나무집 퀼트",
+    "en": "Sunset Log Cabin Quilt"
+  },
+  "h_quilt_14": {
+    "ko": "노을 다이아몬드 퀼트",
+    "en": "Sunset Diamond Quilt"
+  },
+  "h_quilt_15": {
+    "ko": "노을 조각보",
+    "en": "Sunset Patchwork Wrap"
+  },
+  "h_quilt_16": {
+    "ko": "보랏빛 바람개비 퀼트",
+    "en": "Amethyst Pinwheel Quilt"
+  },
+  "h_quilt_17": {
+    "ko": "보랏빛 별 퀼트",
+    "en": "Amethyst Star Quilt"
+  },
+  "h_quilt_18": {
+    "ko": "보랏빛 통나무집 퀼트",
+    "en": "Amethyst Log Cabin Quilt"
+  },
+  "h_quilt_19": {
+    "ko": "보랏빛 다이아몬드 퀼트",
+    "en": "Amethyst Diamond Quilt"
+  },
+  "h_quilt_20": {
+    "ko": "보랏빛 조각보",
+    "en": "Amethyst Patchwork Wrap"
+  },
+  "h_quilt_21": {
+    "ko": "숲 바람개비 퀼트",
+    "en": "Forest Pinwheel Quilt"
+  },
+  "h_quilt_22": {
+    "ko": "숲 별 퀼트",
+    "en": "Forest Star Quilt"
+  },
+  "h_quilt_23": {
+    "ko": "숲 통나무집 퀼트",
+    "en": "Forest Log Cabin Quilt"
+  },
+  "h_quilt_24": {
+    "ko": "숲 다이아몬드 퀼트",
+    "en": "Forest Diamond Quilt"
+  },
+  "h_quilt_25": {
+    "ko": "숲 조각보",
+    "en": "Forest Patchwork Wrap"
+  },
+  "h_quilt_26": {
+    "ko": "사탕 바람개비 퀼트",
+    "en": "Candy Pinwheel Quilt"
+  },
+  "h_quilt_27": {
+    "ko": "사탕 별 퀼트",
+    "en": "Candy Star Quilt"
+  },
+  "h_quilt_28": {
+    "ko": "사탕 통나무집 퀼트",
+    "en": "Candy Log Cabin Quilt"
+  },
+  "h_quilt_29": {
+    "ko": "사탕 다이아몬드 퀼트",
+    "en": "Candy Diamond Quilt"
+  },
+  "h_quilt_30": {
+    "ko": "사탕 조각보",
+    "en": "Candy Patchwork Wrap"
+  },
+  "h_glass_1": {
+    "ko": "푸른 해님 창",
+    "en": "Blue Sun Window"
+  },
+  "h_glass_2": {
+    "ko": "붉은 해님 창",
+    "en": "Ruby Sun Window"
+  },
+  "h_glass_3": {
+    "ko": "초록 해님 창",
+    "en": "Emerald Sun Window"
+  },
+  "h_glass_4": {
+    "ko": "호박빛 해님 창",
+    "en": "Amber Sun Window"
+  },
+  "h_glass_5": {
+    "ko": "자줏빛 해님 창",
+    "en": "Violet Sun Window"
+  },
+  "h_glass_6": {
+    "ko": "푸른 나무 창",
+    "en": "Blue Tree Window"
+  },
+  "h_glass_7": {
+    "ko": "붉은 나무 창",
+    "en": "Ruby Tree Window"
+  },
+  "h_glass_8": {
+    "ko": "초록 나무 창",
+    "en": "Emerald Tree Window"
+  },
+  "h_glass_9": {
+    "ko": "호박빛 나무 창",
+    "en": "Amber Tree Window"
+  },
+  "h_glass_10": {
+    "ko": "자줏빛 나무 창",
+    "en": "Violet Tree Window"
+  },
+  "h_glass_11": {
+    "ko": "푸른 새 창",
+    "en": "Blue Bird Window"
+  },
+  "h_glass_12": {
+    "ko": "붉은 새 창",
+    "en": "Ruby Bird Window"
+  },
+  "h_glass_13": {
+    "ko": "초록 새 창",
+    "en": "Emerald Bird Window"
+  },
+  "h_glass_14": {
+    "ko": "호박빛 새 창",
+    "en": "Amber Bird Window"
+  },
+  "h_glass_15": {
+    "ko": "자줏빛 새 창",
+    "en": "Violet Bird Window"
+  },
+  "h_glass_16": {
+    "ko": "푸른 장미 창",
+    "en": "Blue Rose Window"
+  },
+  "h_glass_17": {
+    "ko": "붉은 장미 창",
+    "en": "Ruby Rose Window"
+  },
+  "h_glass_18": {
+    "ko": "초록 장미 창",
+    "en": "Emerald Rose Window"
+  },
+  "h_glass_19": {
+    "ko": "호박빛 장미 창",
+    "en": "Amber Rose Window"
+  },
+  "h_glass_20": {
+    "ko": "자줏빛 장미 창",
+    "en": "Violet Rose Window"
+  },
+  "h_glass_21": {
+    "ko": "푸른 별빛 창",
+    "en": "Blue Starlight Window"
+  },
+  "h_glass_22": {
+    "ko": "붉은 별빛 창",
+    "en": "Ruby Starlight Window"
+  },
+  "h_glass_23": {
+    "ko": "초록 별빛 창",
+    "en": "Emerald Starlight Window"
+  },
+  "h_glass_24": {
+    "ko": "호박빛 별빛 창",
+    "en": "Amber Starlight Window"
+  },
+  "h_glass_25": {
+    "ko": "자줏빛 별빛 창",
+    "en": "Violet Starlight Window"
+  },
+  "h_glass_26": {
+    "ko": "푸른 물결 창",
+    "en": "Blue Wave Window"
+  },
+  "h_glass_27": {
+    "ko": "붉은 물결 창",
+    "en": "Ruby Wave Window"
+  },
+  "h_glass_28": {
+    "ko": "초록 물결 창",
+    "en": "Emerald Wave Window"
+  },
+  "h_glass_29": {
+    "ko": "호박빛 물결 창",
+    "en": "Amber Wave Window"
+  },
+  "h_glass_30": {
+    "ko": "자줏빛 물결 창",
+    "en": "Violet Wave Window"
+  },
+  "h_portrait_1": {
+    "ko": "하람의 초상",
+    "en": "Portrait of Haram"
+  },
+  "h_portrait_2": {
+    "ko": "소이의 초상",
+    "en": "Portrait of Soi"
+  },
+  "h_portrait_3": {
+    "ko": "겨울의 초상",
+    "en": "Portrait of Gyeoul"
+  },
+  "h_portrait_4": {
+    "ko": "도담의 초상",
+    "en": "Portrait of Dodam"
+  },
+  "h_portrait_5": {
+    "ko": "라온의 초상",
+    "en": "Portrait of Raon"
+  },
+  "h_portrait_6": {
+    "ko": "미르의 초상",
+    "en": "Portrait of Mir"
+  },
+  "h_portrait_7": {
+    "ko": "바다의 초상",
+    "en": "Portrait of Bada"
+  },
+  "h_portrait_8": {
+    "ko": "새별의 초상",
+    "en": "Portrait of Saebyeol"
+  },
+  "h_portrait_9": {
+    "ko": "아라의 초상",
+    "en": "Portrait of Ara"
+  },
+  "h_portrait_10": {
+    "ko": "온유의 초상",
+    "en": "Portrait of Onyu"
+  },
+  "h_portrait_11": {
+    "ko": "유채의 초상",
+    "en": "Portrait of Yuchae"
+  },
+  "h_portrait_12": {
+    "ko": "은하의 초상",
+    "en": "Portrait of Eunha"
+  },
+  "h_portrait_13": {
+    "ko": "이든의 초상",
+    "en": "Portrait of Eden"
+  },
+  "h_portrait_14": {
+    "ko": "제이의 초상",
+    "en": "Portrait of Jay"
+  },
+  "h_portrait_15": {
+    "ko": "채운의 초상",
+    "en": "Portrait of Chaeun"
+  },
+  "h_portrait_16": {
+    "ko": "하율의 초상",
+    "en": "Portrait of Hayul"
+  },
+  "h_portrait_17": {
+    "ko": "가온의 초상",
+    "en": "Portrait of Gaon"
+  },
+  "h_portrait_18": {
+    "ko": "나래의 초상",
+    "en": "Portrait of Narae"
+  },
+  "h_portrait_19": {
+    "ko": "단비의 초상",
+    "en": "Portrait of Danbi"
+  },
+  "h_portrait_20": {
+    "ko": "루다의 초상",
+    "en": "Portrait of Ruda"
+  },
+  "h_portrait_21": {
+    "ko": "마음의 초상",
+    "en": "Portrait of Maeum"
+  },
+  "h_portrait_22": {
+    "ko": "별이의 초상",
+    "en": "Portrait of Byeori"
+  },
+  "h_portrait_23": {
+    "ko": "서리의 초상",
+    "en": "Portrait of Seori"
+  },
+  "h_portrait_24": {
+    "ko": "시아의 초상",
+    "en": "Portrait of Sia"
+  },
+  "h_portrait_25": {
+    "ko": "아토의 초상",
+    "en": "Portrait of Ato"
+  },
+  "h_portrait_26": {
+    "ko": "예준의 초상",
+    "en": "Portrait of Yejun"
+  },
+  "h_portrait_27": {
+    "ko": "우주의 초상",
+    "en": "Portrait of Uju"
+  },
+  "h_portrait_28": {
+    "ko": "윤아의 초상",
+    "en": "Portrait of Yuna"
+  },
+  "h_portrait_29": {
+    "ko": "지호의 초상",
+    "en": "Portrait of Jiho"
+  },
+  "h_portrait_30": {
+    "ko": "찬솔의 초상",
+    "en": "Portrait of Chansol"
+  },
+  "h_portrait_31": {
+    "ko": "태양의 초상",
+    "en": "Portrait of Taeyang"
+  },
+  "h_portrait_32": {
+    "ko": "푸름의 초상",
+    "en": "Portrait of Pureum"
+  },
+  "h_portrait_33": {
+    "ko": "하랑의 초상",
+    "en": "Portrait of Harang"
+  },
+  "h_portrait_34": {
+    "ko": "해솔의 초상",
+    "en": "Portrait of Haesol"
+  },
+  "h_portrait_35": {
+    "ko": "호수의 초상",
+    "en": "Portrait of Hosu"
+  },
+  "h_portrait_36": {
+    "ko": "가을의 초상",
+    "en": "Portrait of Gaeul"
+  },
+  "h_portrait_37": {
+    "ko": "노을의 초상",
+    "en": "Portrait of Noeul"
+  },
+  "h_portrait_38": {
+    "ko": "다온의 초상",
+    "en": "Portrait of Daon"
+  },
+  "h_portrait_39": {
+    "ko": "로운의 초상",
+    "en": "Portrait of Roun"
+  },
+  "h_portrait_40": {
+    "ko": "봄결의 초상",
+    "en": "Portrait of Bomgyeol"
+  },
+  "h_beast_cat_1": {
+    "ko": "들판의 고양이",
+    "en": "Cat in the Meadow"
+  },
+  "h_beast_cat_2": {
+    "ko": "밤의 고양이",
+    "en": "Cat at Night"
+  },
+  "h_beast_fox_1": {
+    "ko": "들판의 여우",
+    "en": "Fox in the Meadow"
+  },
+  "h_beast_fox_2": {
+    "ko": "밤의 여우",
+    "en": "Fox at Night"
+  },
+  "h_beast_owl_1": {
+    "ko": "들판의 부엉이",
+    "en": "Owl in the Meadow"
+  },
+  "h_beast_owl_2": {
+    "ko": "밤의 부엉이",
+    "en": "Owl at Night"
+  },
+  "h_beast_panda_1": {
+    "ko": "들판의 판다",
+    "en": "Panda in the Meadow"
+  },
+  "h_beast_panda_2": {
+    "ko": "밤의 판다",
+    "en": "Panda at Night"
+  },
+  "h_beast_rabbit_1": {
+    "ko": "들판의 토끼",
+    "en": "Rabbit in the Meadow"
+  },
+  "h_beast_rabbit_2": {
+    "ko": "밤의 토끼",
+    "en": "Rabbit at Night"
+  },
+  "h_beast_penguin_1": {
+    "ko": "들판의 펭귄",
+    "en": "Penguin in the Meadow"
+  },
+  "h_beast_penguin_2": {
+    "ko": "밤의 펭귄",
+    "en": "Penguin at Night"
+  },
+  "h_beast_whale_1": {
+    "ko": "들판의 고래",
+    "en": "Whale in the Meadow"
+  },
+  "h_beast_whale_2": {
+    "ko": "밤의 고래",
+    "en": "Whale at Night"
+  },
+  "h_beast_turtle_1": {
+    "ko": "들판의 거북이",
+    "en": "Turtle in the Meadow"
+  },
+  "h_beast_turtle_2": {
+    "ko": "밤의 거북이",
+    "en": "Turtle at Night"
+  },
+  "h_beast_frog_1": {
+    "ko": "들판의 개구리",
+    "en": "Frog in the Meadow"
+  },
+  "h_beast_frog_2": {
+    "ko": "밤의 개구리",
+    "en": "Frog at Night"
+  },
+  "h_beast_bear_1": {
+    "ko": "들판의 곰",
+    "en": "Bear in the Meadow"
+  },
+  "h_beast_bear_2": {
+    "ko": "밤의 곰",
+    "en": "Bear at Night"
+  },
+  "h_beast_lion_1": {
+    "ko": "들판의 사자",
+    "en": "Lion in the Meadow"
+  },
+  "h_beast_lion_2": {
+    "ko": "밤의 사자",
+    "en": "Lion at Night"
+  },
+  "h_beast_elephant_1": {
+    "ko": "들판의 코끼리",
+    "en": "Elephant in the Meadow"
+  },
+  "h_beast_elephant_2": {
+    "ko": "밤의 코끼리",
+    "en": "Elephant at Night"
+  },
+  "h_still_1": {
+    "ko": "따뜻한 꽃병",
+    "en": "Warm Vase of Flowers"
+  },
+  "h_still_2": {
+    "ko": "시원한 꽃병",
+    "en": "Cool Vase of Flowers"
+  },
+  "h_still_3": {
+    "ko": "봄날 꽃병",
+    "en": "Spring Vase of Flowers"
+  },
+  "h_still_4": {
+    "ko": "가을 꽃병",
+    "en": "Autumn Vase of Flowers"
+  },
+  "h_still_5": {
+    "ko": "밤 꽃병",
+    "en": "Evening Vase of Flowers"
+  },
+  "h_still_6": {
+    "ko": "따뜻한 과일 바구니",
+    "en": "Warm Fruit Basket"
+  },
+  "h_still_7": {
+    "ko": "시원한 과일 바구니",
+    "en": "Cool Fruit Basket"
+  },
+  "h_still_8": {
+    "ko": "봄날 과일 바구니",
+    "en": "Spring Fruit Basket"
+  },
+  "h_still_9": {
+    "ko": "가을 과일 바구니",
+    "en": "Autumn Fruit Basket"
+  },
+  "h_still_10": {
+    "ko": "밤 과일 바구니",
+    "en": "Evening Fruit Basket"
+  },
+  "h_still_11": {
+    "ko": "따뜻한 찻잔과 주전자",
+    "en": "Warm Teapot and Cups"
+  },
+  "h_still_12": {
+    "ko": "시원한 찻잔과 주전자",
+    "en": "Cool Teapot and Cups"
+  },
+  "h_still_13": {
+    "ko": "봄날 찻잔과 주전자",
+    "en": "Spring Teapot and Cups"
+  },
+  "h_still_14": {
+    "ko": "가을 찻잔과 주전자",
+    "en": "Autumn Teapot and Cups"
+  },
+  "h_still_15": {
+    "ko": "밤 찻잔과 주전자",
+    "en": "Evening Teapot and Cups"
+  },
+  "h_still_16": {
+    "ko": "따뜻한 케이크 접시",
+    "en": "Warm Cake Stand"
+  },
+  "h_still_17": {
+    "ko": "시원한 케이크 접시",
+    "en": "Cool Cake Stand"
+  },
+  "h_still_18": {
+    "ko": "봄날 케이크 접시",
+    "en": "Spring Cake Stand"
+  },
+  "h_still_19": {
+    "ko": "가을 케이크 접시",
+    "en": "Autumn Cake Stand"
+  },
+  "h_still_20": {
+    "ko": "밤 케이크 접시",
+    "en": "Evening Cake Stand"
+  },
+  "h_ride_1_dawn": {
+    "ko": "새벽 범선",
+    "en": "Tall Ship at Dawn"
+  },
+  "h_ride_1_day": {
+    "ko": "한낮 범선",
+    "en": "Tall Ship at Midday"
+  },
+  "h_ride_1_sunset": {
+    "ko": "노을 범선",
+    "en": "Tall Ship at Sunset"
+  },
+  "h_ride_1_night": {
+    "ko": "달밤 범선",
+    "en": "Tall Ship at Moonlit"
+  },
+  "h_ride_1_dusk": {
+    "ko": "보랏빛 저녁 범선",
+    "en": "Tall Ship at Violet Dusk"
+  },
+  "h_ride_2_dawn": {
+    "ko": "새벽 증기 기관차",
+    "en": "Steam Train at Dawn"
+  },
+  "h_ride_2_day": {
+    "ko": "한낮 증기 기관차",
+    "en": "Steam Train at Midday"
+  },
+  "h_ride_2_sunset": {
+    "ko": "노을 증기 기관차",
+    "en": "Steam Train at Sunset"
+  },
+  "h_ride_2_night": {
+    "ko": "달밤 증기 기관차",
+    "en": "Steam Train at Moonlit"
+  },
+  "h_ride_2_dusk": {
+    "ko": "보랏빛 저녁 증기 기관차",
+    "en": "Steam Train at Violet Dusk"
+  },
+  "h_ride_3_dawn": {
+    "ko": "새벽 열기구 축제",
+    "en": "Balloon Festival at Dawn"
+  },
+  "h_ride_3_day": {
+    "ko": "한낮 열기구 축제",
+    "en": "Balloon Festival at Midday"
+  },
+  "h_ride_3_sunset": {
+    "ko": "노을 열기구 축제",
+    "en": "Balloon Festival at Sunset"
+  },
+  "h_ride_3_night": {
+    "ko": "달밤 열기구 축제",
+    "en": "Balloon Festival at Moonlit"
+  },
+  "h_ride_3_dusk": {
+    "ko": "보랏빛 저녁 열기구 축제",
+    "en": "Balloon Festival at Violet Dusk"
+  },
+  "h_ride_4_dawn": {
+    "ko": "새벽 구름 위 비행기",
+    "en": "Plane Above the Clouds at Dawn"
+  },
+  "h_ride_4_day": {
+    "ko": "한낮 구름 위 비행기",
+    "en": "Plane Above the Clouds at Midday"
+  },
+  "h_ride_4_sunset": {
+    "ko": "노을 구름 위 비행기",
+    "en": "Plane Above the Clouds at Sunset"
+  },
+  "h_ride_4_night": {
+    "ko": "달밤 구름 위 비행기",
+    "en": "Plane Above the Clouds at Moonlit"
+  },
+  "h_ride_4_dusk": {
+    "ko": "보랏빛 저녁 구름 위 비행기",
+    "en": "Plane Above the Clouds at Violet Dusk"
+  },
+  "h_garden_1": {
+    "ko": "장미 정원",
+    "en": "Rose Garden"
+  },
+  "h_garden_2": {
+    "ko": "장미 분수 정원",
+    "en": "Rose Fountain Garden"
+  },
+  "h_garden_3": {
+    "ko": "튤립 정원",
+    "en": "Tulip Garden"
+  },
+  "h_garden_4": {
+    "ko": "튤립 분수 정원",
+    "en": "Tulip Fountain Garden"
+  },
+  "h_garden_5": {
+    "ko": "수국 정원",
+    "en": "Hydrangea Garden"
+  },
+  "h_garden_6": {
+    "ko": "수국 분수 정원",
+    "en": "Hydrangea Fountain Garden"
+  },
+  "h_garden_7": {
+    "ko": "해바라기 정원",
+    "en": "Sunflower Garden"
+  },
+  "h_garden_8": {
+    "ko": "해바라기 분수 정원",
+    "en": "Sunflower Fountain Garden"
+  },
+  "h_garden_9": {
+    "ko": "라벤더 정원",
+    "en": "Lavender Garden"
+  },
+  "h_garden_10": {
+    "ko": "라벤더 분수 정원",
+    "en": "Lavender Fountain Garden"
+  },
+  "h_garden_11": {
+    "ko": "작약 정원",
+    "en": "Peony Garden"
+  },
+  "h_garden_12": {
+    "ko": "작약 분수 정원",
+    "en": "Peony Fountain Garden"
+  },
+  "h_garden_13": {
+    "ko": "코스모스 정원",
+    "en": "Cosmos Garden"
+  },
+  "h_garden_14": {
+    "ko": "코스모스 분수 정원",
+    "en": "Cosmos Fountain Garden"
+  },
+  "h_garden_15": {
+    "ko": "동백 정원",
+    "en": "Camellia Garden"
+  },
+  "h_garden_16": {
+    "ko": "동백 분수 정원",
+    "en": "Camellia Fountain Garden"
+  },
+  "h_garden_17": {
+    "ko": "데이지 정원",
+    "en": "Daisy Garden"
+  },
+  "h_garden_18": {
+    "ko": "데이지 분수 정원",
+    "en": "Daisy Fountain Garden"
+  },
+  "h_garden_19": {
+    "ko": "양귀비 정원",
+    "en": "Poppy Garden"
+  },
+  "h_garden_20": {
+    "ko": "양귀비 분수 정원",
+    "en": "Poppy Fountain Garden"
   }
 }

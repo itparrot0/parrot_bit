@@ -197,11 +197,11 @@ void main() {
     ]);
   });
 
-  test('출시 팩: 1000 스테이지, 모두 3줄 이상, 튜토리얼 1~2는 realtime false, id 중복 없음', () {
+  test('출시 팩: 2000 스테이지, 모두 3줄 이상, 튜토리얼 1~2는 realtime false, id 중복 없음', () {
     final pack = jsonDecode(packText) as List;
     Map<String, dynamic>? opt(int i) =>
         (pack[i] as Map<String, dynamic>)['options'] as Map<String, dynamic>?;
-    expect(pack.length, 1000);
+    expect(pack.length, 2000);
     expect(opt(0)?['realtime'], false);
     expect(opt(1)?['realtime'], false);
     expect(opt(2)?['realtime'], isNull);
@@ -209,7 +209,7 @@ void main() {
       pack.every((l) => ((l as Map)['lanes'] as List).length >= 3),
       isTrue,
     );
-    expect(pack.map((l) => (l as Map)['id']).toSet().length, 1000);
+    expect(pack.map((l) => (l as Map)['id']).toSet().length, 2000);
   });
 
   test('출시 팩 난이도 배치: 6스테이지부터 2~4스테이지마다 어려움(Hard·Super·Mega), 사이는 노말', () {
@@ -224,13 +224,15 @@ void main() {
     ];
     expect(hard.first - 5, inInclusiveRange(2, 4));
     for (var k = 1; k < hard.length; k++) {
+      // 1000 → 1001 경계는 두 구간을 따로 만들어 조금 더 벌어질 수 있다
+      final boundary = hard[k - 1] <= 1000 && hard[k] > 1000;
       expect(
         hard[k] - hard[k - 1],
-        inInclusiveRange(2, 4),
+        inInclusiveRange(2, boundary ? 8 : 4),
         reason: '${hard[k - 1]} → ${hard[k]}',
       );
     }
-    expect(1000 - hard.last, lessThanOrEqualTo(3));
+    expect(2000 - hard.last, lessThanOrEqualTo(3));
     // 입문(~30)은 Hard 만, 그 뒤로 세 등급이 모두 나온다
     expect(
       hard.where((n) => n <= 30).every((n) => diff[n - 1] == 'hard'),
@@ -298,9 +300,21 @@ void main() {
     );
     expect(gen.length, greaterThanOrEqualTo(370));
     expect(gen.where((a) => a.name.startsWith('c_')).length, 100);
+    expect(gen.where((a) => a.name.startsWith('h_')).length, 304);
     for (final a in gen) {
-      // 보통 그림 16칸, 복잡한 그림(c_) 22칸까지
-      final max = a.name.startsWith('c_') ? 22 : 16;
+      // 보통 그림 16칸, 복잡한 그림(c_) 22칸, 고해상도(h_) 32칸·800칸까지
+      final max = a.name.startsWith('h_')
+          ? 32
+          : a.name.startsWith('c_')
+          ? 22
+          : 16;
+      if (a.name.startsWith('h_')) {
+        expect(
+          a.rows.join().replaceAll('.', '').length,
+          inInclusiveRange(500, 800),
+          reason: a.name,
+        );
+      }
       expect(a.rows.length, lessThanOrEqualTo(max), reason: a.name);
       expect(a.rows.every((r) => r.length <= max), isTrue, reason: a.name);
       expect(a.palette.length, inInclusiveRange(2, 6), reason: a.name);
@@ -384,16 +398,22 @@ void main() {
         for (var i = 0; i < pack.length; i++)
           if (drops(pack[i] as Map).any((d) => d['hidden'] == true)) i + 1,
       ];
-      final targets = [for (var t = 100; t <= 1000; t += 18) t];
+      // 1~1000 과 1001~2000 을 따로 고른다 (목표 수열은 이어지고, 1000 은 두 구간 모두의 목표)
+      final targets = [
+        for (var t = 100; t <= 1000; t += 18) (t, 1, 1000),
+        for (var t = 1000; t <= 2000; t += 18) (t, 1001, 2000),
+      ];
       expect(mystery.length, targets.length);
       for (var k = 0; k < targets.length; k++) {
-        final n = mystery[k], t = targets[k];
+        final n = mystery[k];
+        final (t, lo, hi) = targets[k];
+        expect(n, inInclusiveRange(lo, hi));
         expect(diff[n - 1], isNot('normal'), reason: '$n');
         // 목표보다 더 가까운 노말 아닌 스테이지가 비어 있으면 안 된다 (같은 거리면 앞쪽)
         final dist = (n - t).abs();
         for (var m = t - dist; m <= t + dist; m++) {
           if ((m - t).abs() < dist || (m < n && (m - t).abs() == dist)) {
-            if (m >= 100 && m <= 1000 && !mystery.contains(m)) {
+            if (m >= math.max(100, lo) && m <= hi && !mystery.contains(m)) {
               expect(
                 diff[m - 1],
                 'normal',
@@ -415,7 +435,7 @@ void main() {
         }
       }
       expect(mystery.first, 100);
-      // 숨김은 표시만 바꾸므로 규칙·검증과 무관하다 (verify 가 1000개 모두 통과)
+      // 숨김은 표시만 바꾸므로 규칙·검증과 무관하다 (verify 가 2000개 모두 통과)
     },
   );
 
