@@ -1,5 +1,5 @@
 // 홈: 스테이지 시작 버튼 + 상점·스킨 뽑기 버튼 (2026-11-04). 지난 스테이지를 고르는 메뉴는 없다.
-// 위쪽에는 골드 잔액, 가운데에는 가장 최근에 완성한 그림(없으면 첫 그림의 실루엣).
+// 위쪽에는 햇빛(라이프, 왼쪽)과 골드 잔액(오른쪽), 가운데에는 가장 최근에 완성한 그림(없으면 첫 그림의 실루엣).
 // 뒤로 가기는 종료 확인.
 import 'dart:math' as math;
 
@@ -9,9 +9,11 @@ import 'package:flutter/services.dart';
 
 import '../app.dart';
 import '../game/game_painter.dart';
+import '../ui/sun.dart';
 import '../ui/theme.dart';
 import '../ui/widgets.dart';
 import 'gacha_screen.dart';
+import 'lives_panel.dart';
 import 'game_screen.dart';
 import 'shop_screen.dart';
 
@@ -28,6 +30,10 @@ class _HomeScreenState extends State<HomeScreen>
   final ValueNotifier<double> _time = ValueNotifier(0);
   bool _exitDialog = false;
 
+  /// 햇빛 패널 (배지를 누르거나 햇빛 없이 시작하려 할 때)
+  bool _lives = false;
+  bool _livesEmpty = false;
+
   @override
   void initState() {
     super.initState();
@@ -43,6 +49,15 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void _start(AppServices app, int n) {
+    // 햇빛이 없으면 시작하지 않고 채우기 패널 (시작할 때 1개를 쓰는 것은 게임 화면이 한다)
+    final lives = app.save.data.lives..settle(app.clock());
+    if (lives.count <= 0) {
+      setState(() {
+        _lives = true;
+        _livesEmpty = true;
+      });
+      return;
+    }
     Navigator.of(context).push(
       PageRouteBuilder<void>(
         pageBuilder: (_, _, _) => GameScreen(levelNo: n),
@@ -69,13 +84,36 @@ class _HomeScreenState extends State<HomeScreen>
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) setState(() => _exitDialog = !_exitDialog);
+        if (didPop) return;
+        setState(() {
+          if (_lives) {
+            _lives = false;
+          } else {
+            _exitDialog = !_exitDialog;
+          }
+        });
       },
       child: Scaffold(
         body: LogicalCanvas(
           builder: (context, top, bottom) => Stack(
             clipBehavior: Clip.none,
             children: [
+              // 햇빛 (왼쪽 위): 누르면 햇빛 패널
+              Positioned(
+                left: 50,
+                top: top + 60,
+                child: LivesBadge(
+                  key: const ValueKey('home-lives'),
+                  lives: app.save.data.lives,
+                  now: app.clock,
+                  fullText: app.t('livesFull'),
+                  nextText: app.t('livesNext'),
+                  onTap: () => setState(() {
+                    _lives = true;
+                    _livesEmpty = false;
+                  }),
+                ),
+              ),
               // 골드 잔액 (오른쪽 위)
               Positioned(
                 right: 50,
@@ -203,6 +241,12 @@ class _HomeScreenState extends State<HomeScreen>
                   onTap: () => _open(const GachaScreen()),
                 ),
               ),
+              if (_lives)
+                LivesPanel(
+                  app: app,
+                  empty: _livesEmpty,
+                  onClose: () => setState(() => _lives = false),
+                ),
               if (_exitDialog)
                 OverlayPanel(
                   key: const ValueKey('overlay-exit'),

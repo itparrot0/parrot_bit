@@ -23,6 +23,16 @@ final List<Level> pack = loadPackFile();
 
 class FakeAds implements AdProvider {
   int shown = 0;
+  int rewardedShown = 0;
+
+  /// 보상형 광고를 끝까지 봤다고 할지
+  bool rewardOk = true;
+  @override
+  Future<bool> showRewarded() async {
+    rewardedShown++;
+    return rewardOk;
+  }
+
   @override
   Future<void> init() async {}
   @override
@@ -36,7 +46,7 @@ class FakeAds implements AdProvider {
 }
 
 class Harness {
-  Harness({SaveData? data, List<Level>? levels, int seed = 1})
+  Harness({SaveData? data, List<Level>? levels, int seed = 1, DateTime? now})
     : ads = FakeAds(),
       sfx = SilentSfx(),
       store = MemoryStore() {
@@ -51,8 +61,13 @@ class Harness {
       haptics: Haptics()..enabled = false,
       rng: math.Random(seed),
       manualTick: true,
+      clock: () => this.now,
     );
+    if (now != null) this.now = now;
   }
+
+  /// 테스트 시계 (바꾸면 햇빛 회복이 그만큼 진행된다)
+  DateTime now = DateTime(2026, 11, 5, 12);
 
   final FakeAds ads;
   final SilentSfx sfx;

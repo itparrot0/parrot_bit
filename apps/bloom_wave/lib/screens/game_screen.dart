@@ -18,10 +18,12 @@ import '../game/game_controller.dart';
 import '../game/game_fx.dart';
 import '../game/game_layout.dart';
 import '../game/game_painter.dart';
+import '../ui/sun.dart';
 import '../ui/cell_sprites.dart';
 import '../ui/shapes.dart';
 import '../ui/theme.dart';
 import '../ui/widgets.dart';
+import 'lives_panel.dart';
 import 'settings_panel.dart';
 
 const _tutorial = ['wave', 'lanes', 'realtime', 'waiting', 'slots'];
@@ -33,7 +35,7 @@ const Map<e.Difficulty, (String, Color)> difficultyAlert = {
   e.Difficulty.megaHard: ('diffMegaHard', Color(0xFF8E4EC6)),
 };
 
-enum _Panel { none, intro, pause, settings, clear, fail }
+enum _Panel { none, intro, pause, settings, clear, fail, lives }
 
 class GameScreen extends StatefulWidget {
   const GameScreen({super.key, required this.levelNo});
@@ -58,6 +60,12 @@ class GameScreenState extends State<GameScreen>
   final List<String> _intro = [];
   bool _ended = false;
   bool _leaving = false;
+
+  /// 이번 도전에 햇빛을 냈나 (완성하면 돌려받는다)
+  bool _paid = false;
+
+  /// 햇빛 패널을 닫으면 돌아갈 패널 (실패 / 일시정지)
+  _Panel _livesBack = _Panel.fail;
 
   /// 이번 완성으로 받은 골드
   int earned = 0;
@@ -88,6 +96,8 @@ class GameScreenState extends State<GameScreen>
     _inited = true;
     app = AppServices.of(context);
     level = app.levels[widget.levelNo - 1];
+    // 햇빛 1개를 내고 시작 (홈에서 0개면 들어오지 않는다. 혹시 없으면 내지 않고 그냥 한다)
+    _paid = app.save.spendLife(app.clock());
     // 칸 애니메이션 시트 (보통 앱 시작 때 이미 불러 둠). 준비 전에는 코드 그리기로 그린다
     CellSprites.instance.ensure(app.save.data.skin.id);
     controller = GameController(
@@ -419,8 +429,21 @@ class GameScreenState extends State<GameScreen>
     fx.previewColor = null;
   }
 
-  void _restart() {
+  /// 다시 하기 = 새 도전: 햇빛 1개를 낸다. 없으면 햇빛 패널을 띄우고 false
+  bool _restart() {
+    if (!app.save.spendLife(app.clock())) {
+      _cancelPress();
+      controller.pause();
+      setState(() {
+        _livesBack = _panel == _Panel.pause ? _Panel.pause : _Panel.fail;
+        _panel = _Panel.lives;
+      });
+      return false;
+    }
+    _paid = true;
+    app.changed();
     controller.restart();
+    return true;
   }
 
   // ---------- 패널 ----------
@@ -465,6 +488,10 @@ class GameScreenState extends State<GameScreen>
     _ended = true;
     _cancelPress();
     if (status == e.Status.cleared) {
+      if (_paid) {
+        _paid = false;
+        app.save.refundLife(app.clock());
+      }
       app.sfx.clear();
       app.haptics.success();
       fx.celebrate(app.rng);
@@ -527,6 +554,8 @@ class GameScreenState extends State<GameScreen>
         _showPause();
       case _Panel.fail:
         _toHome();
+      case _Panel.lives:
+        setState(() => _panel = _livesBack);
     }
   }
 
@@ -738,6 +767,13 @@ class GameScreenState extends State<GameScreen>
     ],
     _Panel.clear => [_clearPanel(app)],
     _Panel.fail => [_failPanel(app)],
+    _Panel.lives => [
+      LivesPanel(
+        app: app,
+        empty: true,
+        onClose: () => setState(() => _panel = _livesBack),
+      ),
+    ],
   };
 
   Widget _introPanel(AppServices app) {
@@ -926,8 +962,7 @@ class GameScreenState extends State<GameScreen>
           textColor: C.ink,
           onClick: app.sfx.click,
           onTap: () {
-            _restart();
-            _resume();
+            if (_restart()) _resume();
           },
         ),
         const SizedBox(height: 30),
@@ -1024,7 +1059,7 @@ class GameScreenState extends State<GameScreen>
   Widget _failPanel(AppServices app) => OverlayPanel(
     key: const ValueKey('overlay-fail'),
     w: 860,
-    h: 700,
+    h: 820,
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -1036,13 +1071,27 @@ class GameScreenState extends State<GameScreen>
           color: C.inkSoft,
           weight: FontWeight.w500,
         ),
-        const SizedBox(height: 70),
+        const SizedBox(height: 40),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const SunIcon(size: 64),
+            const SizedBox(width: 12),
+            Label(
+              app.t('livesLeft', {'n': app.save.data.lives.count}),
+              key: const ValueKey('fail-lives'),
+              size: 38,
+              color: C.inkSoft,
+            ),
+          ],
+        ),
+        const SizedBox(height: 40),
         PillButton(
           app.t('retry'),
           key: const ValueKey('btn-retry'),
           w: 600,
           onClick: app.sfx.click,
-          onTap: _restart,
+          onTap: () => _restart(),
         ),
         const SizedBox(height: 30),
         PillButton(

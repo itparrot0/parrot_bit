@@ -1,5 +1,7 @@
 // 광고: 스테이지 완성 후 전면 광고 1회(실패 시에는 없음) + 스테이지 플레이 화면 아래 배너(2026-11-04).
 // 광고 제거 구매자는 둘 다 없다.
+// 보상형 광고(2026-11-05): 햇빛을 가득 채우는 선택 광고 (하루 1번). 사용자가 고를 때만 보여 주므로 광고 제거 구매자도 쓸 수 있다.
+// 광고 길이(약 15~30초)는 광고 네트워크가 정한다.
 // 모바일은 AdMob(google_mobile_ads), 웹·데스크톱(개발용)은 화면 안의 가짜 광고로 흐름만 확인한다.
 //
 // 출시 전 할 일: AdMob 콘솔에서 앱/광고 단위를 만들고 아래 ID 와
@@ -22,6 +24,10 @@ class AdConfig {
   static const bannerAndroid = 'ca-app-pub-3940256099942544/9214589741';
   static const bannerIos = 'ca-app-pub-3940256099942544/2435281174';
 
+  /// Google 테스트 보상형 광고 단위 (Android / iOS)
+  static const rewardedAndroid = 'ca-app-pub-3940256099942544/5224354917';
+  static const rewardedIos = 'ca-app-pub-3940256099942544/1712485313';
+
   /// 배너를 받기 전·받지 못했을 때 자리를 비워 두는 높이(dp). 배너가 들어와도 판이 밀리지 않게 한다
   static const bannerReserve = 50.0;
 
@@ -37,6 +43,9 @@ abstract class AdProvider {
 
   /// 게임 화면 아래 배너 위젯 (광고를 붙일 수 없으면 null)
   Widget? banner();
+
+  /// 보상형 광고를 보여 준다. 끝까지 봐서 보상을 받으면 true (못 받거나 실패하면 false)
+  Future<bool> showRewarded();
 }
 
 class AdMobProvider implements AdProvider {
@@ -115,6 +124,59 @@ class AdMobProvider implements AdProvider {
     await closed.future.timeout(const Duration(seconds: 60), onTimeout: () {});
     unawaited(_prepare()); // 다음 광고 미리 받기
   }
+
+  String get _rewardedUnit => defaultTargetPlatform == TargetPlatform.iOS
+      ? AdConfig.rewardedIos
+      : AdConfig.rewardedAndroid;
+
+  @override
+  Future<bool> showRewarded() async {
+    final loaded = Completer<RewardedAd?>();
+    try {
+      RewardedAd.load(
+        adUnitId: _rewardedUnit,
+        request: const AdRequest(),
+        rewardedAdLoadCallback: RewardedAdLoadCallback(
+          onAdLoaded: (ad) {
+            if (!loaded.isCompleted) loaded.complete(ad);
+          },
+          onAdFailedToLoad: (_) {
+            if (!loaded.isCompleted) loaded.complete(null);
+          },
+        ),
+      );
+    } catch (_) {
+      return false;
+    }
+    final ad = await loaded.future.timeout(
+      const Duration(seconds: 10),
+      onTimeout: () => null,
+    );
+    if (ad == null) return false;
+    var earned = false;
+    final closed = Completer<void>();
+    void finish() {
+      if (!closed.isCompleted) closed.complete();
+    }
+
+    ad.fullScreenContentCallback = FullScreenContentCallback(
+      onAdDismissedFullScreenContent: (a) {
+        a.dispose();
+        finish();
+      },
+      onAdFailedToShowFullScreenContent: (a, _) {
+        a.dispose();
+        finish();
+      },
+    );
+    try {
+      await ad.show(onUserEarnedReward: (_, _) => earned = true);
+    } catch (_) {
+      finish();
+    }
+    await closed.future.timeout(const Duration(minutes: 2), onTimeout: () {});
+    return earned;
+  }
 }
 
 /// 개발용 가짜 광고: 화면을 덮는 패널을 띄운다 (show 는 화면 쪽이 넘겨준다)
@@ -131,6 +193,13 @@ class MockAdProvider implements AdProvider {
     shown++;
     return show();
   }
+
+  @override
+  Future<bool> showRewarded() async {
+    shown++;
+    await show();
+    return true;
+  }
 }
 
 /// 스테이지 완성 뒤 광고 주기 관리 + 배너
@@ -141,6 +210,15 @@ class Ads {
 
   /// 스테이지 플레이 화면 아래 배너. 광고 제거 구매자는 null
   Widget? banner({required bool noAds}) => noAds ? null : provider.banner();
+
+  /// 보상형 광고 (실패는 false)
+  Future<bool> rewarded() async {
+    try {
+      return await provider.showRewarded();
+    } catch (_) {
+      return false;
+    }
+  }
 
   /// 광고 제거 구매자이거나 주기가 아니면 바로 끝난다. 보여 줬으면 true
   Future<bool> afterClear({required bool noAds}) async {

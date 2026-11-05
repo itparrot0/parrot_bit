@@ -1,6 +1,19 @@
 // 화면 문구 (한국어 / 영어). 키를 바꾸면 두 언어를 함께 바꾼다 — 테스트가 키 짝을 확인한다.
 
 const Map<String, String> ko = {
+  'lives': '햇빛',
+  'livesFull': '가득',
+  'livesNext': '{t} 뒤 +1',
+  'livesEmptyTitle': '햇빛이 없어요',
+  'livesInfo': '스테이지를 시작하면 햇빛 1개를 써요.\n완성하면 돌려받고, 20분마다 1개씩 차요. (최대 5개)',
+  'livesRefillGold': '{n} 골드로 가득 채우기',
+  'livesRefillAd': '광고 보고 가득 채우기',
+  'livesAdLeft': '광고 충전 하루 1번 (아침 6시 초기화)',
+  'livesAdUsed': '오늘 광고 충전을 썼어요 · 아침 6시에 다시',
+  'livesAdFailed': '광고를 끝까지 봐야 채워져요',
+  'livesFilled': '햇빛이 가득 찼어요!',
+  'livesNoGold': '골드가 모자라요',
+  'livesLeft': '남은 햇빛 {n}개',
   'x2': 'x2',
   'x2Empty': 'x2 시간을 다 썼어요',
   'item_slot': '슬롯 추가',
@@ -110,6 +123,20 @@ const Map<String, String> ko = {
 };
 
 const Map<String, String> en = {
+  'lives': 'Sunshine',
+  'livesFull': 'Full',
+  'livesNext': '+1 in {t}',
+  'livesEmptyTitle': 'Out of sunshine',
+  'livesInfo':
+      'Starting a stage uses 1 sunshine.\nYou get it back when you finish, and 1 refills every 20 minutes. (max 5)',
+  'livesRefillGold': 'Refill for {n} gold',
+  'livesRefillAd': 'Watch an ad to refill',
+  'livesAdLeft': 'Ad refill once a day (resets at 6 AM)',
+  'livesAdUsed': 'Ad refill used today · back at 6 AM',
+  'livesAdFailed': 'Watch the whole ad to refill',
+  'livesFilled': 'Sunshine refilled!',
+  'livesNoGold': 'Not enough gold',
+  'livesLeft': '{n} sunshine left',
   'x2': 'x2',
   'x2Empty': 'Out of x2 time',
   'item_slot': 'Extra Slot',

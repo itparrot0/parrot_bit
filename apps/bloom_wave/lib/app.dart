@@ -27,7 +27,9 @@ class AppServices extends ChangeNotifier {
     math.Random? rng,
     this.version = '1.0.0',
     this.manualTick = false,
+    DateTime Function()? clock,
   }) : rng = rng ?? math.Random(),
+       clock = clock ?? DateTime.now,
        firstSimilar = firstSimilarLevel(levels),
        firstMystery =
            levels.indexWhere(
@@ -45,6 +47,9 @@ class AppServices extends ChangeNotifier {
   /// 골드 지급량 같은 무작위 값 (테스트는 시드를 고정한다)
   final math.Random rng;
   final String version;
+
+  /// 지금 시각 (햇빛 회복·광고 충전 날짜). 테스트는 시계를 바꿔 끼운다
+  final DateTime Function() clock;
 
   /// true 면 게임이 타이머로 틱을 돌리지 않는다 (테스트용)
   final bool manualTick;

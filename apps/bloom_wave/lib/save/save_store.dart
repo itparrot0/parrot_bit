@@ -6,6 +6,7 @@
 //  - schema 4 (2026-11-04): skins — 스킨별 모은 퍼즐 조각(pieces), 장착한 스킨(equipped).
 //    해금 여부는 따로 저장하지 않고 "조각을 모두 모았나"로 계산한다 (economy/skins.dart)
 //  - schema 5 (2026-11-04): items(아이템 개수·해금·튜토리얼 완료), x2(남은 시간·켜짐). 설정의 웨이브 속도는 x2 로 바뀌어 없앤다
+//  - schema 6 (2026-11-05): lives — 햇빛 개수·회복 기준 시각·광고 충전한 날 (economy/lives.dart). 옛 저장은 가득 찬 상태로 시작
 import 'dart:convert';
 import 'dart:math' as math;
 
@@ -13,10 +14,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../economy/gacha.dart';
 import '../economy/items.dart';
+import '../economy/lives.dart';
 import '../economy/skins.dart';
 
 const saveKey = 'bloomwave.save';
-const saveSchema = 5;
+const saveSchema = 6;
 
 class Settings {
   const Settings({
@@ -68,7 +70,9 @@ class SaveData {
     Set<ItemKind>? itemTutorialDone,
     this.x2Ms = x2InitialMs,
     this.x2On = false,
-  }) : cleared = cleared ?? <String>{},
+    Lives? lives,
+  }) : lives = lives ?? Lives(),
+       cleared = cleared ?? <String>{},
        skinPieces = skinPieces ?? <String, Set<int>>{},
        items = items ?? {for (final k in ItemKind.values) k: 0},
        itemsUnlocked = itemsUnlocked ?? <ItemKind>{},
@@ -105,6 +109,9 @@ class SaveData {
   /// x2 남은 시간(ms) / 켜 둠
   int x2Ms;
   bool x2On;
+
+  /// 햇빛 (라이프)
+  final Lives lives;
 
   int itemCount(ItemKind k) => items[k] ?? 0;
 
@@ -144,6 +151,7 @@ class SaveData {
       ],
     },
     'x2': {'ms': x2Ms, 'on': x2On},
+    'lives': lives.toJson(),
   };
 }
 
@@ -236,6 +244,12 @@ SaveData migrate(Object? raw, {String lang = 'ko'}) {
     if (ms is num && ms >= 0) d.x2Ms = ms.floor();
     d.x2On = x2['on'] == true && d.x2Ms > 0;
   }
+  // schema 5 → 6: 햇빛 가득
+  final lv = Lives.fromJson(raw['lives']);
+  d.lives
+    ..count = lv.count
+    ..anchorMs = lv.anchorMs
+    ..adDay = lv.adDay;
   return d;
 }
 
@@ -339,6 +353,38 @@ class SaveStore {
     final s = skinById(id);
     if (s == null || !data.isUnlocked(s)) return false;
     data.equippedSkin = id;
+    await save();
+    return true;
+  }
+
+  /// 스테이지 시작: 햇빛 1개 쓰기 (바로 반영, 저장은 뒤에서). 없으면 false
+  bool spendLife(DateTime now) {
+    if (!data.lives.spend(now)) return false;
+    save();
+    return true;
+  }
+
+  /// 스테이지 완성: 시작할 때 쓴 햇빛을 돌려받는다
+  Future<void> refundLife(DateTime now) async {
+    data.lives.refund(now);
+    await save();
+  }
+
+  /// 골드로 햇빛 가득 채우기. 이미 가득이거나 골드가 모자라면 false
+  Future<bool> refillLivesWithGold(DateTime now) async {
+    data.lives.settle(now);
+    if (data.lives.full || data.gold < refillGoldCost) return false;
+    data.gold -= refillGoldCost;
+    data.lives.fill();
+    await save();
+    return true;
+  }
+
+  /// 광고를 끝까지 본 뒤: 햇빛 가득 + 오늘 광고 충전 사용. 오늘 이미 썼으면 false
+  Future<bool> refillLivesWithAd(DateTime now) async {
+    if (!data.lives.adAvailable(now)) return false;
+    data.lives.fill();
+    data.lives.adDay = adDayKey(now);
     await save();
     return true;
   }
