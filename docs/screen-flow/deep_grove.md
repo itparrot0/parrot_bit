@@ -193,6 +193,7 @@ PRD §7 지표에 쓰는 이벤트가 어디서 나가는지.
 | 이벤트 | 위치 |
 |--------|------|
 | `session_start` | 앱 실행·포그라운드 복귀 |
-| `board_expanded` (방향) | `expand_confirm`에서 확장 확정 |
-| `cave_entered` | 첫 하향 확장 (`cave_intro` 표시 시점) |
+| `board_expanded` (지대, 열린 칸 수) | 칸이 열린 순간 (바로 열기·시트 확정 모두) |
+| `cave_entered` | 첫 동굴 칸이 열린 순간 (`cave_intro` 표시 시점) |
 | `rewarded_ad_completed` (지점: welcome_back / speedup) | 보상 지급 시점 |
+| `piece_discarded` (산출원, 체인) | 산출원 버리기 확인 시점 |
