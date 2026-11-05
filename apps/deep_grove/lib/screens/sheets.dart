@@ -2,40 +2,65 @@ import 'package:core_ui/core_ui.dart';
 import 'package:flutter/material.dart';
 
 import '../domain/board_model.dart';
+import '../economy/ad_rewards.dart';
 import '../economy/economy.dart';
 import '../game/grove_game.dart';
 
 String costText(Cost cost) =>
     cost.entries.map((e) => '${resourceLabel(e.key)} ${e.value}').join(' · ');
 
-/// 복귀 보상 (화면 흐름 §5 `welcome_back`). 닫는 방법과 상관없이 호출한 쪽이 받는다 —
-/// 뒤로가기로 닫아도 쌓인 자원을 잃지 않는다.
+/// 복귀 보상 (화면 흐름 §5 `welcome_back`). 광고를 보고 2배로 받기로 하면 true.
 ///
-/// 창고에 들어갈 양과 넘쳐서 버려질 양을 미리 보여 준다.
-Future<void> showWelcomeBack(
+/// 닫는 방법과 상관없이 호출한 쪽이 받는다 — 뒤로가기로 닫아도 1배로 받는다.
+/// 창고에 들어갈 양과 넘쳐서 버려질 양을 1배·2배 모두 미리 보여 준다.
+Future<bool> showWelcomeBack(
   BuildContext context, {
   required Map<Resource, int> gain,
   required Map<Resource, int> freeSpace,
-}) => showModalBottomSheet<void>(
-  context: context,
-  builder: (context) => _SheetBody(
-    title: '자리를 비운 동안 쌓였어요',
-    children: [
-      for (final MapEntry(:key, :value) in gain.entries)
-        _Row(
-          label: resourceLabel(key),
-          value: (freeSpace[key] ?? 0) >= value
-              ? '+$value'
-              : '+${freeSpace[key]} (창고 가득 — ${value - freeSpace[key]!} 버려짐)',
+  required int multiplier,
+  required int adsLeftToday,
+}) async {
+  int fit(Resource r, int amount) =>
+      amount <= (freeSpace[r] ?? 0) ? amount : freeSpace[r] ?? 0;
+  final extra = gain.entries.fold<int>(
+    0,
+    (sum, e) => sum + fit(e.key, e.value * multiplier) - fit(e.key, e.value),
+  );
+  final adLabel = switch ((extra, adsLeftToday)) {
+    (_, 0) => '오늘 광고를 다 봤어요',
+    (0, _) => '창고가 가득 차서 더 받을 수 없어요',
+    _ => '광고 보고 $multiplier배 (+$extra)',
+  };
+  final result = await showModalBottomSheet<bool>(
+    context: context,
+    builder: (context) => _SheetBody(
+      title: '자리를 비운 동안 쌓였어요',
+      children: [
+        for (final MapEntry(:key, :value) in gain.entries)
+          _Row(
+            label: resourceLabel(key),
+            value: fit(key, value) == value
+                ? '+$value'
+                : '+${fit(key, value)} (창고 가득 — ${value - fit(key, value)} 버려짐)',
+          ),
+        const SizedBox(height: AppSpacing.md),
+        FilledButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text('받기'),
         ),
-      const SizedBox(height: AppSpacing.md),
-      FilledButton(
-        onPressed: () => Navigator.of(context).pop(),
-        child: const Text('받기'),
-      ),
-    ],
-  ),
-);
+        const SizedBox(height: AppSpacing.sm),
+        OutlinedButton.icon(
+          onPressed: extra > 0 && adsLeftToday > 0
+              ? () => Navigator.of(context).pop(true)
+              : null,
+          icon: const Icon(Icons.play_circle_outline),
+          label: Text(adLabel),
+        ),
+      ],
+    ),
+  );
+  return result ?? false;
+}
 
 /// 확장 확인 (화면 흐름 §5 `expand_confirm`). 확장하기로 하면 true.
 Future<bool> showExpandConfirm(
@@ -85,17 +110,23 @@ Future<void> showStorage(
   required BoardModel board,
   required Economy Function() economy,
   required VoidCallback onUpgrade,
+  required AdRewards Function() ads,
+  required DateTime Function() now,
+  required Future<void> Function() onBoost,
 }) => showModalBottomSheet<void>(
   context: context,
   builder: (context) => StatefulBuilder(
     builder: (context, setState) {
       final e = economy();
+      final a = ads();
+      final t = now();
+      final boost = a.rateMultiplier(t);
       final perMinute = <Resource, double>{};
       for (final (pos, producer) in board.producers) {
         perMinute.update(
           producer.chain.resource,
-          (v) => v + board.rateAt(pos, producer) * 60,
-          ifAbsent: () => board.rateAt(pos, producer) * 60,
+          (v) => v + board.rateAt(pos, producer) * boost * 60,
+          ifAbsent: () => board.rateAt(pos, producer) * boost * 60,
         );
       }
       final upgradeCost = e.storageUpgradeCost;
@@ -126,6 +157,30 @@ Future<void> showStorage(
             )
           else
             const Text('창고가 최대 크기예요.'),
+          const Divider(height: AppSpacing.xl),
+          if (a.boostActive(t))
+            Text(
+              '산출 ${a.config.boostMultiplier.toStringAsFixed(0)}배 — '
+              '남은 ${_minutes(a.boostRemaining(t))}',
+            ),
+          const SizedBox(height: AppSpacing.sm),
+          OutlinedButton.icon(
+            onPressed: a.canWatch(t)
+                ? () async {
+                    await onBoost();
+                    setState(() {});
+                  }
+                : null,
+            icon: const Icon(Icons.play_circle_outline),
+            label: Text(
+              a.canWatch(t)
+                  ? '광고 보고 산출 ${a.config.boostMultiplier.toStringAsFixed(0)}배 '
+                        '${a.config.boostDuration.inMinutes}분'
+                        '${a.boostActive(t) ? ' 연장' : ''}'
+                        ' (오늘 ${a.remainingToday(t)}회 남음)'
+                  : '오늘 광고를 다 봤어요',
+            ),
+          ),
         ],
       );
     },
@@ -195,3 +250,10 @@ class _Row extends StatelessWidget {
     );
   }
 }
+
+/// 남은 시간 표시 (분 단위 올림).
+String _minutes(Duration d) => '${(d.inSeconds / 60).ceil()}분';
+
+/// 상단 바 가속 표시에도 쓴다.
+String boostLabel(AdRewards ads, DateTime now) =>
+    '${ads.config.boostMultiplier.toStringAsFixed(0)}배 ${_minutes(ads.boostRemaining(now))}';

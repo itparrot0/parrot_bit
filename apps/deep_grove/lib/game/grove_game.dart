@@ -25,6 +25,9 @@ abstract interface class GroveBridge {
   /// 지금 창고의 자원별 빈 공간. 산출은 여기까지만 쌓인다.
   Map<Resource, int> freeSpace();
 
+  /// 지금 산출 배율 (광고 산출 가속 중이면 2).
+  double rateMultiplier();
+
   /// 거둔 자원을 창고에 넣는다. 실제로 들어간 양을 돌려준다.
   int deposit(Resource resource, int amount);
 
@@ -94,7 +97,11 @@ class GroveGame extends FlameGame {
     super.update(dt);
     _sinceTick += dt;
     if (_sinceTick >= _tickSeconds) {
-      board.advance(_sinceTick, bridge.freeSpace());
+      board.advance(
+        _sinceTick,
+        bridge.freeSpace(),
+        multiplier: bridge.rateMultiplier(),
+      );
       _sinceTick = 0;
     }
   }

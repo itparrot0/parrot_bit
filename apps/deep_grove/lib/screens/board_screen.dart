@@ -50,10 +50,18 @@ class _BoardViewState extends ConsumerState<_BoardView>
 
   DateTime? _backgroundedAt;
 
+  /// 가속 남은 시간 표시를 갱신한다.
+  Timer? _clockTick;
+
+  DateTime _now() => ref.read(clockProvider)();
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _clockTick = Timer.periodic(const Duration(seconds: 20), (_) {
+      if (mounted) setState(() {});
+    });
     ref.read(analyticsProvider).logEvent('session_start');
     final gain = widget.loaded.idleGain;
     if (gain.isNotEmpty) {
@@ -64,6 +72,7 @@ class _BoardViewState extends ConsumerState<_BoardView>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _clockTick?.cancel();
     super.dispose();
   }
 
@@ -82,8 +91,9 @@ class _BoardViewState extends ConsumerState<_BoardView>
           return;
         }
         ref.read(analyticsProvider).logEvent('session_start');
-        final seconds = now.difference(since).inMilliseconds / 1000;
-        final gain = _board.advanceAway(seconds, freeSpace());
+        final gain = ref
+            .read(adRewardsProvider)
+            .advanceAway(_board, since, now, freeSpace());
         if (gain.isNotEmpty) {
           _welcomeBack(gain);
         }
@@ -93,8 +103,44 @@ class _BoardViewState extends ConsumerState<_BoardView>
   }
 
   Future<void> _welcomeBack(Map<Resource, int> gain) async {
-    await showWelcomeBack(context, gain: gain, freeSpace: freeSpace());
-    ref.read(economyProvider.notifier).depositAll(_game.collectAll());
+    final ads = ref.read(adRewardsProvider);
+    final wantsAd = await showWelcomeBack(
+      context,
+      gain: gain,
+      freeSpace: freeSpace(),
+      multiplier: ads.config.welcomeMultiplier,
+      adsLeftToday: ads.remainingToday(_now()),
+    );
+    var multiplier = 1;
+    if (wantsAd && await _watchAd('welcome_back')) {
+      multiplier = ads.config.welcomeMultiplier;
+      ref.read(adRewardsProvider.notifier).recordWatch(_now());
+    }
+    final collected = _game.collectAll();
+    ref.read(economyProvider.notifier).depositAll({
+      for (final MapEntry(:key, :value) in collected.entries)
+        key: value * multiplier,
+    });
+  }
+
+  /// 보상형 광고 한 편. 끝까지 봤으면 true.
+  Future<bool> _watchAd(String placement) async {
+    final earned = await ref.read(rewardedAdsProvider).show();
+    if (earned) {
+      ref.read(analyticsProvider).logEvent('rewarded_ad_completed', {
+        'placement': placement,
+      });
+    }
+    return earned;
+  }
+
+  Future<void> _boost() async {
+    if (!ref.read(adRewardsProvider).canWatch(_now())) {
+      return;
+    }
+    if (await _watchAd('speedup')) {
+      ref.read(adRewardsProvider.notifier).startBoost(_now());
+    }
   }
 
   void _save() {
@@ -105,7 +151,8 @@ class _BoardViewState extends ConsumerState<_BoardView>
             GroveSave(
               board: _board,
               economy: ref.read(economyProvider),
-              savedAt: ref.read(clockProvider)(),
+              ads: ref.read(adRewardsProvider),
+              savedAt: _now(),
             ),
           ),
     );
@@ -115,6 +162,9 @@ class _BoardViewState extends ConsumerState<_BoardView>
 
   @override
   Map<Resource, int> freeSpace() => ref.read(economyProvider).freeSpace;
+
+  @override
+  double rateMultiplier() => ref.read(adRewardsProvider).rateMultiplier(_now());
 
   @override
   int deposit(Resource resource, int amount) =>
@@ -184,10 +234,13 @@ class _BoardViewState extends ConsumerState<_BoardView>
   @override
   Widget build(BuildContext context) {
     final economy = ref.watch(economyProvider);
+    final ads = ref.watch(adRewardsProvider);
+    final now = _now();
     ref.listen(economyProvider, (_, _) {
       _game.refreshHandles();
       _save();
     });
+    ref.listen(adRewardsProvider, (_, _) => _save());
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -212,6 +265,13 @@ class _BoardViewState extends ConsumerState<_BoardView>
                         ),
                       ),
                   const Spacer(),
+                  if (ads.boostActive(now))
+                    ActionChip(
+                      key: const ValueKey('boost-chip'),
+                      avatar: const Icon(Icons.bolt, size: 18),
+                      label: Text(boostLabel(ads, now)),
+                      onPressed: _openStorage,
+                    ),
                   IconButton(
                     onPressed: () => context.goNamed('shop'),
                     icon: const Icon(Icons.storefront_outlined),
@@ -237,6 +297,9 @@ class _BoardViewState extends ConsumerState<_BoardView>
     board: _board,
     economy: () => ref.read(economyProvider),
     onUpgrade: () => ref.read(economyProvider.notifier).upgradeStorage(),
+    ads: () => ref.read(adRewardsProvider),
+    now: _now,
+    onBoost: _boost,
   );
 }
 

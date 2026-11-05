@@ -1,10 +1,16 @@
 import 'package:core_analytics/core_analytics.dart';
 import 'package:core_storage/core_storage.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/board_model.dart';
+import '../platform/ads.dart';
 import '../save/save_repository.dart';
+import 'ad_rewards.dart';
 import 'economy.dart';
+
+/// 앱 전체 Navigator. 가짜 광고가 이 위에 창을 띄운다.
+final rootNavigatorKey = GlobalKey<NavigatorState>();
 
 /// 지금 테마. 테마가 늘면 진행 상태에서 고른다.
 final groveThemeProvider = Provider<GroveTheme>((ref) => forestCaveTheme);
@@ -60,4 +66,23 @@ class EconomyNotifier extends Notifier<Economy> {
   void upgradeStorage() => state = state.upgradeStorage();
 
   void markCleared() => state = state.markCleared();
+}
+
+/// 보상형 광고 재생기. 테스트에서 바꿔 끼운다.
+final rewardedAdsProvider = Provider<RewardedAds>(
+  (ref) => platformRewardedAds(rootNavigatorKey),
+);
+
+/// 광고 시청 기록·산출 가속 (아웃게임 상태). [economyProvider]와 같은 순서로 읽는다.
+final adRewardsProvider = NotifierProvider<AdRewardsNotifier, AdRewards>(
+  AdRewardsNotifier.new,
+);
+
+class AdRewardsNotifier extends Notifier<AdRewards> {
+  @override
+  AdRewards build() => ref.watch(loadedGroveProvider).requireValue.ads;
+
+  void recordWatch(DateTime now) => state = state.recordWatch(now);
+
+  void startBoost(DateTime now) => state = state.startBoost(now);
 }

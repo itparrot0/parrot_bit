@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:core_storage/core_storage.dart';
 import 'package:deep_grove/domain/board_model.dart';
+import 'package:deep_grove/economy/ad_rewards.dart';
 import 'package:deep_grove/economy/economy.dart';
 import 'package:deep_grove/save/save_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -64,5 +65,48 @@ void main() {
     });
     final loaded = await SaveRepository(store).load(forestCaveTheme, now: t0);
     expect(loaded.isNew, isTrue);
+  });
+
+  test('광고 산출 가속이 걸린 채 저장했으면 오프라인 산출에도 남은 가속을 반영한다', () async {
+    final store = InMemoryKeyValueStore();
+    final board = emptyBoard()
+      ..dig()
+      ..placeItem(at(0, 4), const Item(woodChain, 5)); // 동굴: 20초에 1
+    await SaveRepository(store).write(
+      GroveSave(
+        board: board,
+        economy: const Economy(theme: forestCaveTheme, storageLevel: 2),
+        ads: const AdRewards().startBoost(
+          t0.subtract(const Duration(minutes: 20)),
+        ),
+        savedAt: t0,
+      ),
+    );
+    // 가속 10분 남음: 10분 2배(60) + 10분 1배(30) = 90, 창고 120
+    final loaded = await SaveRepository(
+      store,
+    ).load(forestCaveTheme, now: t0.add(const Duration(minutes: 20)));
+    expect(loaded.idleGain, {Resource.wood: 90});
+    expect(loaded.ads.remainingToday(t0), 5);
+  });
+
+  test('광고 기록이 없는 옛 저장도 읽는다', () async {
+    final store = InMemoryKeyValueStore();
+    final repo = SaveRepository(store);
+    await repo.write(
+      GroveSave(
+        board: emptyBoard(),
+        economy: const Economy(theme: forestCaveTheme),
+        savedAt: t0,
+      ),
+    );
+    final raw = (await store.getString(
+      SaveRepository.key,
+    ))!.replaceFirst(RegExp(r',"ads":\{[^}]*\}'), '');
+    expect(raw.contains('"ads"'), isFalse);
+    await store.setString(SaveRepository.key, raw);
+    final loaded = await repo.load(forestCaveTheme, now: t0);
+    expect(loaded.isNew, isFalse);
+    expect(loaded.ads.remainingToday(t0), 6);
   });
 }

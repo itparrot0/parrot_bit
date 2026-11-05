@@ -15,6 +15,10 @@ class FakeBridge implements GroveBridge {
   Economy economy = const Economy(theme: forestCaveTheme);
   final List<ExpandDirection> requested = [];
   int changes = 0;
+  double multiplier = 1;
+
+  @override
+  double rateMultiplier() => multiplier;
 
   @override
   Map<Resource, int> freeSpace() => economy.freeSpace;
@@ -129,6 +133,14 @@ void main() {
     board.advance(40, plenty); // 숲 보너스 1.5배 → 3
     await tapCell(tester, game, at(0, 0));
     expect(bridge.economy.amountOf(Resource.wood), 3);
+  });
+
+  testWidgets('브리지 배율이 2면 게임 틱 산출도 2배다', (tester) async {
+    final board = emptyBoard()..placeItem(at(0, 0), const Item(woodChain, 5));
+    final (game, bridge) = await pumpGame(tester, board: board);
+    bridge.multiplier = 2;
+    game.update(10); // 숲 보너스 1.5 × 가속 2 × 10초 / 20초 = 1.5
+    expect(board.pending[Resource.wood], closeTo(1.5, 0.05));
   });
 
   testWidgets('생성기를 탭하면 빈 칸에 씨앗이 생긴다', (tester) async {

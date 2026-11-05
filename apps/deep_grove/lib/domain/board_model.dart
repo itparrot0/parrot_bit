@@ -198,8 +198,12 @@ class BoardModel {
   ///
   /// 자원별로 (창고 빈 공간 [freeSpace] − 이미 쌓인 미수확량)까지만 쌓는다 —
   /// 창고가 가득 차면 방치 산출이 멈춘다 (테마 문서 §7-4). 실시간 틱과
-  /// 오프라인 복귀를 같은 함수로 처리한다.
-  void advance(double seconds, Map<Resource, int> freeSpace) {
+  /// 오프라인 복귀를 같은 함수로 처리한다. [multiplier]는 광고 산출 가속 배율.
+  void advance(
+    double seconds,
+    Map<Resource, int> freeSpace, {
+    double multiplier = 1,
+  }) {
     if (seconds <= 0) {
       return;
     }
@@ -209,7 +213,10 @@ class BoardModel {
     pending.forEach((r, v) => room[r] = room[r]! - v);
     for (final (pos, producer) in producers) {
       final r = producer.chain.resource;
-      final gain = min(rateAt(pos, producer) * seconds, max(0.0, room[r]!));
+      final gain = min(
+        rateAt(pos, producer) * multiplier * seconds,
+        max(0.0, room[r]!),
+      );
       producer.stock += gain;
       room[r] = room[r]! - gain;
     }
@@ -217,9 +224,13 @@ class BoardModel {
 
   /// 자리를 비운 [seconds] 동안의 산출을 한 번에 반영하고, 그 사이 새로 익은 양을
   /// 자원별 정수로 돌려준다 (복귀 보상 표시용). 오프라인 복귀·백그라운드 복귀 공용.
-  Map<Resource, int> advanceAway(double seconds, Map<Resource, int> freeSpace) {
+  Map<Resource, int> advanceAway(
+    double seconds,
+    Map<Resource, int> freeSpace, {
+    double multiplier = 1,
+  }) {
     final before = pending;
-    advance(seconds, freeSpace);
+    advance(seconds, freeSpace, multiplier: multiplier);
     return {
       for (final MapEntry(key: r, value: after) in pending.entries)
         if (after.floor() - (before[r] ?? 0).floor() > 0)

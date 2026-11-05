@@ -9,7 +9,7 @@
   방치형 수집(`proto_idle_visit`) — 첫 동작판, 플레이 판정 대기 /
   Garden Grow — 프로토타입 동작, 플레이 판정 대기
 - **보류**: 슬립로그
-- **개발 중**: Deep Grove (머지 게임 정식판) — v0.1 동작, 광고·결제 전
+- **개발 중**: Deep Grove (머지 게임 정식판) — 보상형 광고까지, 결제 전
 
 ---
 
@@ -150,11 +150,11 @@ v0.1 원문으로 전면 교체**됐다. 이전 PRD에만 있던 결정들 — �
 4. 디렉터리 리네임: IDE 닫고 `git mv apps/proto_full_bloom apps/proto_garden_grow`
    → pubspec 이름·import·Android namespace 수정.
 
-## 1. Deep Grove (머지 게임) — v0.1 동작, 광고·결제 전
+## 1. Deep Grove (머지 게임) — v0.1 동작 + 보상형 광고, 결제 전
 
 | | |
 |---|---|
-| 코드 | `apps/deep_grove` — Flutter + Flame + Riverpod. 테스트 51개. `apps/proto_merge`는 이식 후 삭제 |
+| 코드 | `apps/deep_grove` — Flutter + Flame + Riverpod. 테스트 63개. `apps/proto_merge`는 이식 후 삭제 |
 | 문서 | `docs/prd/deep_grove.md` (PRD), `docs/screen-flow/deep_grove.md` (화면 흐름), `docs/design/deep_grove-themes.md` (규칙·컨텐츠·수치), `docs/prd/proto_merge.md` (승격 판정) |
 
 **끝난 것 (2026-11-05)**: 열린 결정 5개 확정 → 이름 Deep Grove → PRD·화면 흐름 → 앱 생성·이식.
@@ -163,15 +163,21 @@ v0.1 에서 되는 것: 머지(프로토타입 판정 4종 그대로), 생성기
 자갈 생성기, 창고 확장, 테마 완주, 저장·오프라인/백그라운드 복귀 보상. 상점·설정은 자리만.
 숫자는 전부 `lib/domain/theme.dart`.
 
-**확인한 것**: `flutter analyze` 깨끗, `flutter test` 51개 통과(도메인 27·창고 7·저장 4·Flame 6·화면 흐름 7),
+**확인한 것**: `flutter analyze` 깨끗, `flutter test` 통과(v0.1 시점 51개 → 광고 후 63개),
 웹 빌드로 브라우저에서 머지·생성·복귀 보상·동굴 보드를 확인. **Android/iOS 빌드는 못 했다** (이 클라우드
 환경에 Android SDK 없음) — 로컬에서 `flutter build apk` 로 확인 필요.
 
 **웹 메모**: 웹은 한글 폴백 폰트를 늦게 받아서 Flame 글자가 □로 나올 수 있다 — 폰트 로드 시 다시
 그리게 해 두었다(`GroveGame._redrawText`). 오프라인 환경 웹 빌드는 `--no-web-resources-cdn`.
 
-**다음 할 일**: PRD "다음 단계" 6번(광고 → IAP → 첫 실행 안내 → 지대 표시 → 그래픽), 그리고 직접
-플레이해서 PRD §10 열린 질문(보드 막힘·탭 제한·경제 수치)에 답한다.
+**보상형 광고 (2026-11-05)**: 복귀 보상 2배, 산출 가속 30분 2배(연장 가능, 오프라인에도 남은 만큼 적용),
+하루 6회. 규칙은 `lib/economy/ad_rewards.dart`(순수 Dart), 재생은 `lib/platform/ads.dart` — Android·iOS 는
+AdMob(**테스트 ID**), 웹은 "끝까지 봄 / 중간에 닫기"를 고르는 가짜 광고. 저장에 `ads` 칸을 더했다(없는 옛
+저장도 읽는다). Bloom Wave 에서 확인한 R8 크래시 규칙(`proguard-rules.pro`)과 `key.properties` 서명도 옮겼다.
+**실기기 광고 재생은 확인하지 못했다** — 로컬 APK 로 확인 필요.
+
+**다음 할 일**: PRD "다음 단계" 6번(IAP → 첫 실행 안내 → 지대 표시 → 그래픽), 실기기 광고 확인, 그리고
+직접 플레이해서 PRD §10 열린 질문(보드 막힘·탭 제한·경제 수치)에 답한다.
 
 ---
 

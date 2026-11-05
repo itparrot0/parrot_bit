@@ -2,12 +2,14 @@ import 'package:core_ui/core_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'economy/providers.dart';
 import 'screens/board_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/shop_screen.dart';
 
 /// 화면 3개 (화면 흐름 §1). 나머지는 보드 위 시트다.
 final GoRouter groveRouter = GoRouter(
+  navigatorKey: rootNavigatorKey,
   routes: [
     GoRoute(
       path: '/',

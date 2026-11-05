@@ -1,9 +1,10 @@
-import 'dart:convert';
 import 'dart:math';
+import 'dart:convert';
 
 import 'package:core_storage/core_storage.dart';
 
 import '../domain/board_model.dart';
+import '../economy/ad_rewards.dart';
 import '../economy/economy.dart';
 
 /// 저장 한 벌: 보드(인게임) + 창고(아웃게임) + 저장 시각.
@@ -12,10 +13,12 @@ final class GroveSave {
     required this.board,
     required this.economy,
     required this.savedAt,
+    this.ads = const AdRewards(),
   });
 
   final BoardModel board;
   final Economy economy;
+  final AdRewards ads;
   final DateTime savedAt;
 }
 
@@ -26,10 +29,12 @@ final class LoadedGrove {
     required this.economy,
     required this.idleGain,
     required this.isNew,
+    this.ads = const AdRewards(),
   });
 
   final BoardModel board;
   final Economy economy;
+  final AdRewards ads;
 
   /// 자리를 비운 동안 쌓인 양 (자원별, 정수). 비어 있으면 복귀 보상을 띄우지 않는다.
   final Map<Resource, int> idleGain;
@@ -56,6 +61,7 @@ final class SaveRepository {
       'savedAt': save.savedAt.millisecondsSinceEpoch,
       'board': save.board.toJson(),
       'economy': save.economy.toJson(),
+      'ads': save.ads.toJson(),
     }),
   );
 
@@ -85,11 +91,18 @@ final class SaveRepository {
           final savedAt = DateTime.fromMillisecondsSinceEpoch(
             json['savedAt']! as int,
           );
-          final elapsed = max(0, now.difference(savedAt).inMilliseconds) / 1000;
-          final idleGain = board.advanceAway(elapsed, economy.freeSpace);
+          // 'ads'는 나중에 더한 칸이라 없을 수 있다 — 없으면 빈 기록.
+          final ads = AdRewards.fromJson(json['ads']);
+          final idleGain = ads.advanceAway(
+            board,
+            savedAt,
+            now,
+            economy.freeSpace,
+          );
           return LoadedGrove(
             board: board,
             economy: economy,
+            ads: ads,
             idleGain: idleGain,
             isNew: false,
           );
