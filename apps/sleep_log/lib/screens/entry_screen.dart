@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../app/format.dart';
 import '../data/providers.dart';
 import '../domain/domain.dart';
 
@@ -197,8 +198,7 @@ class _EntryScreenState extends ConsumerState<EntryScreen> {
 
   List<Widget> _buildSleepInputs(BuildContext context) {
     final theme = Theme.of(context);
-    final target =
-        ref.watch(sleepTargetProvider).value ?? SleepTarget.defaultTarget;
+    final target = ref.watch(sleepTargetProvider);
     final sleep = _sleep;
 
     return [
@@ -233,7 +233,7 @@ class _EntryScreenState extends ConsumerState<EntryScreen> {
                       TextSpan(
                         children: [
                           TextSpan(
-                            text: _durationLabel(sleep.duration),
+                            text: formatDuration(sleep.duration),
                             style: theme.textTheme.titleLarge,
                           ),
                           const TextSpan(text: '  '),
@@ -387,12 +387,6 @@ class _EntryScreenState extends ConsumerState<EntryScreen> {
 
   static String _dateLabel(DiaryDate date) =>
       '${date.month}월 ${date.day}일 (${_weekdays[date.toDateTime().weekday - 1]})';
-
-  static String _durationLabel(Duration duration) {
-    final hours = duration.inHours;
-    final minutes = duration.inMinutes % 60;
-    return minutes == 0 ? '$hours시간' : '$hours시간 $minutes분';
-  }
 }
 
 class _SectionTitle extends StatelessWidget {

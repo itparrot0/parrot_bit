@@ -148,4 +148,19 @@ void main() {
       expect(SleepMark.fair.meetsTarget, isFalse);
     });
   });
+
+  test('bounds는 markFor의 경계와 같다', () {
+    for (final hours in [4, 7, 9, 12]) {
+      final target = SleepTarget(Duration(hours: hours));
+      final bounds = target.bounds;
+      const minute = Duration(minutes: 1);
+
+      expect(target.markFor(bounds.fairFrom - minute), SleepMark.short);
+      expect(target.markFor(bounds.fairFrom), SleepMark.fair);
+      expect(target.markFor(bounds.enoughFrom - minute), SleepMark.fair);
+      expect(target.markFor(bounds.enoughFrom), SleepMark.enough);
+      expect(target.markFor(bounds.overAbove), SleepMark.enough);
+      expect(target.markFor(bounds.overAbove + minute), SleepMark.over);
+    }
+  });
 }

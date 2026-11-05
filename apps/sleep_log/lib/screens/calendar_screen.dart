@@ -17,8 +17,7 @@ class CalendarScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final today = ref.watch(todayProvider);
     final entries = ref.watch(diaryEntriesProvider);
-    final target =
-        ref.watch(sleepTargetProvider).value ?? SleepTarget.defaultTarget;
+    final target = ref.watch(sleepTargetProvider);
     final view = CalendarView.from(
       entries: entries.value ?? const [],
       target: target,

@@ -73,6 +73,14 @@ final class SleepTarget {
     return SleepMark.enough;
   }
 
+  /// 표시가 바뀌는 경계. 사용자에게 설명하는 용도(온보딩 범례)이고, 판정은
+  /// [markFor]가 한다 — 둘이 같은 상수를 쓰므로 어긋나지 않는다.
+  MarkBounds get bounds => MarkBounds(
+    fairFrom: duration - _shortBelowTarget,
+    enoughFrom: duration - _fairBelowTarget,
+    overAbove: duration + _overAboveTarget,
+  );
+
   @override
   bool operator ==(Object other) =>
       other is SleepTarget && other.duration == duration;
@@ -82,4 +90,19 @@ final class SleepTarget {
 
   @override
   String toString() => 'SleepTarget(${duration.inMinutes}분)';
+}
+
+/// [SleepTarget.markFor]의 경계값.
+///
+/// `z` < [fairFrom] ≤ `zZ` < [enoughFrom] ≤ `zzZ` ≤ [overAbove] < `zzZZ`.
+final class MarkBounds {
+  const MarkBounds({
+    required this.fairFrom,
+    required this.enoughFrom,
+    required this.overAbove,
+  });
+
+  final Duration fairFrom;
+  final Duration enoughFrom;
+  final Duration overAbove;
 }

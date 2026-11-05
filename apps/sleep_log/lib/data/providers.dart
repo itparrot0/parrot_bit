@@ -44,11 +44,30 @@ final diaryEntriesProvider = StreamProvider<List<DiaryEntry>>(
   (ref) => ref.watch(diaryRepositoryProvider).watchAll(),
 );
 
-/// 판정에 쓸 목표 수면시간. 설정 전이면 기본값(7시간)이다.
+/// 앱 시작 때 저장소에서 읽은 목표 수면시간. 설정한 적이 없으면 null.
 ///
-/// 목표를 바꾸는 화면(settings)은 저장 후 이 Provider를 무효화해야 한다 —
-/// 그래야 지난 달력의 z 표시가 다시 계산된다.
-final sleepTargetProvider = FutureProvider<SleepTarget>((ref) async {
-  final target = await ref.watch(settingsRepositoryProvider).loadTarget();
-  return target ?? SleepTarget.defaultTarget;
-});
+/// `main`이 `runApp` 전에 읽어 덮어쓴다 — 라우터가 첫 화면(온보딩/달력)을
+/// 동기로 정할 수 있어야 해서다. 비동기로 두면 달력이 잠깐 보였다가 온보딩으로
+/// 튄다.
+final initialSleepTargetProvider = Provider<SleepTarget?>((ref) => null);
+
+/// 사용자가 정한 목표 수면시간. 아직 정하지 않았으면 null — 라우터가 이걸 보고
+/// 온보딩으로 보낸다 (docs/screen-flow/sleep_log.md §2).
+final savedSleepTargetProvider =
+    NotifierProvider<SavedSleepTarget, SleepTarget?>(SavedSleepTarget.new);
+
+class SavedSleepTarget extends Notifier<SleepTarget?> {
+  @override
+  SleepTarget? build() => ref.watch(initialSleepTargetProvider);
+
+  /// 저장하고 바로 반영한다. 달력·기록 화면의 z 판정이 따라서 다시 계산된다.
+  Future<void> set(SleepTarget target) async {
+    await ref.read(settingsRepositoryProvider).saveTarget(target);
+    state = target;
+  }
+}
+
+/// 판정에 쓸 목표 수면시간. 정하기 전이면 기본값(7시간)이다.
+final sleepTargetProvider = Provider<SleepTarget>(
+  (ref) => ref.watch(savedSleepTargetProvider) ?? SleepTarget.defaultTarget,
+);

@@ -97,7 +97,7 @@ void main() {
           overrides: [
             todayProvider.overrideWithValue(today),
             diaryEntriesProvider.overrideWith((ref) => entries),
-            sleepTargetProvider.overrideWith((ref) async => target),
+            sleepTargetProvider.overrideWithValue(target),
           ],
           child: const MaterialApp(home: CalendarScreen()),
         ),
