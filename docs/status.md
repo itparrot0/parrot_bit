@@ -9,7 +9,7 @@
   방치형 수집(`proto_idle_visit`) — 첫 동작판, 플레이 판정 대기 /
   Garden Grow — 프로토타입 동작, 플레이 판정 대기
 - **보류**: 슬립로그
-- **기획 중**: Deep Grove (머지 게임 정식판) — PRD·화면 흐름 초안
+- **개발 중**: Deep Grove (머지 게임 정식판) — v0.1 동작, 광고·결제 전
 
 ---
 
@@ -150,28 +150,28 @@ v0.1 원문으로 전면 교체**됐다. 이전 PRD에만 있던 결정들 — �
 4. 디렉터리 리네임: IDE 닫고 `git mv apps/proto_full_bloom apps/proto_garden_grow`
    → pubspec 이름·import·Android namespace 수정.
 
-## 1. Deep Grove (머지 게임) — PRD·화면 흐름 초안, 스캐폴딩 전
+## 1. Deep Grove (머지 게임) — v0.1 동작, 광고·결제 전
 
 | | |
 |---|---|
-| 코드 | `apps/proto_merge` (프로토타입, 동작함). `apps/deep_grove`는 아직 없다 |
-| 문서 | `docs/prd/deep_grove.md` (PRD), `docs/screen-flow/deep_grove.md` (화면 흐름), `docs/design/deep_grove-themes.md` (게임 규칙·컨텐츠), `docs/prd/proto_merge.md` (승격 판정) |
+| 코드 | `apps/deep_grove` — Flutter + Flame + Riverpod. 테스트 51개. `apps/proto_merge`는 이식 후 삭제 |
+| 문서 | `docs/prd/deep_grove.md` (PRD), `docs/screen-flow/deep_grove.md` (화면 흐름), `docs/design/deep_grove-themes.md` (규칙·컨텐츠·수치), `docs/prd/proto_merge.md` (승격 판정) |
 
-**끝난 것**: 드래그드롭 머지 조작 검증 → **승격 판정**(2026-08-18). 그래픽 교체 지점
-`lib/game/skins/` 분리. 테마 설계 §1~§4·§7 확정, 열린 결정 6개 중 5개 확정(2026-11-05).
-**이름 Deep Grove / `deep_grove`**, 수익 모델 = 보상형 광고 + 비소모성 IAP(유료 재화·배너·전면 없음),
-PRD·화면 흐름 초안 작성(2026-11-05).
+**끝난 것 (2026-11-05)**: 열린 결정 5개 확정 → 이름 Deep Grove → PRD·화면 흐름 → 앱 생성·이식.
+v0.1 에서 되는 것: 머지(프로토타입 판정 4종 그대로), 생성기 확률 스폰·생성기 머지, 최고 레벨 →
+산출원, 탭 수확·방치 산출(창고 용량에서 정지), 지대 보너스, 넓히기/파기 두 갈래 확장, 동굴 진입 시
+자갈 생성기, 창고 확장, 테마 완주, 저장·오프라인/백그라운드 복귀 보상. 상점·설정은 자리만.
+숫자는 전부 `lib/domain/theme.dart`.
 
-**다음 할 일**:
+**확인한 것**: `flutter analyze` 깨끗, `flutter test` 51개 통과(도메인 27·창고 7·저장 4·Flame 6·화면 흐름 7),
+웹 빌드로 브라우저에서 머지·생성·복귀 보상·동굴 보드를 확인. **Android/iOS 빌드는 못 했다** (이 클라우드
+환경에 Android SDK 없음) — 로컬에서 `flutter build apk` 로 확인 필요.
 
-1. ~~화면 흐름 문서~~ ✔ `docs/screen-flow/deep_grove.md` (2026-11-05).
-2. `apps/deep_grove` 스캐폴딩 — **Flutter SDK가 있는 곳에서** (이 클라우드 환경에는 SDK가 없고,
-   SDK 내려받기가 권한 정책에 막혔다). 이어서 → `lib/domain/`·`lib/game/skins/` 이식(테마 문서 §8 변경 반영) →
-   `apps/proto_merge` 삭제. PRD "다음 단계" 참고.
-3. PRD §10 열린 질문 — 보드 막힘 해소, 생성기 탭 제한, 경제 수치, IAP 상품.
+**웹 메모**: 웹은 한글 폴백 폰트를 늦게 받아서 Flame 글자가 □로 나올 수 있다 — 폰트 로드 시 다시
+그리게 해 두었다(`GroveGame._redrawText`). 오프라인 환경 웹 빌드는 `--no-web-resources-cdn`.
 
-**지우지 말 것**: `apps/proto_merge`는 이식이 끝날 때까지 남긴다. 체인 조합을
-손에 쥐고 실험할 수 있는 유일한 것이다.
+**다음 할 일**: PRD "다음 단계" 6번(광고 → IAP → 첫 실행 안내 → 지대 표시 → 그래픽), 그리고 직접
+플레이해서 PRD §10 열린 질문(보드 막힘·탭 제한·경제 수치)에 답한다.
 
 ---
 
@@ -220,5 +220,3 @@ PRD·화면 흐름 초안 작성(2026-11-05).
 - **CI 워크플로가 없다.** `docs/03-architecture.md` §1은 CI가
   `melos run analyze && melos run test`만 돌리면 되게 유지한다고 전제하는데,
   `.github/`가 아직 없다.
-- `apps/proto_merge`에는 `flutter create`가 만든 `analysis_options.yaml`이
-  남아 있다. 루트 것과 내용이 같아 `apps/sleep_log`에서는 지웠다.

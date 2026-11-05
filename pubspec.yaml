@@ -7,7 +7,7 @@ environment:
 
 workspace:
   - apps/bloom_wave
-  - apps/proto_merge
+  - apps/deep_grove
   - apps/proto_full_bloom
   - apps/sleep_log
   - apps/proto_idle_visit

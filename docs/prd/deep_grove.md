@@ -154,7 +154,12 @@ v1 컨텐츠 = **첫 테마 하나**(동굴이 있는 숲: 나무·돌 체인 �
 1. ~~테마·체인·열린 결정~~ ✔ `docs/design/deep_grove-themes.md`
 2. ~~이름~~ ✔ Deep Grove / `deep_grove` (§9)
 3. ~~화면 흐름 문서~~ ✔ `docs/screen-flow/deep_grove.md` — 화면 3개(보드·상점·설정) + 보드 위 시트 5개
-4. `apps/deep_grove` 스캐폴딩 (`flutter create --org com.itparrot`, 루트 `workspace:` 등록,
-   `resolution: workspace`, 앱 로컬 `analysis_options.yaml` 없이 루트 것 사용).
-5. 이식: `apps/proto_merge/lib/domain/`(+ 테스트) · `lib/game/skins/` → 테마 문서 §8 변경 반영.
-6. 이식이 끝나면 `apps/proto_merge` 삭제 (`docs/03-architecture.md` §6).
+4. ~~스캐폴딩~~ ✔ `apps/deep_grove` (2026-11-05) — 번들 ID `com.itparrot.deepgrove`, 루트 `workspace:` 등록.
+5. ~~이식~~ ✔ 규칙·스킨 이식 + 테마 문서 §8 반영. `apps/proto_merge` 삭제.
+6. **v0.1 에 아직 없는 것** — 붙이는 순서대로:
+   1. 보상형 광고(복귀 보상 2배·산출 가속, 하루 상한) — `google_mobile_ads`. 지금 복귀 보상은 [받기]뿐.
+   2. 비소모성 IAP 2종 + 구매 복원 — `in_app_purchase`. 상점·설정은 자리만 있다.
+   3. 첫 실행 손가락 안내 2개(생성기 탭·첫 확장) — 화면 흐름 §5.
+   4. 드래그 중 맞는 지대 칸 밝히기 — 화면 흐름 §5 (지대 보너스 표시).
+   5. 실제 그래픽 — `lib/game/skins/skin_registry.dart`.
+7. 직접 플레이해서 §10 열린 질문(보드 막힘·탭 제한·경제 수치)을 답한다.

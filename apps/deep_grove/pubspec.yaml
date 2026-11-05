@@ -1,0 +1,25 @@
+name: deep_grove
+description: 머지로 숲을 키우고 보드를 넓히는 머지 게임 (Deep Grove). 기획은 docs/prd/deep_grove.md 참고.
+publish_to: none
+version: 0.1.0+1
+resolution: workspace
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flame: ^1.23.0
+  flutter_riverpod: ^3.4.3
+  go_router: ^18.0.1
+  core_ui: ^0.1.0
+  core_storage: ^0.1.0
+  core_analytics: ^0.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
