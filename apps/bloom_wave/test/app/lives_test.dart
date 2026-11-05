@@ -7,7 +7,7 @@ import 'package:bloom_wave/ui/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../helpers.dart';
-import 'flow_test.dart' show dismissIntros, playToClear;
+import 'flow_test.dart' show dismissIntros, finaleMs, playToClear;
 
 GameScreenState game(WidgetTester tester) =>
     tester.state<GameScreenState>(find.byType(GameScreen));
@@ -61,7 +61,7 @@ void main() {
     expect(h.save.data.lives.count, 4);
     await dismissIntros(tester);
     await playToClear(tester);
-    await advance(tester, 2600);
+    await advance(tester, finaleMs);
     expect(byKey('overlay-clear'), findsOneWidget);
     expect(h.save.data.lives.count, 5);
   });

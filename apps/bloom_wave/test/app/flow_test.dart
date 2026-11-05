@@ -28,6 +28,9 @@ Future<void> dismissIntros(WidgetTester tester) async {
   }
 }
 
+/// 완성 마무리 연출(보드 확대 → 다시 개화 → FULL BLOOM)이 끝나고 패널이 뜰 때까지
+const finaleMs = 6000;
+
 /// 솔버 해법대로 끝까지 둔다 (맨 앞 물방울 동그라미를 실제로 탭)
 Future<void> playToClear(WidgetTester tester) async {
   final g = game(tester);
@@ -81,8 +84,7 @@ void main() {
     expect(byKey('overlay-tutorial-wave'), findsOneWidget);
     await dismissIntros(tester);
     await playToClear(tester);
-    await advance(tester, 2200);
-    await advance(tester, 400);
+    await advance(tester, finaleMs);
 
     expect(byKey('overlay-clear'), findsOneWidget);
     expect(byKey('full-bloom'), findsOneWidget);
@@ -120,8 +122,7 @@ void main() {
     await advance(tester, 400);
     await dismissIntros(tester);
     await playToClear(tester);
-    await advance(tester, 2200);
-    await advance(tester, 400);
+    await advance(tester, finaleMs);
     await tester.tap(byKey('btn-clear-home'));
     await advance(tester, 400);
     expect(h.ads.shown, 1);
@@ -145,8 +146,7 @@ void main() {
     await advance(tester, 400);
     await dismissIntros(tester);
     await playToClear(tester);
-    await advance(tester, 2200);
-    await advance(tester, 400);
+    await advance(tester, finaleMs);
     await tester.tap(byKey('btn-next'));
     await advance(tester, 400);
     expect(h.ads.shown, 0);
@@ -167,8 +167,7 @@ void main() {
     await advance(tester, 400);
     await dismissIntros(tester);
     await playToClear(tester);
-    await advance(tester, 2200);
-    await advance(tester, 400);
+    await advance(tester, finaleMs);
     expect(byKey('btn-next'), findsNothing);
     expect(byKey('btn-clear-home'), findsOneWidget);
     await tester.tap(byKey('btn-clear-home'));
@@ -374,5 +373,55 @@ void main() {
     await advance(tester, 300);
     expect(h.save.data.noAds, isTrue);
     expect(byKey('banner-ad'), findsNothing);
+  });
+
+  testWidgets('완성 마무리 연출: 보드만 남고 커진 뒤 다시 개화, FULL BLOOM 글자, 그다음 패널 (탭하면 건너뜀)', (
+    tester,
+  ) async {
+    await phone(tester);
+    final h = Harness();
+    await tester.pumpWidget(h.app);
+    await tester.pump();
+    await tester.tap(byKey('btn-start'));
+    await advance(tester, 400);
+    await dismissIntros(tester);
+    await playToClear(tester);
+    await advance(tester, 200);
+    final g = game(tester);
+    expect(g.finale, isTrue);
+    // 보드가 화면 가로에 맞춰 커질 자리 (비율 유지)
+    final from = g.fx.finaleTarget!;
+    expect(from.width, greaterThan(1000));
+    await advance(tester, 600);
+    expect(g.fx.finaleZoom, closeTo(1, 0.01));
+    // 화면 위젯은 사라지고 누를 수 없다
+    final opacity = tester.widget<AnimatedOpacity>(
+      find.ancestor(
+        of: byKey('btn-pause'),
+        matching: find.byType(AnimatedOpacity),
+      ),
+    );
+    expect(opacity.opacity, 0);
+    expect(byKey('lane-front-0'), findsNothing);
+    expect(byKey('full-bloom'), findsNothing);
+    expect(byKey('overlay-clear'), findsNothing);
+    // 줄마다 위에서 아래로: 각 줄에서 가장 먼저 시작하는 칸의 시각이 아래 줄일수록 늦다
+    final w = g.level.width;
+    final firstByRow = <int, double>{};
+    for (var i = 0; i < g.level.cells.length; i++) {
+      if (g.level.cells[i] == -1) continue;
+      final y = i ~/ w;
+      final t = g.fx.animStart[i];
+      if (t < (firstByRow[y] ?? double.infinity)) firstByRow[y] = t;
+    }
+    final rows = firstByRow.keys.toList()..sort();
+    for (var k = 1; k < rows.length; k++) {
+      expect(firstByRow[rows[k]]!, greaterThan(firstByRow[rows[k - 1]]!));
+    }
+    // 탭하면 바로 FULL BLOOM + 패널
+    await tester.tap(byKey('finale-skip'));
+    await advance(tester, 400);
+    expect(byKey('full-bloom'), findsOneWidget);
+    expect(byKey('overlay-clear'), findsOneWidget);
   });
 }

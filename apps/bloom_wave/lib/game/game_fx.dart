@@ -98,6 +98,57 @@ class GameFx extends ChangeNotifier {
 
   bool fast = false;
 
+  // ───── 완성 마무리 연출 (2026-11-05) ─────
+  // 보드를 화면 가로에 맞춰 키운 뒤(zoom), 위에서 아래로 한 줄씩 다시 개화 → 만개(톡 커졌다 돌아옴)
+  /// 연출 시작 시각 (없으면 null)
+  double? finaleStart;
+
+  /// 보드가 커져서 갈 자리 (논리 좌표)
+  Rect? finaleTarget;
+  double finaleZoomMs = 500, finaleSweepAt = 650, finaleSweepMs = 1400;
+
+  /// 칸 하나의 개화 애니메이션 길이 (만개 톡은 그 뒤에)
+  double finaleBloomMs = 330;
+
+  /// 보드 확대 진행도 0~1 (부드럽게)
+  double get finaleZoom {
+    final s = finaleStart;
+    if (s == null) return 0;
+    final t = ((now - s) / finaleZoomMs).clamp(0.0, 1.0);
+    return 1 - math.pow(1 - t, 3).toDouble();
+  }
+
+  /// 줄 하나가 다음 줄보다 늦게 시작하는 시간
+  double get _rowDelay => finaleSweepMs / math.max(1, level.height);
+
+  /// 마지막 줄까지 만개가 끝나는 시각 (연출 시작 기준 ms)
+  double get finaleSweepEnd =>
+      finaleSweepAt + finaleSweepMs + finaleBloomMs + 520;
+
+  /// 마무리 연출 시작: 모든 칸이 위에서 아래로(같은 줄은 왼쪽부터 조금씩) 다시 개화한다
+  void startFinale(Rect target, {double? bloomMs}) {
+    finaleStart = now;
+    finaleTarget = target;
+    if (bloomMs != null) finaleBloomMs = bloomMs;
+    if (fast) {
+      finaleZoomMs = 300;
+      finaleSweepAt = 350;
+      finaleSweepMs = 450;
+    }
+    streams.clear();
+    // 아직 처리 안 된 개화·발아(마지막 틱의 시차)는 지금 끝낸다 — 나중에 시각을 덮어쓰지 않게
+    for (final p in _pending) {
+      p.run();
+    }
+    _pending.clear();
+    for (var i = 0; i < vis.length; i++) {
+      if (level.cells[i] == empty) continue;
+      vis[i] = bloom;
+      final x = i % level.width, y = i ~/ level.width;
+      animStart[i] = now + finaleSweepAt + y * _rowDelay + x * 4;
+    }
+  }
+
   final Map<int, double> _laneX = {};
 
   /// 줄을 그릴 x: 배치가 바뀌면 목표 자리로 부드럽게 따라간다 (약 0.25초)
@@ -267,8 +318,13 @@ class GameFx extends ChangeNotifier {
     return s * celebrateScale(i);
   }
 
-  /// 완성 반짝임 배율 (대각선 순서로 1→1.18→1). 스프라이트로 그릴 때는 이것만 쓴다
+  /// 완성 반짝임 배율 (대각선 순서로 1→1.18→1). 스프라이트로 그릴 때는 이것만 쓴다.
+  /// 마무리 연출 중에는 그 칸의 다시 개화가 끝난 뒤 한 번 톡 (만개)
   double celebrateScale(int i) {
+    if (finaleStart != null) {
+      final c = (now - animStart[i] - finaleBloomMs) / 520;
+      return c >= 0 && c < 1 ? 1 + 0.2 * math.sin(c * math.pi) : 1;
+    }
     final x = i % level.width, y = i ~/ level.width;
     final c = (now - celebrateStart - (x + y) * 35) / 520;
     return c >= 0 && c < 1 ? 1 + 0.18 * math.sin(c * math.pi) : 1;

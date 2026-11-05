@@ -152,11 +152,33 @@ class GamePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    _board(canvas);
-    _streams(canvas);
-    _slots(canvas);
-    _selectRings(canvas);
-    _lanes(canvas);
+    // 완성 마무리 연출: 보드를 화면 가로에 맞춰 키우고(비율 유지), 슬롯·대기열은 사라진다
+    final z = fx.finaleZoom;
+    final target = fx.finaleTarget;
+    if (z > 0 && target != null) {
+      final from = L.boardOuter;
+      final s = 1 + (target.width / from.width - 1) * z;
+      final c = Offset.lerp(from.center, target.center, z)!;
+      canvas.save();
+      canvas.translate(c.dx, c.dy);
+      canvas.scale(s);
+      canvas.translate(-from.center.dx, -from.center.dy);
+      _board(canvas);
+      canvas.restore();
+    } else {
+      _board(canvas);
+    }
+    final ui = 1 - z;
+    if (ui > 0) {
+      if (ui < 1) {
+        canvas.saveLayer(null, Paint()..color = Color.fromRGBO(0, 0, 0, ui));
+      }
+      _streams(canvas);
+      _slots(canvas);
+      _selectRings(canvas);
+      _lanes(canvas);
+      if (ui < 1) canvas.restore();
+    }
     _petals(canvas);
     final a = fx.msgAlpha;
     if (a > 0) {

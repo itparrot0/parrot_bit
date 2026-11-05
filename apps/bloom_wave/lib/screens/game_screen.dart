@@ -502,7 +502,7 @@ class GameScreenState extends State<GameScreen>
       }
       app.sfx.clear();
       app.haptics.success();
-      fx.celebrate(app.rng);
+      _startFinale();
       final reward = goldReward.roll(app.rng);
       earned = await app.save.recordClear(
         level.id,
@@ -511,12 +511,6 @@ class GameScreenState extends State<GameScreen>
         gold: reward,
       );
       app.changed();
-      fx.after(fx.fast ? 700 : 1800, () {
-        if (mounted && _ended) {
-          setState(() => _panel = _Panel.clear);
-          if (earned > 0) app.sfx.coin();
-        }
-      });
     } else {
       app.sfx.fail();
       app.haptics.fail();
@@ -526,6 +520,62 @@ class GameScreenState extends State<GameScreen>
       });
     }
   }
+
+  // ───── 완성 마무리 연출 (2026-11-05) ─────
+  // 보드와 배너만 남기고 나머지는 사라진다 → 보드를 화면 가로에 맞춰 키운다(비율 유지) →
+  // 위에서 아래로 한 줄씩 다시 개화 → 만개 → FULL BLOOM 글자와 꽃잎 → 완성 패널. 탭하면 바로 패널로.
+
+  /// 마무리 연출 중 (화면 위젯이 사라진다)
+  bool finale = false;
+
+  /// FULL BLOOM 글자를 보여 줌
+  bool finaleTitle = false;
+
+  void _startFinale() {
+    final L = _layout;
+    if (L == null) return;
+    final from = L.boardOuter;
+    final area = Rect.fromLTRB(30, L.top + 40, kW - 30, L.bottom - 40);
+    final k = math.min(area.width / from.width, area.height / from.height);
+    final target = Rect.fromCenter(
+      center: area.center,
+      width: from.width * k,
+      height: from.height * k,
+    );
+    final sheet = CellSprites.instance.bloomOf(app.save.data.skin.id);
+    fx.startFinale(target, bloomMs: sheet?.durationMs ?? 330);
+    setState(() => finale = true);
+    final titleAt = fx.finaleSweepAt + fx.finaleSweepMs + fx.finaleBloomMs;
+    fx.after(titleAt, _showFinaleTitle);
+    fx.after(titleAt + (fx.fast ? 700 : 1600), _showClearPanel);
+  }
+
+  void _showFinaleTitle() {
+    if (!mounted || !_ended || finaleTitle) return;
+    setState(() => finaleTitle = true);
+    fx.celebrate(app.rng); // 꽃잎
+    app.haptics.light();
+  }
+
+  void _showClearPanel() {
+    if (!mounted || !_ended || _panel != _Panel.none) return;
+    _showFinaleTitle();
+    setState(() => _panel = _Panel.clear);
+    if (earned > 0) app.sfx.coin();
+  }
+
+  /// 연출 중 탭: 바로 완성 패널로
+  void _skipFinale() => _showClearPanel();
+
+  /// 마무리 연출 때 사라지는 화면 위젯
+  Widget _fadeOut(Widget child) => IgnorePointer(
+    ignoring: finale,
+    child: AnimatedOpacity(
+      opacity: finale ? 0 : 1,
+      duration: const Duration(milliseconds: 300),
+      child: child,
+    ),
+  );
 
   /// 완성 화면에서 나갈 때: 광고(광고 제거 구매 시 건너뜀)가 끝난 뒤 이동
   Future<void> _leaveClear(VoidCallback go) async {
@@ -602,13 +652,15 @@ class GameScreenState extends State<GameScreen>
                     y: top + 110,
                     w: 280,
                     h: 140,
-                    child: _X2Button(
-                      fx: fx,
-                      data: app.save.data,
-                      onTap: () {
-                        app.sfx.click();
-                        setX2(!app.save.data.x2On);
-                      },
+                    child: _fadeOut(
+                      _X2Button(
+                        fx: fx,
+                        data: app.save.data,
+                        onTap: () {
+                          app.sfx.click();
+                          setX2(!app.save.data.x2On);
+                        },
+                      ),
                     ),
                   ),
                   At(
@@ -616,38 +668,41 @@ class GameScreenState extends State<GameScreen>
                     y: top + 110,
                     w: 140,
                     h: 140,
-                    child: CircleButton(
-                      key: const ValueKey('btn-pause'),
-                      icon: Icons.pause_rounded,
-                      tooltip: app.t('pause'),
-                      onClick: app.sfx.click,
-                      onTap: _showPause,
+                    child: _fadeOut(
+                      CircleButton(
+                        key: const ValueKey('btn-pause'),
+                        icon: Icons.pause_rounded,
+                        tooltip: app.t('pause'),
+                        onClick: app.sfx.click,
+                        onTap: _showPause,
+                      ),
                     ),
                   ),
                   At(
                     x: kW / 2,
                     y: top + 88,
                     h: 90,
-                    child: Label(
-                      app.t('stage', {'n': widget.levelNo}),
-                      size: 56,
+                    child: _fadeOut(
+                      Label(app.t('stage', {'n': widget.levelNo}), size: 56),
                     ),
                   ),
                   At(
                     x: kW / 2,
                     y: top + 150,
                     h: 60,
-                    child: Label(
-                      level.meta?.name?.of(app.save.data.settings.lang) ??
-                          level.id,
-                      size: 36,
-                      color: C.inkSoft,
-                      weight: FontWeight.w500,
+                    child: _fadeOut(
+                      Label(
+                        level.meta?.name?.of(app.save.data.settings.lang) ??
+                            level.id,
+                        size: 36,
+                        color: C.inkSoft,
+                        weight: FontWeight.w500,
+                      ),
                     ),
                   ),
                   // 대기열 맨 앞 물방울: 누르고 있으면 보드에 그 색 미리보기,
                   // 동그라미 안에서 떼면 넣기, 누른 채 동그라미 밖으로 벗어나면 취소
-                  for (final li in L.laneIds)
+                  for (final li in finale ? const <int>[] : L.laneIds)
                     Positioned(
                       key: ValueKey('lane-front-$li'),
                       left: L.laneXs[li] - L.hitR,
@@ -705,23 +760,44 @@ class GameScreenState extends State<GameScreen>
                       y: L.buttonsY,
                       w: 320,
                       h: 170,
-                      child: _ItemButton(
-                        key: ValueKey('item-${def.kind.name}'),
-                        def: def,
-                        label: app.t('item_${def.kind.name}'),
-                        lockedLabel: app.t('itemLocked', {
-                          'n': def.unlockStage,
-                        }),
-                        unlocked: app.save.data.itemsUnlocked.contains(
-                          def.kind,
+                      child: _fadeOut(
+                        _ItemButton(
+                          key: ValueKey('item-${def.kind.name}'),
+                          def: def,
+                          label: app.t('item_${def.kind.name}'),
+                          lockedLabel: app.t('itemLocked', {
+                            'n': def.unlockStage,
+                          }),
+                          unlocked: app.save.data.itemsUnlocked.contains(
+                            def.kind,
+                          ),
+                          count: app.save.data.itemCount(def.kind),
+                          highlight:
+                              forced == def.kind ||
+                              (picking && def.kind == ItemKind.bloom),
+                          dim: forced != null && forced != def.kind,
+                          onTap: () => useItem(def.kind),
+                          fx: fx,
                         ),
-                        count: app.save.data.itemCount(def.kind),
-                        highlight:
-                            forced == def.kind ||
-                            (picking && def.kind == ItemKind.bloom),
-                        dim: forced != null && forced != def.kind,
-                        onTap: () => useItem(def.kind),
-                        fx: fx,
+                      ),
+                    ),
+                  // 완성 마무리 연출: 탭하면 건너뛰기, FULL BLOOM 글자
+                  if (finale && _panel == _Panel.none)
+                    Positioned.fill(
+                      child: GestureDetector(
+                        key: const ValueKey('finale-skip'),
+                        behavior: HitTestBehavior.opaque,
+                        onTap: _skipFinale,
+                      ),
+                    ),
+                  if (finaleTitle)
+                    At(
+                      x: kW / 2,
+                      y: fx.finaleTarget?.center.dy ?? kH / 2,
+                      w: kW,
+                      h: 360,
+                      child: IgnorePointer(
+                        child: _FinaleTitle(text: app.t('fullBloom')),
                       ),
                     ),
                   ..._panelWidgets(app),
@@ -1020,15 +1096,6 @@ class GameScreenState extends State<GameScreen>
         padding: const EdgeInsets.fromLTRB(40, 60, 40, 60),
         child: Column(
           children: [
-            Label(
-              app.t('fullBloom'),
-              key: const ValueKey('full-bloom'),
-              size: 84,
-              color: C.accentDark,
-              weight: FontWeight.w900,
-              letterSpacing: 4,
-            ),
-            const SizedBox(height: 40),
             SizedBox(
               width: 460,
               height: 460,
@@ -1468,4 +1535,57 @@ class _MysteryPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _MysteryPainter old) => false;
+}
+
+/// 완성 마무리 연출의 FULL BLOOM 글자: 튀어나오며 커졌다 자리 잡는다
+class _FinaleTitle extends StatefulWidget {
+  const _FinaleTitle({required this.text});
+  final String text;
+
+  @override
+  State<_FinaleTitle> createState() => _FinaleTitleState();
+}
+
+class _FinaleTitleState extends State<_FinaleTitle>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _a = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 750),
+  )..forward();
+
+  @override
+  void dispose() {
+    _a.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: _a,
+    builder: (context, child) {
+      final t = _a.value;
+      final scale = Curves.elasticOut.transform(t) * 0.6 + 0.4;
+      return Opacity(
+        opacity: (t * 3).clamp(0.0, 1.0),
+        child: Transform.scale(scale: scale, child: child),
+      );
+    },
+    child: FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Text(
+        widget.text,
+        key: const ValueKey('full-bloom'),
+        style: const TextStyle(
+          fontSize: 150,
+          fontWeight: FontWeight.w900,
+          letterSpacing: 8,
+          color: Colors.white,
+          shadows: [
+            Shadow(color: C.accentDark, blurRadius: 0, offset: Offset(0, 8)),
+            Shadow(color: Color(0xAA2A7E3B), blurRadius: 40),
+          ],
+        ),
+      ),
+    ),
+  );
 }
