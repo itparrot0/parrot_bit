@@ -10,6 +10,7 @@ workspace:
   - apps/proto_merge
   - apps/proto_full_bloom
   - apps/sleep_log
+  - apps/proto_idle_visit
   - packages/core_utils
   - packages/core_ui
   - packages/core_network

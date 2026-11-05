@@ -1,0 +1,21 @@
+name: proto_idle_visit
+description: 방치형 캐릭터 수집 프로토타입. 기획은 docs/prd/proto_idle_visit.md 참고.
+publish_to: none
+version: 0.1.0+1
+resolution: workspace
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  core_ui: ^0.1.0
+  core_storage: ^0.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
