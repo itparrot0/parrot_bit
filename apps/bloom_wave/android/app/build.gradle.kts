@@ -48,6 +48,8 @@ android {
     buildTypes {
         release {
             signingConfig = if (keyFile.exists()) signingConfigs.getByName("release") else signingConfigs.getByName("debug")
+            // R8 이 AdMob/WorkManager 의 리플렉션 클래스를 지우지 않게 (proguard-rules.pro 참고)
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 }
