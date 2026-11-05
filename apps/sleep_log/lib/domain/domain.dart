@@ -11,4 +11,5 @@ export 'mood_tag.dart';
 export 'safety_check.dart';
 export 'sleep_mark.dart';
 export 'sleep_session.dart';
+export 'tag_order.dart';
 export 'tag_sleep_report.dart';
