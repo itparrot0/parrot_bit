@@ -8,7 +8,8 @@
 - **진행 중**: Bloom Wave — Flutter 전환 완료, 출시 준비 단계 /
   방치형 수집(`proto_idle_visit`) — 첫 동작판, 플레이 판정 대기 /
   Garden Grow — 프로토타입 동작, 플레이 판정 대기
-- **보류**: 머지 게임, 슬립로그
+- **보류**: 슬립로그
+- **기획 중**: Deep Grove (머지 게임 정식판) — PRD 초안
 
 ---
 
@@ -149,30 +150,24 @@ v0.1 원문으로 전면 교체**됐다. 이전 PRD에만 있던 결정들 — �
 4. 디렉터리 리네임: IDE 닫고 `git mv apps/proto_full_bloom apps/proto_garden_grow`
    → pubspec 이름·import·Android namespace 수정.
 
-## 1. 머지 게임 — 승격 후 정식 기획 단계에서 멈춤
+## 1. Deep Grove (머지 게임) — PRD 초안, 화면 흐름·스캐폴딩 전
 
 | | |
 |---|---|
-| 코드 | `apps/proto_merge` (프로토타입, 동작함) |
-| 문서 | `docs/prd/proto_merge.md` (승격 판정 기록 포함), `docs/design/theme-design.md` |
-| 마지막 커밋 | `a5c25c4` (2026-09-27) |
+| 코드 | `apps/proto_merge` (프로토타입, 동작함). `apps/deep_grove`는 아직 없다 |
+| 문서 | `docs/prd/deep_grove.md` (PRD), `docs/design/deep_grove-themes.md` (게임 규칙·컨텐츠), `docs/prd/proto_merge.md` (승격 판정) |
 
-**끝난 것**: 드래그드롭 머지 조작 검증 완료 → **승격 판정**(2026-08-18). 그래픽
-교체 지점을 `lib/game/skins/`로 분리해, 텍스트→이미지 전환이 레지스트리 한 곳
-수정으로 끝나는 상태.
+**끝난 것**: 드래그드롭 머지 조작 검증 → **승격 판정**(2026-08-18). 그래픽 교체 지점
+`lib/game/skins/` 분리. 테마 설계 §1~§4·§7 확정, 열린 결정 6개 중 5개 확정(2026-11-05).
+**이름 Deep Grove / `deep_grove`**, 수익 모델 = 보상형 광고 + 비소모성 IAP(유료 재화·배너·전면 없음),
+PRD 초안 작성(2026-11-05).
 
-**멈춘 지점**: 테마 설계 초안 + **열린 결정 정리 (2026-11-05)**.
-`docs/design/theme-design.md` §7에서 결정 5개를 확정했다 — 행/열 확장, 생성기 자유
-배치, 생성기 머지 유지(레벨 = 상위 아이템 확률), 창고 용량에서 방치 산출 정지,
-지형은 산출원 보너스만("생성기 1개 = 체인 1개" 유지). 테마 개수만 첫 테마 플레이 후로 보류.
-§2(보드 확장)·§3(숲/동굴)·§4(최고 레벨 → 산출원)는 아직 `[제안 — 확인 필요]` 표기다.
+**다음 할 일**:
 
-**다시 시작하면 할 일**:
-
-1. §2·§3·§4 제안을 확정할지 정한다 (§7 결정들이 이들을 전제로 내려졌다).
-2. 정식 앱 이름 → `docs/prd/<이름>.md` 작성.
-3. 승격 절차 실행: `apps/<이름>` 생성 → `lib/domain/`·`lib/game/skins/` 이식 →
-   `apps/proto_merge` 삭제 (`docs/03-architecture.md` §6).
+1. 화면 흐름 문서 `docs/screen-flow/deep_grove.md`.
+2. `apps/deep_grove` 스캐폴딩 → `lib/domain/`·`lib/game/skins/` 이식(테마 문서 §8 변경 반영) →
+   `apps/proto_merge` 삭제. PRD "다음 단계" 참고.
+3. PRD §10 열린 질문 — 보드 막힘 해소, 생성기 탭 제한, 경제 수치, IAP 상품.
 
 **지우지 말 것**: `apps/proto_merge`는 이식이 끝날 때까지 남긴다. 체인 조합을
 손에 쥐고 실험할 수 있는 유일한 것이다.

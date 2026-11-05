@@ -41,7 +41,7 @@
 - 체인 간 산출 관계 — 현재 `Generator`는 체인 하나만 생산한다.
 - 목표/주문 구조 — 현재 모델에 이 개념 자체가 없다.
 
-**다음 단계**: `docs/prd/<정식이름>.md` 작성 → `apps/<정식이름>` 생성 → 검증된 코드 이식 →
+**다음 단계**: ~~`docs/prd/<정식이름>.md` 작성~~ ✔ `docs/prd/deep_grove.md` (2026-11-05) → `apps/deep_grove` 생성 → 검증된 코드 이식 →
 `apps/proto_merge` 삭제 (`docs/03-architecture.md` §6 승격 절차).
 기획이 확정될 때까지 프로토타입은 실험대로 남겨둔다.
 
