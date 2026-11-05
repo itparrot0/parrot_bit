@@ -78,15 +78,19 @@ class _NotYet extends StatelessWidget {
   }
 }
 
-class _Report extends StatelessWidget {
+class _Report extends ConsumerWidget {
   const _Report({required this.entries});
 
   final List<DiaryEntry> entries;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final stats = TagSleepReport.build(entries);
+    final paceStats = PaceSleepReport.build(
+      entries,
+      ref.watch(checkInsProvider).value ?? const [],
+    );
     final overall = TagSleepReport.overallAverage(entries)!;
     final days = TagSleepReport.sleepDayCount(entries);
 
@@ -131,6 +135,31 @@ class _Report extends StatelessWidget {
                 style: theme.textTheme.titleMedium,
               ),
             ),
+        // 생각 돌아보기를 쓰는 사람에게만, 충분히 쌓였을 때만 (PRD §3-3).
+        if (PaceSleepReport.hasEnoughData(paceStats)) ...[
+          const Divider(height: 32),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text('머릿속 속도별 그날의 수면시간', style: theme.textTheme.titleMedium),
+          ),
+          const SizedBox(height: 4),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              '생각 돌아보기에서 고른 속도와 그날 아침까지의 잠을 나란히 놓았어요.',
+              style: theme.textTheme.bodySmall,
+            ),
+          ),
+          for (final stat in paceStats)
+            ListTile(
+              title: Text(stat.pace.label),
+              subtitle: Text('${stat.dayCount}일'),
+              trailing: Text(
+                formatDuration(stat.averageSleep),
+                style: theme.textTheme.titleMedium,
+              ),
+            ),
+        ],
       ],
     );
   }

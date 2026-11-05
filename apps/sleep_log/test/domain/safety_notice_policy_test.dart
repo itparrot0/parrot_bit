@@ -62,4 +62,16 @@ void main() {
       SafetyAdvice.none,
     );
   });
+
+  test('감각 안내는 수면 기반 2단계와 쉬는 기간을 함께 쓴다', () {
+    expect(decide(SafetyAdvice.senseSupport), SafetyAdvice.senseSupport);
+    expect(
+      decide(SafetyAdvice.senseSupport, supportDaysAgo: 5),
+      SafetyAdvice.none,
+    );
+    expect(
+      decide(SafetyAdvice.senseSupport, restDaysAgo: 2),
+      SafetyAdvice.senseSupport,
+    );
+  });
 }

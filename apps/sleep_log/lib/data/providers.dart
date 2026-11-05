@@ -126,10 +126,13 @@ class SafetyBanner extends AsyncNotifier<SafetyAdvice> {
     final today = ref.read(todayProvider);
     final settings = ref.read(settingsRepositoryProvider);
 
+    final checkIns = await ref.read(checkInRepositoryProvider).watchAll().first;
+
     final advice = SafetyCheck.evaluate(
       entries: entries,
       target: ref.read(sleepTargetProvider),
       today: today,
+      checkIns: checkIns,
     );
     final decision = SafetyNoticePolicy.decide(
       advice: advice,

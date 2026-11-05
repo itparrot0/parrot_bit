@@ -377,4 +377,147 @@ void main() {
       );
     });
   });
+
+  group('SafetyCheck — 생각 돌아보기의 감각 답', () {
+    ThoughtCheckIn sense(int daysAgo, SenseShift senses, {CheckInSlot? slot}) =>
+        ThoughtCheckIn(
+          date: _today.addDays(-daysAgo),
+          slot: slot ?? CheckInSlot.morning,
+          senses: senses,
+        );
+
+    SafetyAdvice evaluate(List<ThoughtCheckIn> checkIns) =>
+        SafetyCheck.evaluate(
+          entries: const [],
+          target: _target,
+          today: _today,
+          checkIns: checkIns,
+        );
+
+    test('최근 7일 중 3일 "여러 번"이면 감각 안내', () {
+      expect(
+        evaluate([
+          sense(0, SenseShift.often),
+          sense(3, SenseShift.often),
+          sense(6, SenseShift.often),
+        ]),
+        SafetyAdvice.senseSupport,
+      );
+    });
+
+    test('2일뿐이거나 7일 창 밖이면 뜨지 않는다', () {
+      expect(
+        evaluate([sense(0, SenseShift.often), sense(1, SenseShift.often)]),
+        SafetyAdvice.none,
+      );
+      expect(
+        evaluate([
+          sense(0, SenseShift.often),
+          sense(1, SenseShift.often),
+          sense(7, SenseShift.often),
+        ]),
+        SafetyAdvice.none,
+      );
+    });
+
+    test('"한두 번"은 세지 않는다', () {
+      expect(
+        evaluate([for (var i = 0; i < 7; i++) sense(i, SenseShift.some)]),
+        SafetyAdvice.none,
+      );
+    });
+
+    test('같은 날 오전·오후 둘 다 답해도 하루로 센다', () {
+      expect(
+        evaluate([
+          sense(0, SenseShift.often),
+          sense(0, SenseShift.often, slot: CheckInSlot.afternoon),
+          sense(1, SenseShift.often),
+          sense(1, SenseShift.often, slot: CheckInSlot.afternoon),
+        ]),
+        SafetyAdvice.none,
+      );
+    });
+
+    test('수면 기반 2단계와 같이 서면 감각 안내가 앞선다', () {
+      final entries = [
+        for (var i = 0; i < 8; i++)
+          _entry(i, slept: _enoughSleep, tags: _negative),
+      ];
+      expect(
+        SafetyCheck.evaluate(
+          entries: entries,
+          target: _target,
+          today: _today,
+          checkIns: [
+            sense(0, SenseShift.often),
+            sense(1, SenseShift.often),
+            sense(2, SenseShift.often),
+          ],
+        ),
+        SafetyAdvice.senseSupport,
+      );
+    });
+  });
+
+  group('PaceSleepReport', () {
+    ThoughtCheckIn pace(int daysAgo, MindPace pace, {CheckInSlot? slot}) =>
+        ThoughtCheckIn(
+          date: _today.addDays(-daysAgo),
+          slot: slot ?? CheckInSlot.morning,
+          pace: pace,
+        );
+
+    test('속도별로 그날의 평균 수면을 낸다 — 수면 없는 날은 세지 않는다', () {
+      final stats = PaceSleepReport.build(
+        [
+          _entry(0, slept: const Duration(hours: 5)),
+          _entry(1, slept: const Duration(hours: 6)),
+          _entry(2, slept: const Duration(hours: 8)),
+          _entry(3, tags: _negative),
+        ],
+        [
+          pace(0, MindPace.busy),
+          pace(1, MindPace.busy),
+          pace(2, MindPace.usual),
+          pace(3, MindPace.busy),
+        ],
+      );
+
+      expect(stats, [
+        (
+          pace: MindPace.usual,
+          dayCount: 1,
+          averageSleep: const Duration(hours: 8),
+        ),
+        (
+          pace: MindPace.busy,
+          dayCount: 2,
+          averageSleep: const Duration(hours: 5, minutes: 30),
+        ),
+      ]);
+    });
+
+    test('하루에 오전·오후가 같은 속도면 하루로 센다', () {
+      final stats = PaceSleepReport.build(
+        [_entry(0, slept: const Duration(hours: 6))],
+        [
+          pace(0, MindPace.busy),
+          pace(0, MindPace.busy, slot: CheckInSlot.afternoon),
+        ],
+      );
+
+      expect(stats.single.dayCount, 1);
+    });
+
+    test('7일이 쌓여야 보여 준다', () {
+      List<PaceSleepStat> withDays(int days) => PaceSleepReport.build(
+        [for (var i = 0; i < days; i++) _entry(i, slept: _enoughSleep)],
+        [for (var i = 0; i < days; i++) pace(i, MindPace.usual)],
+      );
+
+      expect(PaceSleepReport.hasEnoughData(withDays(6)), isFalse);
+      expect(PaceSleepReport.hasEnoughData(withDays(7)), isTrue);
+    });
+  });
 }

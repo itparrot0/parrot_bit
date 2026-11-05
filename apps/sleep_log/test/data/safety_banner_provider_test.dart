@@ -5,6 +5,7 @@ import 'package:sleep_log/data/providers.dart';
 import 'package:sleep_log/data/settings_repository.dart';
 import 'package:sleep_log/domain/domain.dart';
 
+import '../support/in_memory_check_in_repository.dart';
 import '../support/in_memory_diary_repository.dart';
 import '../support/safety_fixtures.dart';
 
@@ -14,12 +15,16 @@ void main() {
   ProviderContainer containerWith({
     required InMemoryKeyValueStore store,
     required List<DiaryEntry> entries,
+    List<ThoughtCheckIn> checkIns = const [],
   }) {
     final container = ProviderContainer(
       overrides: [
         keyValueStoreProvider.overrideWithValue(store),
         diaryRepositoryProvider.overrideWithValue(
           InMemoryDiaryRepository(entries),
+        ),
+        checkInRepositoryProvider.overrideWithValue(
+          InMemoryCheckInRepository(checkIns),
         ),
         todayProvider.overrideWithValue(today),
         initialSleepTargetProvider.overrideWithValue(
@@ -127,6 +132,9 @@ void main() {
       overrides: [
         keyValueStoreProvider.overrideWithValue(InMemoryKeyValueStore()),
         diaryRepositoryProvider.overrideWithValue(repository),
+        checkInRepositoryProvider.overrideWithValue(
+          InMemoryCheckInRepository(),
+        ),
         todayProvider.overrideWithValue(today),
       ],
     );
@@ -148,6 +156,34 @@ void main() {
       await container.read(safetyBannerProvider.future),
       SafetyAdvice.none,
       reason: '방금 적은 감정에 앱이 즉각 반응하면 참견처럼 느껴진다 (PRD §9-2)',
+    );
+  });
+
+  test('생각 돌아보기에서 감각이 여러 번 달랐다는 날이 이어지면 감각 안내를 띄운다', () async {
+    final store = InMemoryKeyValueStore();
+    final container = containerWith(
+      store: store,
+      entries: const [],
+      checkIns: [
+        for (var i = 0; i < 3; i++)
+          ThoughtCheckIn(
+            date: today.addDays(-i * 2),
+            slot: CheckInSlot.afternoon,
+            senses: SenseShift.often,
+          ),
+      ],
+    );
+
+    expect(
+      await container.read(safetyBannerProvider.future),
+      SafetyAdvice.senseSupport,
+    );
+    expect(
+      await SettingsRepository(
+        store,
+      ).loadLastShown(SafetyAdvice.supportContact),
+      today,
+      reason: '2단계 두 가지는 쉬는 기간을 함께 쓴다',
     );
   });
 }

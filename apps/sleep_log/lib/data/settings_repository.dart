@@ -86,7 +86,8 @@ final class SettingsRepository {
 
   static String? _shownKey(SafetyAdvice advice) => switch (advice) {
     SafetyAdvice.restSuggestion => restShownKey,
-    SafetyAdvice.supportContact => supportShownKey,
+    // 2단계 두 가지는 쉬는 기간을 함께 쓰므로 같은 키에 적는다.
+    SafetyAdvice.supportContact || SafetyAdvice.senseSupport => supportShownKey,
     SafetyAdvice.none => null,
   };
 }

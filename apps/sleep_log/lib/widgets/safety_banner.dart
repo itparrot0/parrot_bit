@@ -41,6 +41,12 @@ class SafetyBannerCard extends StatelessWidget {
         '최근 2주 동안 잠은 충분히 잤는데도 힘든 기분을 기록한 날이 많았어요. '
             '이야기를 나눌 곳이 필요하다면 언제든 연락할 수 있어요. 24시간 열려 있어요.',
       ),
+      SafetyAdvice.senseSupport => (
+        '혹시 도움이 필요하다면',
+        '최근 며칠, 주변이나 몸의 느낌이 평소와 다르게 다가온 순간이 여러 번 '
+            '있었다고 적어 주셨어요. 혼자 감당하기 버겁다면, 이야기를 나눌 곳이 '
+            '있어요. 24시간 열려 있어요.',
+      ),
       SafetyAdvice.none => ('', ''),
     };
 
@@ -71,7 +77,7 @@ class SafetyBannerCard extends StatelessWidget {
                     Text(title, style: theme.textTheme.titleSmall),
                     const SizedBox(height: 4),
                     Text(body, style: theme.textTheme.bodyMedium),
-                    if (advice == SafetyAdvice.supportContact) ...[
+                    if (advice.isSupportStage) ...[
                       const SizedBox(height: 8),
                       for (final contact in contacts)
                         Text.rich(

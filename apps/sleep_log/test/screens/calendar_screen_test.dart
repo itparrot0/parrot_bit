@@ -185,6 +185,17 @@ void main() {
       expect(find.textContaining('1577-0199'), findsOneWidget);
     });
 
+    testWidgets('감각 안내는 그 이유에 맞는 문구와 연락처를 보여 준다', (tester) async {
+      await pumpScreen(
+        tester,
+        entries: Stream.value(const []),
+        banner: SafetyAdvice.senseSupport,
+      );
+
+      expect(find.textContaining('평소와 다르게 다가온 순간'), findsOneWidget);
+      expect(find.textContaining('109'), findsOneWidget);
+    });
+
     testWidgets('닫으면 사라지고 달력은 그대로다', (tester) async {
       await pumpScreen(
         tester,

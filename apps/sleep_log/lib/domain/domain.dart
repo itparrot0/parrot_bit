@@ -8,6 +8,7 @@ library;
 export 'diary_date.dart';
 export 'diary_entry.dart';
 export 'mood_tag.dart';
+export 'pace_sleep_report.dart';
 export 'safety_check.dart';
 export 'safety_notice_policy.dart';
 export 'sleep_mark.dart';

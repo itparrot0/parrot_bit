@@ -9,6 +9,7 @@ import 'safety_check.dart';
 /// - 한 번 띄운 단계는 [cooldownDays]일 동안 다시 띄우지 않는다.
 /// - 2단계를 띄운 뒤 [cooldownDays]일 동안은 1단계도 띄우지 않는다
 ///   ("2단계가 떠 있는 동안 1단계는 띄우지 않는다").
+/// - 2단계 두 가지(수면·감각)는 쉬는 기간을 함께 쓴다 — 둘 다 상담 연락처다.
 /// - 반대로 **1단계를 띄운 뒤라도 2단계는 띄운다.** 상태가 더 무거워졌다는
 ///   신호라서, 1단계의 쉬는 기간이 상담 연락처를 가리면 안 된다.
 abstract final class SafetyNoticePolicy {
@@ -28,8 +29,8 @@ abstract final class SafetyNoticePolicy {
     switch (advice) {
       case SafetyAdvice.none:
         return SafetyAdvice.none;
-      case SafetyAdvice.supportContact:
-        return supportResting ? SafetyAdvice.none : SafetyAdvice.supportContact;
+      case SafetyAdvice.supportContact || SafetyAdvice.senseSupport:
+        return supportResting ? SafetyAdvice.none : advice;
       case SafetyAdvice.restSuggestion:
         if (supportResting || _isResting(lastRestShown, today)) {
           return SafetyAdvice.none;
