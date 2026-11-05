@@ -48,6 +48,7 @@ class FakeAds implements AdProvider {
 class Harness {
   Harness({SaveData? data, List<Level>? levels, int seed = 1, DateTime? now})
     : ads = FakeAds(),
+      billing = DevBilling(),
       sfx = SilentSfx(),
       store = MemoryStore() {
     save = SaveStore(store);
@@ -56,7 +57,7 @@ class Harness {
       levels: levels ?? pack,
       save: save,
       ads: Ads(ads),
-      billing: DevBilling(),
+      billing: billing,
       sfx: sfx,
       haptics: Haptics()..enabled = false,
       rng: math.Random(seed),
@@ -70,6 +71,7 @@ class Harness {
   DateTime now = DateTime(2026, 11, 5, 12);
 
   final FakeAds ads;
+  final DevBilling billing;
   final SilentSfx sfx;
   final MemoryStore store;
   late final SaveStore save;

@@ -1,6 +1,15 @@
 // 화면 문구 (한국어 / 영어). 키를 바꾸면 두 언어를 함께 바꾼다 — 테스트가 키 짝을 확인한다.
 
 const Map<String, String> ko = {
+  'goldShop': '골드 구매',
+  'goldShopSub': '구매한 골드는 바로 들어와요',
+  'goldUnit': '골드',
+  'goldBonus': '+{n}% 보너스',
+  'goldBonusAmount': '기본 {base} + 보너스 {bonus}',
+  'buy': '구매',
+  'goldBought': '{n} 골드를 받았어요!',
+  'purchasePending': '결제가 진행 중이에요.\n끝나면 골드가 들어와요',
+  'purchaseCanceled': '결제를 취소했어요',
   'lives': '햇빛',
   'livesFull': '가득',
   'livesNext': '{t} 뒤 +1',
@@ -123,6 +132,16 @@ const Map<String, String> ko = {
 };
 
 const Map<String, String> en = {
+  'goldShop': 'Buy Gold',
+  'goldShopSub': 'Gold is added right away',
+  'goldUnit': 'gold',
+  'goldBonus': '+{n}% bonus',
+  'goldBonusAmount': '{base} + {bonus} bonus',
+  'buy': 'Buy',
+  'goldBought': 'You got {n} gold!',
+  'purchasePending':
+      'Your payment is pending.\nGold will be added when it completes',
+  'purchaseCanceled': 'Purchase canceled',
   'lives': 'Sunshine',
   'livesFull': 'Full',
   'livesNext': '+1 in {t}',

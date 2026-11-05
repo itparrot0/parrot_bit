@@ -6,6 +6,7 @@
 //  - schema 4 (2026-11-04): skins — 스킨별 모은 퍼즐 조각(pieces), 장착한 스킨(equipped).
 //    해금 여부는 따로 저장하지 않고 "조각을 모두 모았나"로 계산한다 (economy/skins.dart)
 //  - schema 5 (2026-11-04): items(아이템 개수·해금·튜토리얼 완료), x2(남은 시간·켜짐). 설정의 웨이브 속도는 x2 로 바뀌어 없앤다
+//  - schema 7 (2026-11-05): orders — 골드를 지급한 결제 주문 id (최근 [maxOrders]개, 같은 결제를 두 번 지급하지 않게)
 //  - schema 6 (2026-11-05): lives — 햇빛 개수·회복 기준 시각·광고 충전한 날 (economy/lives.dart). 옛 저장은 가득 찬 상태로 시작
 import 'dart:convert';
 import 'dart:math' as math;
@@ -18,7 +19,10 @@ import '../economy/lives.dart';
 import '../economy/skins.dart';
 
 const saveKey = 'bloomwave.save';
-const saveSchema = 6;
+const saveSchema = 7;
+
+/// 지급한 주문 id 를 몇 개까지 기억하나
+const maxOrders = 100;
 
 class Settings {
   const Settings({
@@ -71,7 +75,9 @@ class SaveData {
     this.x2Ms = x2InitialMs,
     this.x2On = false,
     Lives? lives,
+    List<String>? orders,
   }) : lives = lives ?? Lives(),
+       orders = orders ?? <String>[],
        cleared = cleared ?? <String>{},
        skinPieces = skinPieces ?? <String, Set<int>>{},
        items = items ?? {for (final k in ItemKind.values) k: 0},
@@ -113,6 +119,9 @@ class SaveData {
   /// 햇빛 (라이프)
   final Lives lives;
 
+  /// 골드를 지급한 결제 주문 id (오래된 것부터, 최대 [maxOrders]개)
+  final List<String> orders;
+
   int itemCount(ItemKind k) => items[k] ?? 0;
 
   /// 해금된 스킨인가 (기본 스킨이거나 조각을 모두 모음)
@@ -152,6 +161,7 @@ class SaveData {
     },
     'x2': {'ms': x2Ms, 'on': x2On},
     'lives': lives.toJson(),
+    'orders': orders,
   };
 }
 
@@ -250,6 +260,14 @@ SaveData migrate(Object? raw, {String lang = 'ko'}) {
     ..count = lv.count
     ..anchorMs = lv.anchorMs
     ..adDay = lv.adDay;
+  // schema 6 → 7: 지급한 주문 없음
+  final orders = raw['orders'];
+  if (orders is List) {
+    d.orders.addAll(orders.whereType<String>());
+    if (d.orders.length > maxOrders) {
+      d.orders.removeRange(0, d.orders.length - maxOrders);
+    }
+  }
   return d;
 }
 
@@ -314,6 +332,16 @@ class SaveStore {
     if (data.unlocked > total + 1) data.unlocked = total + 1;
     await save();
     return added;
+  }
+
+  /// 골드 구매 지급. 이미 지급한 주문이면 0 (같은 결제가 다시 와도 한 번만). 지급한 골드를 돌려준다
+  Future<int> grantPurchasedGold(String orderId, int gold) async {
+    if (data.orders.contains(orderId)) return 0;
+    data.gold += gold;
+    data.orders.add(orderId);
+    if (data.orders.length > maxOrders) data.orders.removeAt(0);
+    await save();
+    return gold;
   }
 
   /// 스킨 뽑기 한 번 (골드 차감·조각 추가·중복 반환을 한 번에 저장). 뽑을 수 없으면 StateError

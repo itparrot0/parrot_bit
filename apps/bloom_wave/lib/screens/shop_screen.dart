@@ -1,8 +1,9 @@
-// 상점 (2026-11-04): 꽃 스킨 모음(조각 진행도·장착), 광고 제거, 스킨 뽑기로 가는 길.
-// 돈으로 사는 재화는 아직 없다 — 골드는 스테이지 완성으로만 얻는다.
+// 상점: 골드 구매(2026-11-05, 소모성 4개 — economy/gold_packs.dart), 꽃 스킨 모음(조각 진행도·장착),
+// 스킨 뽑기로 가는 길, 광고 제거.
 import 'package:flutter/material.dart';
 
 import '../app.dart';
+import '../economy/gold_packs.dart';
 import '../economy/skins.dart';
 import '../platform/billing.dart';
 import '../ui/skin_card.dart';
@@ -20,6 +21,134 @@ class ShopScreen extends StatefulWidget {
 class _ShopScreenState extends State<ShopScreen> {
   bool _busy = false;
   String? _notice;
+
+  /// 스토어가 알려 준 현지 가격 (못 받으면 비어 있고 버튼은 "구매")
+  Map<String, String> _prices = const {};
+  bool _pricesAsked = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_pricesAsked) return;
+    _pricesAsked = true;
+    final app = AppServices.of(context);
+    app.billing
+        .prices({for (final p in goldPacks) p.id})
+        .then((m) {
+          if (mounted) setState(() => _prices = m);
+        })
+        .catchError((_) {});
+  }
+
+  Future<void> _buyGold(AppServices app, GoldPack pack) async {
+    if (_busy) return;
+    setState(() => _busy = true);
+    final r = await app.billing
+        .buyConsumable(pack.id)
+        .catchError((_) => BuyResult.failed);
+    if (!mounted) return;
+    setState(() {
+      _busy = false;
+      _notice = switch (r) {
+        BuyResult.purchased => app.t('goldBought', {
+          'n': withCommas(pack.total),
+        }),
+        BuyResult.pending => app.t('purchasePending'),
+        BuyResult.canceled => app.t('purchaseCanceled'),
+        BuyResult.failed => app.t('purchaseFailed'),
+      };
+    });
+    app.changed();
+  }
+
+  /// 골드 상품 한 칸: 동전 더미 + 양 + 보너스 + 가격 버튼
+  Widget _goldTile(AppServices app, GoldPack pack, int tier) => Container(
+    key: ValueKey('gold-pack-${pack.id}'),
+    width: 460,
+    padding: const EdgeInsets.fromLTRB(26, 30, 26, 28),
+    decoration: BoxDecoration(
+      color: C.panel,
+      borderRadius: BorderRadius.circular(44),
+      border: pack.bonusPercent > 0
+          ? Border.all(color: C.gold, width: 6)
+          : null,
+    ),
+    child: Column(
+      children: [
+        SizedBox(
+          height: 150,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              // 상품이 클수록 동전이 많다 (1~4개)
+              for (var k = 0; k <= tier; k++)
+                Transform.translate(
+                  offset: Offset((k - tier / 2) * 44, (k.isEven ? 0 : -20)),
+                  child: const CoinIcon(size: 100),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          withCommas(pack.total),
+          key: ValueKey('gold-pack-amount-${pack.id}'),
+          style: textStyle(64, weight: FontWeight.w800),
+        ),
+        Text(
+          app.t('goldUnit'),
+          style: textStyle(34, color: C.inkSoft, weight: FontWeight.w600),
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 150,
+          child: pack.bonusPercent > 0
+              ? Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 22,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: C.gold,
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                      child: Text(
+                        app.t('goldBonus', {'n': pack.bonusPercent}),
+                        style: textStyle(32),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      app.t('goldBonusAmount', {
+                        'base': withCommas(pack.base),
+                        'bonus': withCommas(pack.bonus),
+                      }),
+                      style: textStyle(
+                        28,
+                        color: C.inkSoft,
+                        weight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                )
+              : null,
+        ),
+        const SizedBox(height: 14),
+        PillButton(
+          _prices[pack.id] ?? app.t('buy'),
+          key: ValueKey('btn-buy-${pack.id}'),
+          w: 360,
+          h: 110,
+          size: 40,
+          enabled: !_busy,
+          onClick: app.sfx.click,
+          onTap: () => _buyGold(app, pack),
+        ),
+      ],
+    ),
+  );
 
   Future<void> _buyNoAds(AppServices app) async {
     if (_busy) return;
@@ -121,6 +250,27 @@ class _ShopScreenState extends State<ShopScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(app.t('goldShop'), style: textStyle(56)),
+                    const SizedBox(height: 8),
+                    Text(
+                      app.t('goldShopSub'),
+                      style: textStyle(
+                        36,
+                        color: C.inkSoft,
+                        weight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 36),
+                    Wrap(
+                      key: const ValueKey('gold-packs'),
+                      spacing: 40,
+                      runSpacing: 40,
+                      children: [
+                        for (var i = 0; i < goldPacks.length; i++)
+                          _goldTile(app, goldPacks[i], i),
+                      ],
+                    ),
+                    const SizedBox(height: 60),
                     Text(app.t('skinsTitle'), style: textStyle(56)),
                     const SizedBox(height: 8),
                     Text(

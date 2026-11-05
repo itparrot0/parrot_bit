@@ -55,6 +55,8 @@ Future<void> main() async {
     sfx: sfx,
     haptics: haptics,
   );
+  // 결제 결과 듣기 시작 (지난번에 끝나지 않은 골드 결제도 여기서 지급)
+  services.billing.start();
   runApp(BloomWaveApp(services: services, navigatorKey: navigatorKey));
 }
 

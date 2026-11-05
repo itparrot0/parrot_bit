@@ -6,6 +6,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'domain/engine.dart';
+import 'economy/gold_packs.dart';
 import 'game/colors.dart';
 import 'i18n/strings.dart';
 import 'platform/ads.dart';
@@ -35,7 +36,17 @@ class AppServices extends ChangeNotifier {
            levels.indexWhere(
              (l) => l.lanes.any((lane) => lane.any((d) => d.hidden)),
            ) +
-           1;
+           1 {
+    // 골드 구매 지급 (결제가 나중에 끝나도 여기로 온다)
+    billing.onConsumable = (productId, orderId) async {
+      final pack = goldPackById(productId);
+      if (pack == null) return;
+      if (await save.grantPurchasedGold(orderId, pack.total) > 0) {
+        sfx.coin();
+        notifyListeners();
+      }
+    };
+  }
 
   final List<Level> levels;
   final SaveStore save;
