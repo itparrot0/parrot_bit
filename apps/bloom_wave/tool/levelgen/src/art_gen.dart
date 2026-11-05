@@ -8,8 +8,10 @@ import 'package:bloom_wave/domain/engine.dart' show dir8;
 import 'package:bloom_wave/domain/generator.dart';
 
 import 'art_complex.dart';
+import 'art_flags.dart';
 import 'art_hires.dart';
 import 'art_source.dart';
+import 'art_toys.dart';
 
 /// 그림 묶음(유형). 같은 묶음끼리는 스테이지 배치에서 너무 가깝게 붙지 않게 한다
 String familyOf(String name) {
@@ -2166,4 +2168,6 @@ List<ArtSource> generatedArts() => [
   ..._illustrations(),
   ...complexArts(),
   ...hiresArts(),
+  ...flagArts(),
+  ...toyArts(),
 ];

@@ -191,8 +191,8 @@ List<_Scene> _scenes() => [
   ),
   (
     'harbor',
-    '항구 마을',
-    'Harbor Town',
+    '바닷가 항구',
+    'Seaside Harbor',
     {'a': '#2F7FB8', 'b': '#F3E9D2', 'c': '#D2553B', 'd': '#4A3B33'},
     (g, t, rng) {
       g.rect(0, 13, 31, 21, 'a');
@@ -347,8 +347,8 @@ List<_Scene> _scenes() => [
   ),
   (
     'snowtown',
-    '눈 내린 마을',
-    'Snowy Village',
+    '눈 쌓인 오두막 마을',
+    'Snowbound Hamlet',
     {'a': '#EEF3F8', 'b': '#2D5F4A', 'c': '#B5643C', 'd': '#7A3B2E'},
     (g, t, rng) {
       g.each((x, y) => y > 13 + 1.6 * math.sin(x * 0.3), 'a');
@@ -367,8 +367,8 @@ List<_Scene> _scenes() => [
   ),
   (
     'volcano',
-    '화산섬',
-    'Volcano Island',
+    '불을 뿜는 화산섬',
+    'Erupting Volcano Isle',
     {'a': '#5A4A42', 'b': '#F26B1D', 'c': '#2C7DB5', 'd': '#D9D4CF'},
     (g, t, rng) {
       g.rect(0, 16, 31, 21, 'c');
@@ -396,8 +396,8 @@ List<_Scene> _scenes() => [
   ),
   (
     'terrace',
-    '계단식 논',
-    'Rice Terraces',
+    '산비탈 다랭이논',
+    'Hillside Paddies',
     {'a': '#7CC05A', 'b': '#4E9A3F', 'c': '#9ED3E8', 'd': '#3B6B3A'},
     (g, t, rng) {
       final ph = rng() * 3;
@@ -422,8 +422,8 @@ List<_Scene> _scenes() => [
   ),
   (
     'castle',
-    '언덕 위 성',
-    'Hilltop Castle',
+    '언덕 위 돌성',
+    'Stone Castle on the Hill',
     {'a': '#5E9E4F', 'b': '#D8D2C4', 'c': '#3F5FB0', 'd': '#4B4038'},
     (g, t, rng) {
       g.each((x, y) => y > 14 - 4 * math.exp(-math.pow((x - 16) / 9, 2)), 'a');

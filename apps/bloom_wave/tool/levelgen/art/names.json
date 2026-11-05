@@ -1872,24 +1872,24 @@
     "en": "Alpine Lake at Violet Dusk"
   },
   "h_vista_harbor_dawn": {
-    "ko": "새벽 항구 마을",
-    "en": "Harbor Town at Dawn"
+    "ko": "새벽 바닷가 항구",
+    "en": "Seaside Harbor at Dawn"
   },
   "h_vista_harbor_day": {
-    "ko": "한낮 항구 마을",
-    "en": "Harbor Town at Midday"
+    "ko": "한낮 바닷가 항구",
+    "en": "Seaside Harbor at Midday"
   },
   "h_vista_harbor_sunset": {
-    "ko": "노을 항구 마을",
-    "en": "Harbor Town at Sunset"
+    "ko": "노을 바닷가 항구",
+    "en": "Seaside Harbor at Sunset"
   },
   "h_vista_harbor_night": {
-    "ko": "달밤 항구 마을",
-    "en": "Harbor Town at Moonlit"
+    "ko": "달밤 바닷가 항구",
+    "en": "Seaside Harbor at Moonlit"
   },
   "h_vista_harbor_dusk": {
-    "ko": "보랏빛 저녁 항구 마을",
-    "en": "Harbor Town at Violet Dusk"
+    "ko": "보랏빛 저녁 바닷가 항구",
+    "en": "Seaside Harbor at Violet Dusk"
   },
   "h_vista_windmill_dawn": {
     "ko": "새벽 밀밭 풍차",
@@ -1972,84 +1972,84 @@
     "en": "Tropical Beach at Violet Dusk"
   },
   "h_vista_snowtown_dawn": {
-    "ko": "새벽 눈 내린 마을",
-    "en": "Snowy Village at Dawn"
+    "ko": "새벽 눈 쌓인 오두막 마을",
+    "en": "Snowbound Hamlet at Dawn"
   },
   "h_vista_snowtown_day": {
-    "ko": "한낮 눈 내린 마을",
-    "en": "Snowy Village at Midday"
+    "ko": "한낮 눈 쌓인 오두막 마을",
+    "en": "Snowbound Hamlet at Midday"
   },
   "h_vista_snowtown_sunset": {
-    "ko": "노을 눈 내린 마을",
-    "en": "Snowy Village at Sunset"
+    "ko": "노을 눈 쌓인 오두막 마을",
+    "en": "Snowbound Hamlet at Sunset"
   },
   "h_vista_snowtown_night": {
-    "ko": "달밤 눈 내린 마을",
-    "en": "Snowy Village at Moonlit"
+    "ko": "달밤 눈 쌓인 오두막 마을",
+    "en": "Snowbound Hamlet at Moonlit"
   },
   "h_vista_snowtown_dusk": {
-    "ko": "보랏빛 저녁 눈 내린 마을",
-    "en": "Snowy Village at Violet Dusk"
+    "ko": "보랏빛 저녁 눈 쌓인 오두막 마을",
+    "en": "Snowbound Hamlet at Violet Dusk"
   },
   "h_vista_volcano_dawn": {
-    "ko": "새벽 화산섬",
-    "en": "Volcano Island at Dawn"
+    "ko": "새벽 불을 뿜는 화산섬",
+    "en": "Erupting Volcano Isle at Dawn"
   },
   "h_vista_volcano_day": {
-    "ko": "한낮 화산섬",
-    "en": "Volcano Island at Midday"
+    "ko": "한낮 불을 뿜는 화산섬",
+    "en": "Erupting Volcano Isle at Midday"
   },
   "h_vista_volcano_sunset": {
-    "ko": "노을 화산섬",
-    "en": "Volcano Island at Sunset"
+    "ko": "노을 불을 뿜는 화산섬",
+    "en": "Erupting Volcano Isle at Sunset"
   },
   "h_vista_volcano_night": {
-    "ko": "달밤 화산섬",
-    "en": "Volcano Island at Moonlit"
+    "ko": "달밤 불을 뿜는 화산섬",
+    "en": "Erupting Volcano Isle at Moonlit"
   },
   "h_vista_volcano_dusk": {
-    "ko": "보랏빛 저녁 화산섬",
-    "en": "Volcano Island at Violet Dusk"
+    "ko": "보랏빛 저녁 불을 뿜는 화산섬",
+    "en": "Erupting Volcano Isle at Violet Dusk"
   },
   "h_vista_terrace_dawn": {
-    "ko": "새벽 계단식 논",
-    "en": "Rice Terraces at Dawn"
+    "ko": "새벽 산비탈 다랭이논",
+    "en": "Hillside Paddies at Dawn"
   },
   "h_vista_terrace_day": {
-    "ko": "한낮 계단식 논",
-    "en": "Rice Terraces at Midday"
+    "ko": "한낮 산비탈 다랭이논",
+    "en": "Hillside Paddies at Midday"
   },
   "h_vista_terrace_sunset": {
-    "ko": "노을 계단식 논",
-    "en": "Rice Terraces at Sunset"
+    "ko": "노을 산비탈 다랭이논",
+    "en": "Hillside Paddies at Sunset"
   },
   "h_vista_terrace_night": {
-    "ko": "달밤 계단식 논",
-    "en": "Rice Terraces at Moonlit"
+    "ko": "달밤 산비탈 다랭이논",
+    "en": "Hillside Paddies at Moonlit"
   },
   "h_vista_terrace_dusk": {
-    "ko": "보랏빛 저녁 계단식 논",
-    "en": "Rice Terraces at Violet Dusk"
+    "ko": "보랏빛 저녁 산비탈 다랭이논",
+    "en": "Hillside Paddies at Violet Dusk"
   },
   "h_vista_castle_dawn": {
-    "ko": "새벽 언덕 위 성",
-    "en": "Hilltop Castle at Dawn"
+    "ko": "새벽 언덕 위 돌성",
+    "en": "Stone Castle on the Hill at Dawn"
   },
   "h_vista_castle_day": {
-    "ko": "한낮 언덕 위 성",
-    "en": "Hilltop Castle at Midday"
+    "ko": "한낮 언덕 위 돌성",
+    "en": "Stone Castle on the Hill at Midday"
   },
   "h_vista_castle_sunset": {
-    "ko": "노을 언덕 위 성",
-    "en": "Hilltop Castle at Sunset"
+    "ko": "노을 언덕 위 돌성",
+    "en": "Stone Castle on the Hill at Sunset"
   },
   "h_vista_castle_night": {
-    "ko": "달밤 언덕 위 성",
-    "en": "Hilltop Castle at Moonlit"
+    "ko": "달밤 언덕 위 돌성",
+    "en": "Stone Castle on the Hill at Moonlit"
   },
   "h_vista_castle_dusk": {
-    "ko": "보랏빛 저녁 언덕 위 성",
-    "en": "Hilltop Castle at Violet Dusk"
+    "ko": "보랏빛 저녁 언덕 위 돌성",
+    "en": "Stone Castle on the Hill at Violet Dusk"
   },
   "h_vista_city_dawn": {
     "ko": "새벽 강가의 도시",
@@ -3066,5 +3066,1053 @@
   "h_garden_20": {
     "ko": "양귀비 분수 정원",
     "en": "Poppy Fountain Garden"
+  },
+  "f_eu_fr": {
+    "ko": "프랑스 국기",
+    "en": "Flag of France"
+  },
+  "f_eu_it": {
+    "ko": "이탈리아 국기",
+    "en": "Flag of Italy"
+  },
+  "f_eu_ie": {
+    "ko": "아일랜드 국기",
+    "en": "Flag of Ireland"
+  },
+  "f_eu_be": {
+    "ko": "벨기에 국기",
+    "en": "Flag of Belgium"
+  },
+  "f_eu_ro": {
+    "ko": "루마니아 국기",
+    "en": "Flag of Romania"
+  },
+  "f_eu_de": {
+    "ko": "독일 국기",
+    "en": "Flag of Germany"
+  },
+  "f_eu_nl": {
+    "ko": "네덜란드 국기",
+    "en": "Flag of Netherlands"
+  },
+  "f_eu_ru": {
+    "ko": "러시아 국기",
+    "en": "Flag of Russia"
+  },
+  "f_eu_at": {
+    "ko": "오스트리아 국기",
+    "en": "Flag of Austria"
+  },
+  "f_eu_hu": {
+    "ko": "헝가리 국기",
+    "en": "Flag of Hungary"
+  },
+  "f_eu_bg": {
+    "ko": "불가리아 국기",
+    "en": "Flag of Bulgaria"
+  },
+  "f_eu_lt": {
+    "ko": "리투아니아 국기",
+    "en": "Flag of Lithuania"
+  },
+  "f_eu_ee": {
+    "ko": "에스토니아 국기",
+    "en": "Flag of Estonia"
+  },
+  "f_eu_lu": {
+    "ko": "룩셈부르크 국기",
+    "en": "Flag of Luxembourg"
+  },
+  "f_eu_am": {
+    "ko": "아르메니아 국기",
+    "en": "Flag of Armenia"
+  },
+  "f_eu_pl": {
+    "ko": "폴란드 국기",
+    "en": "Flag of Poland"
+  },
+  "f_eu_ua": {
+    "ko": "우크라이나 국기",
+    "en": "Flag of Ukraine"
+  },
+  "f_eu_mc": {
+    "ko": "모나코 국기",
+    "en": "Flag of Monaco"
+  },
+  "f_eu_lv": {
+    "ko": "라트비아 국기",
+    "en": "Flag of Latvia"
+  },
+  "f_eu_dk": {
+    "ko": "덴마크 국기",
+    "en": "Flag of Denmark"
+  },
+  "f_eu_se": {
+    "ko": "스웨덴 국기",
+    "en": "Flag of Sweden"
+  },
+  "f_eu_no": {
+    "ko": "노르웨이 국기",
+    "en": "Flag of Norway"
+  },
+  "f_eu_fi": {
+    "ko": "핀란드 국기",
+    "en": "Flag of Finland"
+  },
+  "f_eu_is": {
+    "ko": "아이슬란드 국기",
+    "en": "Flag of Iceland"
+  },
+  "f_eu_ch": {
+    "ko": "스위스 국기",
+    "en": "Flag of Switzerland"
+  },
+  "f_eu_gr": {
+    "ko": "그리스 국기",
+    "en": "Flag of Greece"
+  },
+  "f_eu_cz": {
+    "ko": "체코 국기",
+    "en": "Flag of Czechia"
+  },
+  "f_eu_gb": {
+    "ko": "영국 국기",
+    "en": "Flag of United Kingdom"
+  },
+  "f_as_jp": {
+    "ko": "일본 국기",
+    "en": "Flag of Japan"
+  },
+  "f_as_kr": {
+    "ko": "대한민국 국기",
+    "en": "Flag of South Korea"
+  },
+  "f_as_cn": {
+    "ko": "중국 국기",
+    "en": "Flag of China"
+  },
+  "f_as_vn": {
+    "ko": "베트남 국기",
+    "en": "Flag of Vietnam"
+  },
+  "f_as_in": {
+    "ko": "인도 국기",
+    "en": "Flag of India"
+  },
+  "f_as_bd": {
+    "ko": "방글라데시 국기",
+    "en": "Flag of Bangladesh"
+  },
+  "f_as_th": {
+    "ko": "태국 국기",
+    "en": "Flag of Thailand"
+  },
+  "f_as_id": {
+    "ko": "인도네시아 국기",
+    "en": "Flag of Indonesia"
+  },
+  "f_as_tr": {
+    "ko": "튀르키예 국기",
+    "en": "Flag of Türkiye"
+  },
+  "f_as_pk": {
+    "ko": "파키스탄 국기",
+    "en": "Flag of Pakistan"
+  },
+  "f_as_sg": {
+    "ko": "싱가포르 국기",
+    "en": "Flag of Singapore"
+  },
+  "f_as_la": {
+    "ko": "라오스 국기",
+    "en": "Flag of Laos"
+  },
+  "f_as_mm": {
+    "ko": "미얀마 국기",
+    "en": "Flag of Myanmar"
+  },
+  "f_as_np": {
+    "ko": "네팔 국기",
+    "en": "Flag of Nepal"
+  },
+  "f_as_il": {
+    "ko": "이스라엘 국기",
+    "en": "Flag of Israel"
+  },
+  "f_as_qa": {
+    "ko": "카타르 국기",
+    "en": "Flag of Qatar"
+  },
+  "f_as_bh": {
+    "ko": "바레인 국기",
+    "en": "Flag of Bahrain"
+  },
+  "f_as_kw": {
+    "ko": "쿠웨이트 국기",
+    "en": "Flag of Kuwait"
+  },
+  "f_as_ae": {
+    "ko": "아랍에미리트 국기",
+    "en": "Flag of United Arab Emirates"
+  },
+  "f_as_ye": {
+    "ko": "예멘 국기",
+    "en": "Flag of Yemen"
+  },
+  "f_as_ph": {
+    "ko": "필리핀 국기",
+    "en": "Flag of Philippines"
+  },
+  "f_af_ng": {
+    "ko": "나이지리아 국기",
+    "en": "Flag of Nigeria"
+  },
+  "f_af_ci": {
+    "ko": "코트디부아르 국기",
+    "en": "Flag of Côte d'Ivoire"
+  },
+  "f_af_ml": {
+    "ko": "말리 국기",
+    "en": "Flag of Mali"
+  },
+  "f_af_gn": {
+    "ko": "기니 국기",
+    "en": "Flag of Guinea"
+  },
+  "f_af_td": {
+    "ko": "차드 국기",
+    "en": "Flag of Chad"
+  },
+  "f_af_sn": {
+    "ko": "세네갈 국기",
+    "en": "Flag of Senegal"
+  },
+  "f_af_cm": {
+    "ko": "카메룬 국기",
+    "en": "Flag of Cameroon"
+  },
+  "f_af_gh": {
+    "ko": "가나 국기",
+    "en": "Flag of Ghana"
+  },
+  "f_af_et": {
+    "ko": "에티오피아 국기",
+    "en": "Flag of Ethiopia"
+  },
+  "f_af_rw": {
+    "ko": "르완다 국기",
+    "en": "Flag of Rwanda"
+  },
+  "f_af_bj": {
+    "ko": "베냉 국기",
+    "en": "Flag of Benin"
+  },
+  "f_af_mg": {
+    "ko": "마다가스카르 국기",
+    "en": "Flag of Madagascar"
+  },
+  "f_af_bf": {
+    "ko": "부르키나파소 국기",
+    "en": "Flag of Burkina Faso"
+  },
+  "f_af_tg": {
+    "ko": "토고 국기",
+    "en": "Flag of Togo"
+  },
+  "f_af_ma": {
+    "ko": "모로코 국기",
+    "en": "Flag of Morocco"
+  },
+  "f_af_tn": {
+    "ko": "튀니지 국기",
+    "en": "Flag of Tunisia"
+  },
+  "f_af_dz": {
+    "ko": "알제리 국기",
+    "en": "Flag of Algeria"
+  },
+  "f_af_ne": {
+    "ko": "니제르 국기",
+    "en": "Flag of Niger"
+  },
+  "f_af_sl": {
+    "ko": "시에라리온 국기",
+    "en": "Flag of Sierra Leone"
+  },
+  "f_af_ga": {
+    "ko": "가봉 국기",
+    "en": "Flag of Gabon"
+  },
+  "f_af_bw": {
+    "ko": "보츠와나 국기",
+    "en": "Flag of Botswana"
+  },
+  "f_af_za": {
+    "ko": "남아프리카공화국 국기",
+    "en": "Flag of South Africa"
+  },
+  "f_af_tz": {
+    "ko": "탄자니아 국기",
+    "en": "Flag of Tanzania"
+  },
+  "f_af_cg": {
+    "ko": "콩고 공화국 국기",
+    "en": "Flag of Republic of the Congo"
+  },
+  "f_af_sc": {
+    "ko": "세이셸 국기",
+    "en": "Flag of Seychelles"
+  },
+  "f_af_mu": {
+    "ko": "모리셔스 국기",
+    "en": "Flag of Mauritius"
+  },
+  "f_af_lr": {
+    "ko": "라이베리아 국기",
+    "en": "Flag of Liberia"
+  },
+  "f_am_ca": {
+    "ko": "캐나다 국기",
+    "en": "Flag of Canada"
+  },
+  "f_am_us": {
+    "ko": "미국 국기",
+    "en": "Flag of United States"
+  },
+  "f_am_br": {
+    "ko": "브라질 국기",
+    "en": "Flag of Brazil"
+  },
+  "f_am_ar": {
+    "ko": "아르헨티나 국기",
+    "en": "Flag of Argentina"
+  },
+  "f_am_co": {
+    "ko": "콜롬비아 국기",
+    "en": "Flag of Colombia"
+  },
+  "f_am_pe": {
+    "ko": "페루 국기",
+    "en": "Flag of Peru"
+  },
+  "f_am_bo": {
+    "ko": "볼리비아 국기",
+    "en": "Flag of Bolivia"
+  },
+  "f_am_cl": {
+    "ko": "칠레 국기",
+    "en": "Flag of Chile"
+  },
+  "f_am_cu": {
+    "ko": "쿠바 국기",
+    "en": "Flag of Cuba"
+  },
+  "f_am_bs": {
+    "ko": "바하마 국기",
+    "en": "Flag of Bahamas"
+  },
+  "f_am_jm": {
+    "ko": "자메이카 국기",
+    "en": "Flag of Jamaica"
+  },
+  "f_am_pa": {
+    "ko": "파나마 국기",
+    "en": "Flag of Panama"
+  },
+  "f_am_cr": {
+    "ko": "코스타리카 국기",
+    "en": "Flag of Costa Rica"
+  },
+  "f_am_gy": {
+    "ko": "가이아나 국기",
+    "en": "Flag of Guyana"
+  },
+  "f_am_tt": {
+    "ko": "트리니다드 토바고 국기",
+    "en": "Flag of Trinidad and Tobago"
+  },
+  "f_am_ve": {
+    "ko": "베네수엘라 국기",
+    "en": "Flag of Venezuela"
+  },
+  "f_am_uy": {
+    "ko": "우루과이 국기",
+    "en": "Flag of Uruguay"
+  },
+  "f_oc_to": {
+    "ko": "통가 국기",
+    "en": "Flag of Tonga"
+  },
+  "f_oc_ws": {
+    "ko": "사모아 국기",
+    "en": "Flag of Samoa"
+  },
+  "f_oc_fm": {
+    "ko": "미크로네시아 국기",
+    "en": "Flag of Micronesia"
+  },
+  "f_oc_nr": {
+    "ko": "나우루 국기",
+    "en": "Flag of Nauru"
+  },
+  "f_oc_pw": {
+    "ko": "팔라우 국기",
+    "en": "Flag of Palau"
+  },
+  "f_oc_sb": {
+    "ko": "솔로몬 제도 국기",
+    "en": "Flag of Solomon Islands"
+  },
+  "f_oc_mh": {
+    "ko": "마셜 제도 국기",
+    "en": "Flag of Marshall Islands"
+  },
+  "f_oc_au": {
+    "ko": "오스트레일리아 국기",
+    "en": "Flag of Australia"
+  },
+  "f_oc_nz": {
+    "ko": "뉴질랜드 국기",
+    "en": "Flag of New Zealand"
+  },
+  "t_bear_1": {
+    "ko": "빨간 곰인형",
+    "en": "Red Teddy Bear"
+  },
+  "t_bear_2": {
+    "ko": "파란 곰인형",
+    "en": "Blue Teddy Bear"
+  },
+  "t_bear_3": {
+    "ko": "노란 곰인형",
+    "en": "Yellow Teddy Bear"
+  },
+  "t_bear_4": {
+    "ko": "초록 곰인형",
+    "en": "Green Teddy Bear"
+  },
+  "t_robot_1": {
+    "ko": "빨간 태엽 로봇",
+    "en": "Red Wind-up Robot"
+  },
+  "t_robot_2": {
+    "ko": "파란 태엽 로봇",
+    "en": "Blue Wind-up Robot"
+  },
+  "t_robot_3": {
+    "ko": "노란 태엽 로봇",
+    "en": "Yellow Wind-up Robot"
+  },
+  "t_robot_4": {
+    "ko": "초록 태엽 로봇",
+    "en": "Green Wind-up Robot"
+  },
+  "t_rockinghorse_1": {
+    "ko": "빨간 흔들목마",
+    "en": "Red Rocking Horse"
+  },
+  "t_rockinghorse_2": {
+    "ko": "파란 흔들목마",
+    "en": "Blue Rocking Horse"
+  },
+  "t_rockinghorse_3": {
+    "ko": "노란 흔들목마",
+    "en": "Yellow Rocking Horse"
+  },
+  "t_rockinghorse_4": {
+    "ko": "초록 흔들목마",
+    "en": "Green Rocking Horse"
+  },
+  "t_top_1": {
+    "ko": "빨간 팽이",
+    "en": "Red Spinning Top"
+  },
+  "t_top_2": {
+    "ko": "파란 팽이",
+    "en": "Blue Spinning Top"
+  },
+  "t_top_3": {
+    "ko": "노란 팽이",
+    "en": "Yellow Spinning Top"
+  },
+  "t_top_4": {
+    "ko": "초록 팽이",
+    "en": "Green Spinning Top"
+  },
+  "t_yoyo_1": {
+    "ko": "빨간 요요",
+    "en": "Red Yo-yo"
+  },
+  "t_yoyo_2": {
+    "ko": "파란 요요",
+    "en": "Blue Yo-yo"
+  },
+  "t_yoyo_3": {
+    "ko": "노란 요요",
+    "en": "Yellow Yo-yo"
+  },
+  "t_yoyo_4": {
+    "ko": "초록 요요",
+    "en": "Green Yo-yo"
+  },
+  "t_duck_1": {
+    "ko": "빨간 고무 오리",
+    "en": "Red Rubber Duck"
+  },
+  "t_duck_2": {
+    "ko": "파란 고무 오리",
+    "en": "Blue Rubber Duck"
+  },
+  "t_duck_3": {
+    "ko": "노란 고무 오리",
+    "en": "Yellow Rubber Duck"
+  },
+  "t_duck_4": {
+    "ko": "초록 고무 오리",
+    "en": "Green Rubber Duck"
+  },
+  "t_train_1": {
+    "ko": "빨간 장난감 기차",
+    "en": "Red Toy Train"
+  },
+  "t_train_2": {
+    "ko": "파란 장난감 기차",
+    "en": "Blue Toy Train"
+  },
+  "t_train_3": {
+    "ko": "노란 장난감 기차",
+    "en": "Yellow Toy Train"
+  },
+  "t_train_4": {
+    "ko": "초록 장난감 기차",
+    "en": "Green Toy Train"
+  },
+  "t_blocks_1": {
+    "ko": "빨간 쌓기 블록",
+    "en": "Red Stacking Blocks"
+  },
+  "t_blocks_2": {
+    "ko": "파란 쌓기 블록",
+    "en": "Blue Stacking Blocks"
+  },
+  "t_blocks_3": {
+    "ko": "노란 쌓기 블록",
+    "en": "Yellow Stacking Blocks"
+  },
+  "t_blocks_4": {
+    "ko": "초록 쌓기 블록",
+    "en": "Green Stacking Blocks"
+  },
+  "t_kite_1": {
+    "ko": "빨간 가오리연",
+    "en": "Red Diamond Kite"
+  },
+  "t_kite_2": {
+    "ko": "파란 가오리연",
+    "en": "Blue Diamond Kite"
+  },
+  "t_kite_3": {
+    "ko": "노란 가오리연",
+    "en": "Yellow Diamond Kite"
+  },
+  "t_kite_4": {
+    "ko": "초록 가오리연",
+    "en": "Green Diamond Kite"
+  },
+  "t_beachball_1": {
+    "ko": "빨간 비치볼",
+    "en": "Red Beach Ball"
+  },
+  "t_beachball_2": {
+    "ko": "파란 비치볼",
+    "en": "Blue Beach Ball"
+  },
+  "t_beachball_3": {
+    "ko": "노란 비치볼",
+    "en": "Yellow Beach Ball"
+  },
+  "t_beachball_4": {
+    "ko": "초록 비치볼",
+    "en": "Green Beach Ball"
+  },
+  "t_ragdoll_1": {
+    "ko": "빨간 헝겊 인형",
+    "en": "Red Rag Doll"
+  },
+  "t_ragdoll_2": {
+    "ko": "파란 헝겊 인형",
+    "en": "Blue Rag Doll"
+  },
+  "t_ragdoll_3": {
+    "ko": "노란 헝겊 인형",
+    "en": "Yellow Rag Doll"
+  },
+  "t_ragdoll_4": {
+    "ko": "초록 헝겊 인형",
+    "en": "Green Rag Doll"
+  },
+  "t_car_1": {
+    "ko": "빨간 장난감 자동차",
+    "en": "Red Toy Car"
+  },
+  "t_car_2": {
+    "ko": "파란 장난감 자동차",
+    "en": "Blue Toy Car"
+  },
+  "t_car_3": {
+    "ko": "노란 장난감 자동차",
+    "en": "Yellow Toy Car"
+  },
+  "t_car_4": {
+    "ko": "초록 장난감 자동차",
+    "en": "Green Toy Car"
+  },
+  "t_drum_1": {
+    "ko": "빨간 장난감 북",
+    "en": "Red Toy Drum"
+  },
+  "t_drum_2": {
+    "ko": "파란 장난감 북",
+    "en": "Blue Toy Drum"
+  },
+  "t_drum_3": {
+    "ko": "노란 장난감 북",
+    "en": "Yellow Toy Drum"
+  },
+  "t_drum_4": {
+    "ko": "초록 장난감 북",
+    "en": "Green Toy Drum"
+  },
+  "t_jackbox_1": {
+    "ko": "빨간 깜짝 상자",
+    "en": "Red Jack-in-the-Box"
+  },
+  "t_jackbox_2": {
+    "ko": "파란 깜짝 상자",
+    "en": "Blue Jack-in-the-Box"
+  },
+  "t_jackbox_3": {
+    "ko": "노란 깜짝 상자",
+    "en": "Yellow Jack-in-the-Box"
+  },
+  "t_jackbox_4": {
+    "ko": "초록 깜짝 상자",
+    "en": "Green Jack-in-the-Box"
+  },
+  "t_cube_1": {
+    "ko": "빨간 큐브 퍼즐",
+    "en": "Red Puzzle Cube"
+  },
+  "t_cube_2": {
+    "ko": "파란 큐브 퍼즐",
+    "en": "Blue Puzzle Cube"
+  },
+  "t_cube_3": {
+    "ko": "노란 큐브 퍼즐",
+    "en": "Yellow Puzzle Cube"
+  },
+  "t_cube_4": {
+    "ko": "초록 큐브 퍼즐",
+    "en": "Green Puzzle Cube"
+  },
+  "t_soldier_1": {
+    "ko": "빨간 장난감 병정",
+    "en": "Red Toy Soldier"
+  },
+  "t_soldier_2": {
+    "ko": "파란 장난감 병정",
+    "en": "Blue Toy Soldier"
+  },
+  "t_soldier_3": {
+    "ko": "노란 장난감 병정",
+    "en": "Yellow Toy Soldier"
+  },
+  "t_soldier_4": {
+    "ko": "초록 장난감 병정",
+    "en": "Green Toy Soldier"
+  },
+  "t_plane_1": {
+    "ko": "빨간 장난감 비행기",
+    "en": "Red Toy Plane"
+  },
+  "t_plane_2": {
+    "ko": "파란 장난감 비행기",
+    "en": "Blue Toy Plane"
+  },
+  "t_plane_3": {
+    "ko": "노란 장난감 비행기",
+    "en": "Yellow Toy Plane"
+  },
+  "t_plane_4": {
+    "ko": "초록 장난감 비행기",
+    "en": "Green Toy Plane"
+  },
+  "t_sailboat_1": {
+    "ko": "빨간 장난감 돛단배",
+    "en": "Red Toy Sailboat"
+  },
+  "t_sailboat_2": {
+    "ko": "파란 장난감 돛단배",
+    "en": "Blue Toy Sailboat"
+  },
+  "t_sailboat_3": {
+    "ko": "노란 장난감 돛단배",
+    "en": "Yellow Toy Sailboat"
+  },
+  "t_sailboat_4": {
+    "ko": "초록 장난감 돛단배",
+    "en": "Green Toy Sailboat"
+  },
+  "t_dino_1": {
+    "ko": "빨간 장난감 공룡",
+    "en": "Red Toy Dinosaur"
+  },
+  "t_dino_2": {
+    "ko": "파란 장난감 공룡",
+    "en": "Blue Toy Dinosaur"
+  },
+  "t_dino_3": {
+    "ko": "노란 장난감 공룡",
+    "en": "Yellow Toy Dinosaur"
+  },
+  "t_dino_4": {
+    "ko": "초록 장난감 공룡",
+    "en": "Green Toy Dinosaur"
+  },
+  "t_rocket_1": {
+    "ko": "빨간 장난감 로켓",
+    "en": "Red Toy Rocket"
+  },
+  "t_rocket_2": {
+    "ko": "파란 장난감 로켓",
+    "en": "Blue Toy Rocket"
+  },
+  "t_rocket_3": {
+    "ko": "노란 장난감 로켓",
+    "en": "Yellow Toy Rocket"
+  },
+  "t_rocket_4": {
+    "ko": "초록 장난감 로켓",
+    "en": "Green Toy Rocket"
+  },
+  "t_rings_1": {
+    "ko": "빨간 링 쌓기",
+    "en": "Red Ring Stacker"
+  },
+  "t_rings_2": {
+    "ko": "파란 링 쌓기",
+    "en": "Blue Ring Stacker"
+  },
+  "t_rings_3": {
+    "ko": "노란 링 쌓기",
+    "en": "Yellow Ring Stacker"
+  },
+  "t_rings_4": {
+    "ko": "초록 링 쌓기",
+    "en": "Green Ring Stacker"
+  },
+  "t_abacus_1": {
+    "ko": "빨간 주판",
+    "en": "Red Abacus"
+  },
+  "t_abacus_2": {
+    "ko": "파란 주판",
+    "en": "Blue Abacus"
+  },
+  "t_abacus_3": {
+    "ko": "노란 주판",
+    "en": "Yellow Abacus"
+  },
+  "t_abacus_4": {
+    "ko": "초록 주판",
+    "en": "Green Abacus"
+  },
+  "t_pinwheel_1": {
+    "ko": "빨간 바람개비",
+    "en": "Red Pinwheel"
+  },
+  "t_pinwheel_2": {
+    "ko": "파란 바람개비",
+    "en": "Blue Pinwheel"
+  },
+  "t_pinwheel_3": {
+    "ko": "노란 바람개비",
+    "en": "Yellow Pinwheel"
+  },
+  "t_pinwheel_4": {
+    "ko": "초록 바람개비",
+    "en": "Green Pinwheel"
+  },
+  "t_musicbox_1": {
+    "ko": "빨간 오르골",
+    "en": "Red Music Box"
+  },
+  "t_musicbox_2": {
+    "ko": "파란 오르골",
+    "en": "Blue Music Box"
+  },
+  "t_musicbox_3": {
+    "ko": "노란 오르골",
+    "en": "Yellow Music Box"
+  },
+  "t_musicbox_4": {
+    "ko": "초록 오르골",
+    "en": "Green Music Box"
+  },
+  "t_rolypoly_1": {
+    "ko": "빨간 오뚝이",
+    "en": "Red Roly-poly Doll"
+  },
+  "t_rolypoly_2": {
+    "ko": "파란 오뚝이",
+    "en": "Blue Roly-poly Doll"
+  },
+  "t_rolypoly_3": {
+    "ko": "노란 오뚝이",
+    "en": "Yellow Roly-poly Doll"
+  },
+  "t_rolypoly_4": {
+    "ko": "초록 오뚝이",
+    "en": "Green Roly-poly Doll"
+  },
+  "t_marbles_1": {
+    "ko": "빨간 유리구슬",
+    "en": "Red Glass Marbles"
+  },
+  "t_marbles_2": {
+    "ko": "파란 유리구슬",
+    "en": "Blue Glass Marbles"
+  },
+  "t_marbles_3": {
+    "ko": "노란 유리구슬",
+    "en": "Yellow Glass Marbles"
+  },
+  "t_marbles_4": {
+    "ko": "초록 유리구슬",
+    "en": "Green Glass Marbles"
+  },
+  "t_piggybank_1": {
+    "ko": "빨간 돼지 저금통",
+    "en": "Red Piggy Bank"
+  },
+  "t_piggybank_2": {
+    "ko": "파란 돼지 저금통",
+    "en": "Blue Piggy Bank"
+  },
+  "t_piggybank_3": {
+    "ko": "노란 돼지 저금통",
+    "en": "Yellow Piggy Bank"
+  },
+  "t_piggybank_4": {
+    "ko": "초록 돼지 저금통",
+    "en": "Green Piggy Bank"
+  },
+  "t_snowglobe_1": {
+    "ko": "빨간 스노볼",
+    "en": "Red Snow Globe"
+  },
+  "t_snowglobe_2": {
+    "ko": "파란 스노볼",
+    "en": "Blue Snow Globe"
+  },
+  "t_snowglobe_3": {
+    "ko": "노란 스노볼",
+    "en": "Yellow Snow Globe"
+  },
+  "t_snowglobe_4": {
+    "ko": "초록 스노볼",
+    "en": "Green Snow Globe"
+  },
+  "t_dollhouse_1": {
+    "ko": "빨간 인형의 집",
+    "en": "Red Dollhouse"
+  },
+  "t_dollhouse_2": {
+    "ko": "파란 인형의 집",
+    "en": "Blue Dollhouse"
+  },
+  "t_dollhouse_3": {
+    "ko": "노란 인형의 집",
+    "en": "Yellow Dollhouse"
+  },
+  "t_dollhouse_4": {
+    "ko": "초록 인형의 집",
+    "en": "Green Dollhouse"
+  },
+  "t_bucket_1": {
+    "ko": "빨간 모래 양동이",
+    "en": "Red Sand Bucket"
+  },
+  "t_bucket_2": {
+    "ko": "파란 모래 양동이",
+    "en": "Blue Sand Bucket"
+  },
+  "t_bucket_3": {
+    "ko": "노란 모래 양동이",
+    "en": "Yellow Sand Bucket"
+  },
+  "t_bucket_4": {
+    "ko": "초록 모래 양동이",
+    "en": "Green Sand Bucket"
+  },
+  "t_rattle_1": {
+    "ko": "빨간 딸랑이",
+    "en": "Red Baby Rattle"
+  },
+  "t_rattle_2": {
+    "ko": "파란 딸랑이",
+    "en": "Blue Baby Rattle"
+  },
+  "t_rattle_3": {
+    "ko": "노란 딸랑이",
+    "en": "Yellow Baby Rattle"
+  },
+  "t_rattle_4": {
+    "ko": "초록 딸랑이",
+    "en": "Green Baby Rattle"
+  },
+  "t_phone_1": {
+    "ko": "빨간 장난감 전화기",
+    "en": "Red Toy Telephone"
+  },
+  "t_phone_2": {
+    "ko": "파란 장난감 전화기",
+    "en": "Blue Toy Telephone"
+  },
+  "t_phone_3": {
+    "ko": "노란 장난감 전화기",
+    "en": "Yellow Toy Telephone"
+  },
+  "t_phone_4": {
+    "ko": "초록 장난감 전화기",
+    "en": "Green Toy Telephone"
+  },
+  "t_bricks_1": {
+    "ko": "빨간 조립 블록",
+    "en": "Red Building Bricks"
+  },
+  "t_bricks_2": {
+    "ko": "파란 조립 블록",
+    "en": "Blue Building Bricks"
+  },
+  "t_bricks_3": {
+    "ko": "노란 조립 블록",
+    "en": "Yellow Building Bricks"
+  },
+  "t_bricks_4": {
+    "ko": "초록 조립 블록",
+    "en": "Green Building Bricks"
+  },
+  "t_hobbyhorse_1": {
+    "ko": "빨간 막대 말",
+    "en": "Red Hobby Horse"
+  },
+  "t_hobbyhorse_2": {
+    "ko": "파란 막대 말",
+    "en": "Blue Hobby Horse"
+  },
+  "t_hobbyhorse_3": {
+    "ko": "노란 막대 말",
+    "en": "Yellow Hobby Horse"
+  },
+  "t_hobbyhorse_4": {
+    "ko": "초록 막대 말",
+    "en": "Green Hobby Horse"
+  },
+  "t_tractor_1": {
+    "ko": "빨간 장난감 트랙터",
+    "en": "Red Toy Tractor"
+  },
+  "t_tractor_2": {
+    "ko": "파란 장난감 트랙터",
+    "en": "Blue Toy Tractor"
+  },
+  "t_tractor_3": {
+    "ko": "노란 장난감 트랙터",
+    "en": "Yellow Toy Tractor"
+  },
+  "t_tractor_4": {
+    "ko": "초록 장난감 트랙터",
+    "en": "Green Toy Tractor"
+  },
+  "t_bubbles_1": {
+    "ko": "빨간 비눗방울 놀이",
+    "en": "Red Bubble Wand"
+  },
+  "t_bubbles_2": {
+    "ko": "파란 비눗방울 놀이",
+    "en": "Blue Bubble Wand"
+  },
+  "t_bubbles_3": {
+    "ko": "노란 비눗방울 놀이",
+    "en": "Yellow Bubble Wand"
+  },
+  "t_bubbles_4": {
+    "ko": "초록 비눗방울 놀이",
+    "en": "Green Bubble Wand"
+  },
+  "t_firetruck_1": {
+    "ko": "빨간 장난감 소방차",
+    "en": "Red Toy Fire Truck"
+  },
+  "t_firetruck_2": {
+    "ko": "파란 장난감 소방차",
+    "en": "Blue Toy Fire Truck"
+  },
+  "t_firetruck_3": {
+    "ko": "노란 장난감 소방차",
+    "en": "Yellow Toy Fire Truck"
+  },
+  "t_firetruck_4": {
+    "ko": "초록 장난감 소방차",
+    "en": "Green Toy Fire Truck"
+  },
+  "t_paperboat_1": {
+    "ko": "빨간 종이배",
+    "en": "Red Paper Boat"
+  },
+  "t_paperboat_2": {
+    "ko": "파란 종이배",
+    "en": "Blue Paper Boat"
+  },
+  "t_paperboat_3": {
+    "ko": "노란 종이배",
+    "en": "Yellow Paper Boat"
+  },
+  "t_paperboat_4": {
+    "ko": "초록 종이배",
+    "en": "Green Paper Boat"
+  },
+  "t_puppet_1": {
+    "ko": "빨간 꼭두각시 인형",
+    "en": "Red Marionette"
+  },
+  "t_puppet_2": {
+    "ko": "파란 꼭두각시 인형",
+    "en": "Blue Marionette"
+  },
+  "t_puppet_3": {
+    "ko": "노란 꼭두각시 인형",
+    "en": "Yellow Marionette"
+  },
+  "t_puppet_4": {
+    "ko": "초록 꼭두각시 인형",
+    "en": "Green Marionette"
+  },
+  "t_castle_1": {
+    "ko": "빨간 장난감 성",
+    "en": "Red Toy Castle"
+  },
+  "t_castle_2": {
+    "ko": "파란 장난감 성",
+    "en": "Blue Toy Castle"
+  },
+  "t_castle_3": {
+    "ko": "노란 장난감 성",
+    "en": "Yellow Toy Castle"
+  },
+  "t_castle_4": {
+    "ko": "초록 장난감 성",
+    "en": "Green Toy Castle"
   }
 }

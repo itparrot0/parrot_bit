@@ -89,9 +89,16 @@ List<JobResult> arrange(PackConfig config, List<JobResult> results) {
 
 String _pad(Object v, int w) => '$v'.padLeft(w);
 
-/// 이미 만든 팩(out/<pack>.json + report.csv)의 앞 [count]개를 다시 만들지 않고 그대로 가져온다.
+/// 이미 만든 팩(out/`<pack>.json` + report.csv)의 앞 [count]개를 다시 만들지 않고 그대로 가져온다.
 /// 설정 앞부분이 그 팩을 만들 때와 같을 때만 쓴다 (생성은 결정적이라 다시 만들어도 바이트 단위로 같다).
-List<JobResult> _reuse(String out, String pack, int count) {
+/// 표시 이름은 지금 names.json 으로 다시 붙인다 (그림 이름을 고쳐도 다시 만들 필요 없게).
+List<JobResult> _reuse(
+  String out,
+  PackConfig config,
+  Map<String, dynamic> names,
+  int count,
+) {
+  final pack = config.pack;
   final levels = [
     for (final j
         in jsonDecode(File(_join(out, '$pack.json')).readAsStringSync())
@@ -107,7 +114,45 @@ List<JobResult> _reuse(String out, String pack, int count) {
   return [
     for (var i = 0; i < count; i++)
       () {
-        final l = levels[i], m = l.meta!;
+        final old = levels[i], m0 = old.meta!;
+        final spec = config.levels[i];
+        final n = names[spec.art] as Map<String, dynamic>?;
+        final v2 = spec.variant != null && spec.variant! > 1;
+        final suffix = v2 ? ' ${roman(spec.variant!)}' : '';
+        final m = LevelMeta(
+          score: m0.score,
+          difficulty: m0.difficulty,
+          peakSlots: m0.peakSlots,
+          avgSlots: m0.avgSlots,
+          randomWinRate: m0.randomWinRate,
+          solverNodes: m0.solverNodes,
+          art: m0.art,
+          scale: m0.scale,
+          name: n == null
+              ? m0.name
+              : LevelName(
+                  (n['ko'] as String) + suffix,
+                  (n['en'] as String) + suffix,
+                ),
+        );
+        if (m0.art != spec.art) {
+          throw StateError(
+            'reuse #${i + 1}: 설정(${spec.art})과 팩(${m0.art})이 다르다',
+          );
+        }
+        final l = Level(
+          id: old.id,
+          width: old.width,
+          height: old.height,
+          palette: old.palette,
+          cells: old.cells,
+          starts: old.starts,
+          lanes: old.lanes,
+          slotCount: old.slotCount,
+          realtime: old.realtime,
+          visible: old.visible,
+          meta: m,
+        );
         final drops = [for (final lane in l.lanes) ...lane];
         return JobResult(
           index: i,
@@ -151,7 +196,7 @@ Future<List<Level>> build(
           as Map<String, dynamic>;
   final reused = reuse == null || reuse == 0
       ? const <JobResult>[]
-      : _reuse(_join(base, 'out'), config.pack, reuse);
+      : _reuse(_join(base, 'out'), config, names, reuse);
   final jobs = [
     for (var index = reused.length; index < config.levels.length; index++)
       () {
