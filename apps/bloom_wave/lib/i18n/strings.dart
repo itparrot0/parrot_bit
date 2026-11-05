@@ -1,6 +1,9 @@
 // 화면 문구 (한국어 / 영어). 키를 바꾸면 두 언어를 함께 바꾼다 — 테스트가 키 짝을 확인한다.
 
 const Map<String, String> ko = {
+  'pullAd': '광고 보고 무료 뽑기 · 하루 1번',
+  'pullAdUsed': '무료 뽑기는 아침 6시에 다시',
+  'pullAdFailed': '광고를 끝까지 봐야 뽑을 수 있어요',
   'tutorial_sets':
       '테두리 색이 같은 물방울은 한 묶음(set)이에요.\n묶인 물방울이 모두 줄 맨 위에 와야 누를 수 있고,\n누르면 한꺼번에 슬롯으로 들어가요.\n빈 슬롯이 묶음 수만큼 있어야 해요.',
   'setWaiting': '묶인 물방울이 모두 맨 위에 와야 해요',
@@ -136,6 +139,9 @@ const Map<String, String> ko = {
 };
 
 const Map<String, String> en = {
+  'pullAd': 'Free pull with an ad · once a day',
+  'pullAdUsed': 'Free pull is back at 6 AM',
+  'pullAdFailed': 'Watch the whole ad to pull',
   'tutorial_sets':
       'Drops with the same colored ring are a set.\nYou can tap a set only when all of its drops\nare at the top of their lanes,\nand they all go into the slots together.\nYou need that many free slots.',
   'setWaiting': 'All drops in the set must be at the top',

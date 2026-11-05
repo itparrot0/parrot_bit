@@ -6,6 +6,8 @@
 //  - 중복 조각이면 뽑기 골드의 10% 를 돌려준다 ([GachaConfig.refund]).
 //  - 한 스킨의 조각을 모두 모으면 해금되고, 그 뒤로는 그 스킨의 조각이 후보에서 빠진다.
 //  - 모든 스킨을 해금하면 뽑기를 할 수 없다.
+//  - 무료 뽑기 (2026-11-05): 보상형 광고를 끝까지 보면 하루 1번 골드 없이 뽑는다 (햇빛 광고 충전과 같은 아침 6시 초기화).
+//    낸 골드가 없으므로 중복 조각이어도 돌려받는 골드는 없다.
 import 'dart:math' as math;
 
 import '../save/save_store.dart';
@@ -57,10 +59,10 @@ List<SkinOdds> gachaOdds(SaveData d) {
 
 enum PullBlock { notEnoughGold, allUnlocked }
 
-/// 지금 뽑을 수 없는 이유 (뽑을 수 있으면 null)
-PullBlock? pullBlock(SaveData d) {
+/// 지금 뽑을 수 없는 이유 (뽑을 수 있으면 null). free 면 골드는 보지 않는다
+PullBlock? pullBlock(SaveData d, {bool free = false}) {
   if (gachaPool(d).isEmpty) return PullBlock.allUnlocked;
-  if (d.gold < GachaConfig.pullCost) return PullBlock.notEnoughGold;
+  if (!free && d.gold < GachaConfig.pullCost) return PullBlock.notEnoughGold;
   return null;
 }
 
@@ -91,28 +93,31 @@ class PullResult {
 }
 
 /// 한 번 뽑는다. d 를 바로 바꾼다 (골드 차감·조각 추가·반환). 뽑을 수 없으면 StateError.
-PullResult pull(SaveData d, math.Random rng) {
-  final block = pullBlock(d);
+/// free = 무료 뽑기(광고): 골드를 내지 않고, 중복이어도 돌려받지 않는다
+PullResult pull(SaveData d, math.Random rng, {bool free = false}) {
+  final block = pullBlock(d, free: free);
   if (block != null) throw StateError('cannot pull: ${block.name}');
   final pool = gachaPool(d);
   final p = pool[rng.nextInt(pool.length)];
-  d.gold -= GachaConfig.pullCost;
+  final cost = free ? 0 : GachaConfig.pullCost;
+  d.gold -= cost;
   final owned = d.skinPieces.putIfAbsent(p.skin.id, () => <int>{});
   if (!owned.add(p.index)) {
-    d.gold += GachaConfig.refund;
+    final refund = free ? 0 : GachaConfig.refund;
+    d.gold += refund;
     return PullResult(
       skin: p.skin,
       piece: p.index,
       outcome: PullOutcome.duplicate,
-      cost: GachaConfig.pullCost,
-      refund: GachaConfig.refund,
+      cost: cost,
+      refund: refund,
     );
   }
   return PullResult(
     skin: p.skin,
     piece: p.index,
     outcome: d.isUnlocked(p.skin) ? PullOutcome.unlocked : PullOutcome.newPiece,
-    cost: GachaConfig.pullCost,
+    cost: cost,
     refund: 0,
   );
 }

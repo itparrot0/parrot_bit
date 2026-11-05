@@ -6,6 +6,7 @@
 //  - schema 4 (2026-11-04): skins — 스킨별 모은 퍼즐 조각(pieces), 장착한 스킨(equipped).
 //    해금 여부는 따로 저장하지 않고 "조각을 모두 모았나"로 계산한다 (economy/skins.dart)
 //  - schema 5 (2026-11-04): items(아이템 개수·해금·튜토리얼 완료), x2(남은 시간·켜짐). 설정의 웨이브 속도는 x2 로 바뀌어 없앤다
+//  - schema 8 (2026-11-05): adPullDay — 광고 무료 뽑기를 쓴 날 (lives.dart adDayKey, 아침 6시 기준)
 //  - schema 7 (2026-11-05): orders — 골드를 지급한 결제 주문 id (최근 [maxOrders]개, 같은 결제를 두 번 지급하지 않게)
 //  - schema 6 (2026-11-05): lives — 햇빛 개수·회복 기준 시각·광고 충전한 날 (economy/lives.dart). 옛 저장은 가득 찬 상태로 시작
 import 'dart:convert';
@@ -19,7 +20,7 @@ import '../economy/lives.dart';
 import '../economy/skins.dart';
 
 const saveKey = 'bloomwave.save';
-const saveSchema = 7;
+const saveSchema = 8;
 
 /// 지급한 주문 id 를 몇 개까지 기억하나
 const maxOrders = 100;
@@ -76,6 +77,7 @@ class SaveData {
     this.x2On = false,
     Lives? lives,
     List<String>? orders,
+    this.adPullDay = '',
   }) : lives = lives ?? Lives(),
        orders = orders ?? <String>[],
        cleared = cleared ?? <String>{},
@@ -122,6 +124,11 @@ class SaveData {
   /// 골드를 지급한 결제 주문 id (오래된 것부터, 최대 [maxOrders]개)
   final List<String> orders;
 
+  /// 광고 무료 뽑기를 쓴 날 ([adDayKey]). 오늘 키와 같으면 오늘은 이미 썼다
+  String adPullDay;
+
+  bool adPullAvailable(DateTime now) => adPullDay != adDayKey(now);
+
   int itemCount(ItemKind k) => items[k] ?? 0;
 
   /// 해금된 스킨인가 (기본 스킨이거나 조각을 모두 모음)
@@ -162,6 +169,7 @@ class SaveData {
     'x2': {'ms': x2Ms, 'on': x2On},
     'lives': lives.toJson(),
     'orders': orders,
+    'adPullDay': adPullDay,
   };
 }
 
@@ -260,6 +268,9 @@ SaveData migrate(Object? raw, {String lang = 'ko'}) {
     ..count = lv.count
     ..anchorMs = lv.anchorMs
     ..adDay = lv.adDay;
+  // schema 7 → 8: 무료 뽑기 안 씀
+  final apd = raw['adPullDay'];
+  if (apd is String) d.adPullDay = apd;
   // schema 6 → 7: 지급한 주문 없음
   final orders = raw['orders'];
   if (orders is List) {
@@ -347,6 +358,15 @@ class SaveStore {
   /// 스킨 뽑기 한 번 (골드 차감·조각 추가·중복 반환을 한 번에 저장). 뽑을 수 없으면 StateError
   Future<PullResult> pullSkin(math.Random rng) async {
     final r = pull(data, rng);
+    await save();
+    return r;
+  }
+
+  /// 광고를 끝까지 본 뒤 무료 뽑기 (하루 1번). 오늘 이미 썼거나 뽑을 수 없으면 StateError
+  Future<PullResult> pullSkinWithAd(math.Random rng, DateTime now) async {
+    if (!data.adPullAvailable(now)) throw StateError('ad pull used today');
+    final r = pull(data, rng, free: true);
+    data.adPullDay = adDayKey(now);
     await save();
     return r;
   }

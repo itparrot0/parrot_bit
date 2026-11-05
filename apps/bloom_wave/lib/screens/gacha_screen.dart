@@ -43,6 +43,9 @@ class GachaScreenState extends State<GachaScreen>
   bool _odds = false;
   String? _msg;
 
+  /// 보상형 광고를 보는 중
+  bool _adBusy = false;
+
   @override
   void dispose() {
     anim.dispose();
@@ -62,6 +65,36 @@ class GachaScreenState extends State<GachaScreen>
       return;
     }
     final r = await app.save.pullSkin(app.rng);
+    if (!mounted) return;
+    app.sfx.tap();
+    setState(() {
+      result = r;
+      revealed = false;
+      _msg = null;
+    });
+    anim.forward(from: 0);
+  }
+
+  /// 광고 보고 무료 뽑기 (하루 1번, 아침 6시 초기화)
+  Future<void> _pullAd(AppServices app) async {
+    if (anim.isAnimating || _adBusy) return;
+    final now = app.clock();
+    if (!app.save.data.adPullAvailable(now) ||
+        pullBlock(app.save.data, free: true) != null) {
+      app.sfx.deny();
+      return;
+    }
+    setState(() => _adBusy = true);
+    final ok = await app.ads.rewarded();
+    if (!mounted) return;
+    setState(() => _adBusy = false);
+    if (!ok) {
+      app.sfx.deny();
+      setState(() => _msg = app.t('pullAdFailed'));
+      return;
+    }
+    // 광고를 보는 동안 아침 6시가 지나도 광고를 시작한 날로 친다
+    final r = await app.save.pullSkinWithAd(app.rng, now);
     if (!mounted) return;
     app.sfx.tap();
     setState(() {
@@ -186,7 +219,7 @@ class GachaScreenState extends State<GachaScreen>
               if (_msg != null)
                 At(
                   x: kW / 2,
-                  y: kH - bottom - 470,
+                  y: kH - bottom - 620,
                   h: 80,
                   child: Label(
                     _msg!,
@@ -197,7 +230,7 @@ class GachaScreenState extends State<GachaScreen>
                 ),
               At(
                 x: kW / 2,
-                y: kH - bottom - 320,
+                y: kH - bottom - 470,
                 w: 900,
                 h: 200,
                 child: PillButton(
@@ -218,6 +251,34 @@ class GachaScreenState extends State<GachaScreen>
                   onTap: () => _pull(app),
                 ),
               ),
+              // 광고 보고 무료 뽑기 (2026-11-05)
+              if (block != PullBlock.allUnlocked)
+                At(
+                  x: kW / 2,
+                  y: kH - bottom - 300,
+                  w: 900,
+                  h: 150,
+                  child: PillButton(
+                    app.t(
+                      d.adPullAvailable(app.clock()) ? 'pullAd' : 'pullAdUsed',
+                    ),
+                    key: const ValueKey('btn-pull-ad'),
+                    w: 800,
+                    h: 130,
+                    size: 42,
+                    enabled:
+                        d.adPullAvailable(app.clock()) &&
+                        !anim.isAnimating &&
+                        !_adBusy,
+                    leading: const Icon(
+                      Icons.play_circle_fill_rounded,
+                      size: 56,
+                      color: Colors.white,
+                    ),
+                    onClick: app.sfx.click,
+                    onTap: () => _pullAd(app),
+                  ),
+                ),
               At(
                 x: kW / 2,
                 y: kH - bottom - 150,
@@ -301,7 +362,7 @@ class GachaScreenState extends State<GachaScreen>
               key: const ValueKey('gacha-progress'),
               style: textStyle(38, color: C.inkSoft, weight: FontWeight.w600),
             ),
-            if (r.outcome == PullOutcome.duplicate) ...[
+            if (r.outcome == PullOutcome.duplicate && r.refund > 0) ...[
               const SizedBox(height: 20),
               Row(
                 mainAxisSize: MainAxisSize.min,
