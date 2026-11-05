@@ -487,16 +487,437 @@ class EntryTagsCompanion extends UpdateCompanion<EntryTagRow> {
   }
 }
 
+class $ThoughtCheckInsTable extends ThoughtCheckIns
+    with TableInfo<$ThoughtCheckInsTable, CheckInRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ThoughtCheckInsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<String> date = GeneratedColumn<String>(
+    'date',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _slotMeta = const VerificationMeta('slot');
+  @override
+  late final GeneratedColumn<String> slot = GeneratedColumn<String>(
+    'slot',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _paceMeta = const VerificationMeta('pace');
+  @override
+  late final GeneratedColumn<String> pace = GeneratedColumn<String>(
+    'pace',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sensesMeta = const VerificationMeta('senses');
+  @override
+  late final GeneratedColumn<String> senses = GeneratedColumn<String>(
+    'senses',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _thoughtMeta = const VerificationMeta(
+    'thought',
+  );
+  @override
+  late final GeneratedColumn<String> thought = GeneratedColumn<String>(
+    'thought',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _reframeMeta = const VerificationMeta(
+    'reframe',
+  );
+  @override
+  late final GeneratedColumn<String> reframe = GeneratedColumn<String>(
+    'reframe',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    date,
+    slot,
+    pace,
+    senses,
+    thought,
+    reframe,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'thought_check_ins';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CheckInRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('date')) {
+      context.handle(
+        _dateMeta,
+        date.isAcceptableOrUnknown(data['date']!, _dateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('slot')) {
+      context.handle(
+        _slotMeta,
+        slot.isAcceptableOrUnknown(data['slot']!, _slotMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_slotMeta);
+    }
+    if (data.containsKey('pace')) {
+      context.handle(
+        _paceMeta,
+        pace.isAcceptableOrUnknown(data['pace']!, _paceMeta),
+      );
+    }
+    if (data.containsKey('senses')) {
+      context.handle(
+        _sensesMeta,
+        senses.isAcceptableOrUnknown(data['senses']!, _sensesMeta),
+      );
+    }
+    if (data.containsKey('thought')) {
+      context.handle(
+        _thoughtMeta,
+        thought.isAcceptableOrUnknown(data['thought']!, _thoughtMeta),
+      );
+    }
+    if (data.containsKey('reframe')) {
+      context.handle(
+        _reframeMeta,
+        reframe.isAcceptableOrUnknown(data['reframe']!, _reframeMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {date, slot};
+  @override
+  CheckInRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CheckInRow(
+      date: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}date'],
+      )!,
+      slot: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}slot'],
+      )!,
+      pace: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pace'],
+      ),
+      senses: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}senses'],
+      ),
+      thought: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}thought'],
+      ),
+      reframe: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reframe'],
+      ),
+    );
+  }
+
+  @override
+  $ThoughtCheckInsTable createAlias(String alias) {
+    return $ThoughtCheckInsTable(attachedDatabase, alias);
+  }
+}
+
+class CheckInRow extends DataClass implements Insertable<CheckInRow> {
+  final String date;
+
+  /// `CheckInSlot.name` (`morning` / `afternoon`).
+  final String slot;
+
+  /// `MindPace.name`. 답하지 않았으면 null.
+  final String? pace;
+
+  /// `SenseShift.name`. 답하지 않았으면 null.
+  final String? senses;
+  final String? thought;
+  final String? reframe;
+  const CheckInRow({
+    required this.date,
+    required this.slot,
+    this.pace,
+    this.senses,
+    this.thought,
+    this.reframe,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['date'] = Variable<String>(date);
+    map['slot'] = Variable<String>(slot);
+    if (!nullToAbsent || pace != null) {
+      map['pace'] = Variable<String>(pace);
+    }
+    if (!nullToAbsent || senses != null) {
+      map['senses'] = Variable<String>(senses);
+    }
+    if (!nullToAbsent || thought != null) {
+      map['thought'] = Variable<String>(thought);
+    }
+    if (!nullToAbsent || reframe != null) {
+      map['reframe'] = Variable<String>(reframe);
+    }
+    return map;
+  }
+
+  ThoughtCheckInsCompanion toCompanion(bool nullToAbsent) {
+    return ThoughtCheckInsCompanion(
+      date: Value(date),
+      slot: Value(slot),
+      pace: pace == null && nullToAbsent ? const Value.absent() : Value(pace),
+      senses: senses == null && nullToAbsent
+          ? const Value.absent()
+          : Value(senses),
+      thought: thought == null && nullToAbsent
+          ? const Value.absent()
+          : Value(thought),
+      reframe: reframe == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reframe),
+    );
+  }
+
+  factory CheckInRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CheckInRow(
+      date: serializer.fromJson<String>(json['date']),
+      slot: serializer.fromJson<String>(json['slot']),
+      pace: serializer.fromJson<String?>(json['pace']),
+      senses: serializer.fromJson<String?>(json['senses']),
+      thought: serializer.fromJson<String?>(json['thought']),
+      reframe: serializer.fromJson<String?>(json['reframe']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'date': serializer.toJson<String>(date),
+      'slot': serializer.toJson<String>(slot),
+      'pace': serializer.toJson<String?>(pace),
+      'senses': serializer.toJson<String?>(senses),
+      'thought': serializer.toJson<String?>(thought),
+      'reframe': serializer.toJson<String?>(reframe),
+    };
+  }
+
+  CheckInRow copyWith({
+    String? date,
+    String? slot,
+    Value<String?> pace = const Value.absent(),
+    Value<String?> senses = const Value.absent(),
+    Value<String?> thought = const Value.absent(),
+    Value<String?> reframe = const Value.absent(),
+  }) => CheckInRow(
+    date: date ?? this.date,
+    slot: slot ?? this.slot,
+    pace: pace.present ? pace.value : this.pace,
+    senses: senses.present ? senses.value : this.senses,
+    thought: thought.present ? thought.value : this.thought,
+    reframe: reframe.present ? reframe.value : this.reframe,
+  );
+  CheckInRow copyWithCompanion(ThoughtCheckInsCompanion data) {
+    return CheckInRow(
+      date: data.date.present ? data.date.value : this.date,
+      slot: data.slot.present ? data.slot.value : this.slot,
+      pace: data.pace.present ? data.pace.value : this.pace,
+      senses: data.senses.present ? data.senses.value : this.senses,
+      thought: data.thought.present ? data.thought.value : this.thought,
+      reframe: data.reframe.present ? data.reframe.value : this.reframe,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CheckInRow(')
+          ..write('date: $date, ')
+          ..write('slot: $slot, ')
+          ..write('pace: $pace, ')
+          ..write('senses: $senses, ')
+          ..write('thought: $thought, ')
+          ..write('reframe: $reframe')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(date, slot, pace, senses, thought, reframe);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CheckInRow &&
+          other.date == this.date &&
+          other.slot == this.slot &&
+          other.pace == this.pace &&
+          other.senses == this.senses &&
+          other.thought == this.thought &&
+          other.reframe == this.reframe);
+}
+
+class ThoughtCheckInsCompanion extends UpdateCompanion<CheckInRow> {
+  final Value<String> date;
+  final Value<String> slot;
+  final Value<String?> pace;
+  final Value<String?> senses;
+  final Value<String?> thought;
+  final Value<String?> reframe;
+  final Value<int> rowid;
+  const ThoughtCheckInsCompanion({
+    this.date = const Value.absent(),
+    this.slot = const Value.absent(),
+    this.pace = const Value.absent(),
+    this.senses = const Value.absent(),
+    this.thought = const Value.absent(),
+    this.reframe = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ThoughtCheckInsCompanion.insert({
+    required String date,
+    required String slot,
+    this.pace = const Value.absent(),
+    this.senses = const Value.absent(),
+    this.thought = const Value.absent(),
+    this.reframe = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : date = Value(date),
+       slot = Value(slot);
+  static Insertable<CheckInRow> custom({
+    Expression<String>? date,
+    Expression<String>? slot,
+    Expression<String>? pace,
+    Expression<String>? senses,
+    Expression<String>? thought,
+    Expression<String>? reframe,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (date != null) 'date': date,
+      if (slot != null) 'slot': slot,
+      if (pace != null) 'pace': pace,
+      if (senses != null) 'senses': senses,
+      if (thought != null) 'thought': thought,
+      if (reframe != null) 'reframe': reframe,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ThoughtCheckInsCompanion copyWith({
+    Value<String>? date,
+    Value<String>? slot,
+    Value<String?>? pace,
+    Value<String?>? senses,
+    Value<String?>? thought,
+    Value<String?>? reframe,
+    Value<int>? rowid,
+  }) {
+    return ThoughtCheckInsCompanion(
+      date: date ?? this.date,
+      slot: slot ?? this.slot,
+      pace: pace ?? this.pace,
+      senses: senses ?? this.senses,
+      thought: thought ?? this.thought,
+      reframe: reframe ?? this.reframe,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (date.present) {
+      map['date'] = Variable<String>(date.value);
+    }
+    if (slot.present) {
+      map['slot'] = Variable<String>(slot.value);
+    }
+    if (pace.present) {
+      map['pace'] = Variable<String>(pace.value);
+    }
+    if (senses.present) {
+      map['senses'] = Variable<String>(senses.value);
+    }
+    if (thought.present) {
+      map['thought'] = Variable<String>(thought.value);
+    }
+    if (reframe.present) {
+      map['reframe'] = Variable<String>(reframe.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ThoughtCheckInsCompanion(')
+          ..write('date: $date, ')
+          ..write('slot: $slot, ')
+          ..write('pace: $pace, ')
+          ..write('senses: $senses, ')
+          ..write('thought: $thought, ')
+          ..write('reframe: $reframe, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $DiaryEntriesTable diaryEntries = $DiaryEntriesTable(this);
   late final $EntryTagsTable entryTags = $EntryTagsTable(this);
+  late final $ThoughtCheckInsTable thoughtCheckIns = $ThoughtCheckInsTable(
+    this,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [diaryEntries, entryTags];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    diaryEntries,
+    entryTags,
+    thoughtCheckIns,
+  ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
     WritePropagation(
@@ -1031,6 +1452,236 @@ typedef $$EntryTagsTableProcessedTableManager =
       EntryTagRow,
       PrefetchHooks Function({bool date})
     >;
+typedef $$ThoughtCheckInsTableCreateCompanionBuilder =
+    ThoughtCheckInsCompanion Function({
+      required String date,
+      required String slot,
+      Value<String?> pace,
+      Value<String?> senses,
+      Value<String?> thought,
+      Value<String?> reframe,
+      Value<int> rowid,
+    });
+typedef $$ThoughtCheckInsTableUpdateCompanionBuilder =
+    ThoughtCheckInsCompanion Function({
+      Value<String> date,
+      Value<String> slot,
+      Value<String?> pace,
+      Value<String?> senses,
+      Value<String?> thought,
+      Value<String?> reframe,
+      Value<int> rowid,
+    });
+
+class $$ThoughtCheckInsTableFilterComposer
+    extends Composer<_$AppDatabase, $ThoughtCheckInsTable> {
+  $$ThoughtCheckInsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get slot => $composableBuilder(
+    column: $table.slot,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get pace => $composableBuilder(
+    column: $table.pace,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get senses => $composableBuilder(
+    column: $table.senses,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get thought => $composableBuilder(
+    column: $table.thought,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get reframe => $composableBuilder(
+    column: $table.reframe,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$ThoughtCheckInsTableOrderingComposer
+    extends Composer<_$AppDatabase, $ThoughtCheckInsTable> {
+  $$ThoughtCheckInsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get date => $composableBuilder(
+    column: $table.date,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get slot => $composableBuilder(
+    column: $table.slot,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get pace => $composableBuilder(
+    column: $table.pace,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get senses => $composableBuilder(
+    column: $table.senses,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get thought => $composableBuilder(
+    column: $table.thought,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get reframe => $composableBuilder(
+    column: $table.reframe,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$ThoughtCheckInsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $ThoughtCheckInsTable> {
+  $$ThoughtCheckInsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get date =>
+      $composableBuilder(column: $table.date, builder: (column) => column);
+
+  GeneratedColumn<String> get slot =>
+      $composableBuilder(column: $table.slot, builder: (column) => column);
+
+  GeneratedColumn<String> get pace =>
+      $composableBuilder(column: $table.pace, builder: (column) => column);
+
+  GeneratedColumn<String> get senses =>
+      $composableBuilder(column: $table.senses, builder: (column) => column);
+
+  GeneratedColumn<String> get thought =>
+      $composableBuilder(column: $table.thought, builder: (column) => column);
+
+  GeneratedColumn<String> get reframe =>
+      $composableBuilder(column: $table.reframe, builder: (column) => column);
+}
+
+class $$ThoughtCheckInsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $ThoughtCheckInsTable,
+          CheckInRow,
+          $$ThoughtCheckInsTableFilterComposer,
+          $$ThoughtCheckInsTableOrderingComposer,
+          $$ThoughtCheckInsTableAnnotationComposer,
+          $$ThoughtCheckInsTableCreateCompanionBuilder,
+          $$ThoughtCheckInsTableUpdateCompanionBuilder,
+          (
+            CheckInRow,
+            BaseReferences<_$AppDatabase, $ThoughtCheckInsTable, CheckInRow>,
+          ),
+          CheckInRow,
+          PrefetchHooks Function()
+        > {
+  $$ThoughtCheckInsTableTableManager(
+    _$AppDatabase db,
+    $ThoughtCheckInsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$ThoughtCheckInsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$ThoughtCheckInsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$ThoughtCheckInsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> date = const Value.absent(),
+                Value<String> slot = const Value.absent(),
+                Value<String?> pace = const Value.absent(),
+                Value<String?> senses = const Value.absent(),
+                Value<String?> thought = const Value.absent(),
+                Value<String?> reframe = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ThoughtCheckInsCompanion(
+                date: date,
+                slot: slot,
+                pace: pace,
+                senses: senses,
+                thought: thought,
+                reframe: reframe,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String date,
+                required String slot,
+                Value<String?> pace = const Value.absent(),
+                Value<String?> senses = const Value.absent(),
+                Value<String?> thought = const Value.absent(),
+                Value<String?> reframe = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => ThoughtCheckInsCompanion.insert(
+                date: date,
+                slot: slot,
+                pace: pace,
+                senses: senses,
+                thought: thought,
+                reframe: reframe,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$ThoughtCheckInsTable, CheckInRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $ThoughtCheckInsTable,
+                    CheckInRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$ThoughtCheckInsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $ThoughtCheckInsTable,
+      CheckInRow,
+      $$ThoughtCheckInsTableFilterComposer,
+      $$ThoughtCheckInsTableOrderingComposer,
+      $$ThoughtCheckInsTableAnnotationComposer,
+      $$ThoughtCheckInsTableCreateCompanionBuilder,
+      $$ThoughtCheckInsTableUpdateCompanionBuilder,
+      (
+        CheckInRow,
+        BaseReferences<_$AppDatabase, $ThoughtCheckInsTable, CheckInRow>,
+      ),
+      CheckInRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -1039,4 +1690,6 @@ class $AppDatabaseManager {
       $$DiaryEntriesTableTableManager(_db, _db.diaryEntries);
   $$EntryTagsTableTableManager get entryTags =>
       $$EntryTagsTableTableManager(_db, _db.entryTags);
+  $$ThoughtCheckInsTableTableManager get thoughtCheckIns =>
+      $$ThoughtCheckInsTableTableManager(_db, _db.thoughtCheckIns);
 }

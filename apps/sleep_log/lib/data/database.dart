@@ -42,19 +42,50 @@ class EntryTags extends Table {
   Set<Column<Object>> get primaryKey => {date, tagId};
 }
 
+/// 생각 돌아보기 체크인 (PRD §3-3). 하루 두 칸 — 오전·오후.
+///
+/// 하루 기록(`diary_entries`)과 묶지 않는다. 체크인은 선택 기능이라, 수면 기록
+/// 없이도 있고 체크인 없이도 기록은 완결된다.
+@DataClassName('CheckInRow')
+class ThoughtCheckIns extends Table {
+  TextColumn get date => text()();
+
+  /// `CheckInSlot.name` (`morning` / `afternoon`).
+  TextColumn get slot => text()();
+
+  /// `MindPace.name`. 답하지 않았으면 null.
+  TextColumn get pace => text().nullable()();
+
+  /// `SenseShift.name`. 답하지 않았으면 null.
+  TextColumn get senses => text().nullable()();
+
+  TextColumn get thought => text().nullable()();
+  TextColumn get reframe => text().nullable()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {date, slot};
+}
+
 /// 슬립로그 로컬 DB (drift / SQLite).
 ///
 /// 스키마는 도메인 지식이므로 `core_storage`가 아니라 앱 안에 둔다
 /// (docs/prd/sleep_log.md §9-3). 기기 밖으로 나가는 경로는 없다 (§9-1).
-@DriftDatabase(tables: [DiaryEntries, EntryTags])
+@DriftDatabase(tables: [DiaryEntries, EntryTags, ThoughtCheckIns])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
   @override
-  int get schemaVersion => 1;
+  /// 1: 기록·태그. 2: 생각 돌아보기 체크인 표 추가.
+  @override
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
+    onUpgrade: (migrator, from, to) async {
+      if (from < 2) {
+        await migrator.createTable(thoughtCheckIns);
+      }
+    },
     beforeOpen: (details) async {
       // SQLite는 외래 키를 기본으로 검사하지 않는다. 이걸 켜야 기록을 지울 때
       // 태그도 같이 지워진다(ON DELETE CASCADE).

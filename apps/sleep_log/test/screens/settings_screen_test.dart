@@ -7,6 +7,8 @@ import 'package:sleep_log/data/settings_repository.dart';
 import 'package:sleep_log/domain/domain.dart';
 import 'package:sleep_log/screens/settings_screen.dart';
 
+import '../support/fake_check_in_reminder.dart';
+import '../support/in_memory_check_in_repository.dart';
 import '../support/in_memory_diary_repository.dart';
 
 void main() {
@@ -15,20 +17,33 @@ void main() {
   late ProviderContainer container;
   late InMemoryKeyValueStore store;
   late InMemoryDiaryRepository diary;
+  late InMemoryCheckInRepository checkIns;
+  late FakeCheckInReminder reminder;
 
   Future<void> pumpScreen(
     WidgetTester tester, {
     Map<String, Object>? stored,
+    bool permissionGranted = true,
   }) async {
+    reminder = FakeCheckInReminder(permissionGranted: permissionGranted);
     store = InMemoryKeyValueStore(stored);
     diary = InMemoryDiaryRepository([
       DiaryEntry(date: today, tags: {DefaultMoodTags.calm}),
       DiaryEntry(date: today.previous, tags: {DefaultMoodTags.down}),
     ]);
+    checkIns = InMemoryCheckInRepository([
+      ThoughtCheckIn(
+        date: today,
+        slot: CheckInSlot.morning,
+        pace: MindPace.busy,
+      ),
+    ]);
     container = ProviderContainer(
       overrides: [
         keyValueStoreProvider.overrideWithValue(store),
         diaryRepositoryProvider.overrideWithValue(diary),
+        checkInRepositoryProvider.overrideWithValue(checkIns),
+        checkInReminderProvider.overrideWithValue(reminder),
         initialSleepTargetProvider.overrideWithValue(
           SleepTarget(const Duration(hours: 7)),
         ),
@@ -91,7 +106,7 @@ void main() {
 
   group('마음 돌봄 안내', () {
     SwitchListTile toggle(WidgetTester tester) =>
-        tester.widget(find.byType(SwitchListTile));
+        tester.widget(find.byKey(const Key('settings.safetyNotice')));
 
     testWidgets('기본은 켜짐', (tester) async {
       await pumpScreen(tester);
@@ -102,7 +117,7 @@ void main() {
     testWidgets('끄면 저장되고, 다시 열어도 꺼져 있다', (tester) async {
       await pumpScreen(tester);
 
-      await tester.tap(find.byType(SwitchListTile));
+      await tester.tap(find.byKey(const Key('settings.safetyNotice')));
       await tester.pumpAndSettle();
 
       expect(toggle(tester).value, isFalse);
@@ -135,6 +150,7 @@ void main() {
 
       expect(await diary.find(today), isNull);
       expect(await diary.find(today.previous), isNull);
+      expect(await checkIns.find(today, CheckInSlot.morning), isNull);
       expect(find.text('모든 기록을 지웠어요.'), findsOneWidget);
       expect(
         container.read(sleepTargetProvider),
@@ -151,6 +167,59 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(await diary.find(today), isNotNull);
+    });
+  });
+
+  group('생각 돌아보기', () {
+    SwitchListTile toggle(WidgetTester tester) =>
+        tester.widget(find.byKey(const Key('settings.checkIn')));
+
+    testWidgets('기본은 꺼짐이고 알림 시각은 숨겨져 있다', (tester) async {
+      await pumpScreen(tester);
+
+      expect(toggle(tester).value, isFalse);
+      expect(find.text('오전 알림'), findsNothing);
+    });
+
+    testWidgets('켜면 저장되고, 권한을 물으며 알림이 잡힌다', (tester) async {
+      await pumpScreen(tester);
+
+      await tester.tap(find.byKey(const Key('settings.checkIn')));
+      await tester.pumpAndSettle();
+
+      expect(toggle(tester).value, isTrue);
+      expect(find.text('오전 알림'), findsOneWidget);
+      expect(find.text('10:00'), findsOneWidget);
+      expect(find.text('17:00'), findsOneWidget);
+      expect(reminder.calls.single.askPermission, isTrue);
+      expect(reminder.calls.single.settings.enabled, isTrue);
+      expect(
+        (await SettingsRepository(store).loadCheckInSettings()).enabled,
+        isTrue,
+      );
+    });
+
+    testWidgets('알림 권한을 거절하면 안내하고 기능은 켜 둔다', (tester) async {
+      await pumpScreen(tester, permissionGranted: false);
+
+      await tester.tap(find.byKey(const Key('settings.checkIn')));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('알림이 허용되지 않았어요'), findsOneWidget);
+      expect(toggle(tester).value, isTrue);
+    });
+
+    testWidgets('끄면 알림을 지운다 — 권한은 묻지 않는다', (tester) async {
+      await pumpScreen(
+        tester,
+        stored: {SettingsRepository.checkInEnabledKey: true},
+      );
+
+      await tester.tap(find.byKey(const Key('settings.checkIn')));
+      await tester.pumpAndSettle();
+
+      expect(reminder.calls.single.settings.enabled, isFalse);
+      expect(reminder.calls.single.askPermission, isFalse);
     });
   });
 }

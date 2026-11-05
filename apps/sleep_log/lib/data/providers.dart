@@ -4,7 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/domain.dart';
 import 'database.dart';
+import 'check_in_reminder.dart';
+import 'check_in_repository.dart';
 import 'diary_repository.dart';
+import 'drift_check_in_repository.dart';
 import 'drift_diary_repository.dart';
 import 'settings_repository.dart';
 
@@ -26,6 +29,15 @@ final diaryRepositoryProvider = Provider<DiaryRepository>(
   (ref) => DriftDiaryRepository(ref.watch(appDatabaseProvider)),
 );
 
+final checkInRepositoryProvider = Provider<CheckInRepository>(
+  (ref) => DriftCheckInRepository(ref.watch(appDatabaseProvider)),
+);
+
+/// 모든 생각 돌아보기 체크인 (날짜, 오전→오후 순).
+final checkInsProvider = StreamProvider<List<ThoughtCheckIn>>(
+  (ref) => ref.watch(checkInRepositoryProvider).watchAll(),
+);
+
 final settingsRepositoryProvider = Provider<SettingsRepository>(
   (ref) => SettingsRepository(ref.watch(keyValueStoreProvider)),
 );
@@ -36,8 +48,11 @@ final settingsRepositoryProvider = Provider<SettingsRepository>(
 /// 앱이 열린 채 자정을 넘기면 갱신되지 않는다. 아침 1회 사용이 기본이라
 /// (PRD §2) 지금은 두고, 필요해지면 자정 타이머로 무효화한다.
 final todayProvider = Provider<DiaryDate>(
-  (ref) => DiaryDate.fromDateTime(DateTime.now()),
+  (ref) => DiaryDate.fromDateTime(ref.watch(clockProvider)()),
 );
+
+/// 지금 시각을 읽는 함수. 테스트가 시각을 고정할 수 있게 한 곳에 둔다.
+final clockProvider = Provider<DateTime Function()>((ref) => DateTime.now);
 
 /// 모든 기록 (날짜 오름차순). 저장·삭제하면 자동으로 새 값이 온다.
 final diaryEntriesProvider = StreamProvider<List<DiaryEntry>>(
@@ -133,3 +148,33 @@ class SafetyBanner extends AsyncNotifier<SafetyAdvice> {
   /// 사용자가 닫았다. 이번 실행 동안 다시 보이지 않는다.
   void dismiss() => state = const AsyncData(SafetyAdvice.none);
 }
+
+/// 생각 돌아보기 설정 (기본 꺼짐). 바꾸면 알림 일정도 다시 잡힌다.
+final checkInSettingsProvider =
+    AsyncNotifierProvider<CheckInSettingsNotifier, CheckInSettings>(
+      CheckInSettingsNotifier.new,
+    );
+
+class CheckInSettingsNotifier extends AsyncNotifier<CheckInSettings> {
+  @override
+  Future<CheckInSettings> build() =>
+      ref.watch(settingsRepositoryProvider).loadCheckInSettings();
+
+  /// 저장하고 알림을 다시 잡는다. 꺼져 있다가 켜는 순간에만 알림 권한을 묻는다.
+  ///
+  /// 알림을 보낼 수 없으면(권한 거절) false — 기능은 켜진 채로 두고 화면이
+  /// 안내한다. 달력의 버튼으로는 언제든 할 수 있기 때문이다.
+  Future<bool> set(CheckInSettings settings) async {
+    final wasEnabled = state.value?.enabled ?? false;
+    await ref.read(settingsRepositoryProvider).saveCheckInSettings(settings);
+    state = AsyncData(settings);
+    return ref
+        .read(checkInReminderProvider)
+        .apply(settings, askPermission: settings.enabled && !wasEnabled);
+  }
+}
+
+/// 생각 돌아보기 알림. 테스트는 가짜로 바꿔 끼운다.
+final checkInReminderProvider = Provider<CheckInReminder>(
+  (ref) => LocalCheckInReminder(),
+);

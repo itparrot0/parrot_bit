@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../data/providers.dart';
 import '../screens/calendar_screen.dart';
+import '../screens/check_in_screen.dart';
 import '../screens/entry_screen.dart';
 import '../screens/onboarding_screen.dart';
 import '../screens/report_screen.dart';
@@ -17,6 +18,7 @@ abstract final class Routes {
   static const entry = 'entry';
   static const report = 'report';
   static const settings = 'settings';
+  static const checkIn = 'check_in';
 }
 
 /// 앱 라우터.
@@ -64,6 +66,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         name: Routes.entry,
         builder: (context, state) =>
             EntryScreen(date: state.pathParameters['date']!),
+      ),
+      // 생각 돌아보기. 알림을 누르면 그 날짜·시간대로 바로 온다 (PRD §3-3).
+      GoRoute(
+        path: '/check-in/:date/:slot',
+        name: Routes.checkIn,
+        builder: (context, state) => CheckInScreen(
+          date: state.pathParameters['date']!,
+          slot: state.pathParameters['slot']!,
+        ),
       ),
       GoRoute(
         path: '/report',

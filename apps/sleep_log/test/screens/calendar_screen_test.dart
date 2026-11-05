@@ -92,6 +92,8 @@ void main() {
       WidgetTester tester, {
       required Stream<List<DiaryEntry>> entries,
       SafetyAdvice banner = SafetyAdvice.none,
+      bool checkInEnabled = false,
+      List<ThoughtCheckIn> checkIns = const [],
     }) async {
       await tester.pumpWidget(
         ProviderScope(
@@ -100,6 +102,13 @@ void main() {
             diaryEntriesProvider.overrideWith((ref) => entries),
             sleepTargetProvider.overrideWithValue(target),
             safetyBannerProvider.overrideWith(() => _FixedBanner(banner)),
+            checkInSettingsProvider.overrideWith(
+              () => _FixedCheckInSettings(
+                CheckInSettings(enabled: checkInEnabled),
+              ),
+            ),
+            checkInsProvider.overrideWith((ref) => Stream.value(checkIns)),
+            clockProvider.overrideWithValue(() => DateTime(2026, 11, 5, 9)),
           ],
           child: const MaterialApp(home: CalendarScreen()),
         ),
@@ -189,6 +198,39 @@ void main() {
       expect(find.byKey(const Key('safetyBanner')), findsNothing);
       expect(find.text('오늘 기록'), findsOneWidget);
     });
+
+    testWidgets('생각 돌아보기를 켜지 않았으면 버튼이 없다', (tester) async {
+      await pumpScreen(tester, entries: Stream.value(const []));
+
+      expect(find.textContaining('생각 돌아보기'), findsNothing);
+    });
+
+    testWidgets('켰으면 지금 시간대(오전) 버튼이 보인다', (tester) async {
+      await pumpScreen(
+        tester,
+        entries: Stream.value(const []),
+        checkInEnabled: true,
+      );
+
+      expect(find.text('오전의 생각 돌아보기'), findsOneWidget);
+    });
+
+    testWidgets('이미 남긴 시간대면 남겼다고 표시한다', (tester) async {
+      await pumpScreen(
+        tester,
+        entries: Stream.value(const []),
+        checkInEnabled: true,
+        checkIns: [
+          ThoughtCheckIn(
+            date: today,
+            slot: CheckInSlot.morning,
+            pace: MindPace.usual,
+          ),
+        ],
+      );
+
+      expect(find.text('오전의 생각 돌아보기 · 남겼어요'), findsOneWidget);
+    });
   });
 }
 
@@ -200,4 +242,13 @@ class _FixedBanner extends SafetyBanner {
 
   @override
   Future<SafetyAdvice> build() async => advice;
+}
+
+class _FixedCheckInSettings extends CheckInSettingsNotifier {
+  _FixedCheckInSettings(this.settings);
+
+  final CheckInSettings settings;
+
+  @override
+  Future<CheckInSettings> build() async => settings;
 }

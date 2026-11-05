@@ -66,6 +66,8 @@ class CalendarScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
+              if (ref.watch(checkInSettingsProvider).value?.enabled ?? false)
+                _CheckInButton(today: today),
               MonthCalendar(
                 // 넘길 수 있는 범위가 바뀌면 페이저를 새로 만든다. 가장 오래된
                 // 기록이 바뀔 때만 일어나고, 달력은 원래 이번 달로 열린다.
@@ -84,6 +86,41 @@ class CalendarScreen extends ConsumerWidget {
 
   void _openEntry(BuildContext context, DiaryDate date) {
     context.pushNamed(Routes.entry, pathParameters: {'date': date.toIso()});
+  }
+}
+
+/// 지금 시간대의 생각 돌아보기로 가는 버튼. 기능을 켰을 때만 보인다.
+class _CheckInButton extends ConsumerWidget {
+  const _CheckInButton({required this.today});
+
+  final DiaryDate today;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final slot = CheckInSlot.at(ref.watch(clockProvider)());
+    final done =
+        ref
+            .watch(checkInsProvider)
+            .value
+            ?.any((c) => c.date == today && c.slot == slot) ??
+        false;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: SizedBox(
+        width: double.infinity,
+        child: OutlinedButton.icon(
+          onPressed: () => context.pushNamed(
+            Routes.checkIn,
+            pathParameters: {'date': today.toIso(), 'slot': slot.name},
+          ),
+          icon: Icon(
+            done ? Icons.check_circle_outline : Icons.self_improvement,
+          ),
+          label: Text('${slot.label}의 생각 돌아보기${done ? ' · 남겼어요' : ''}'),
+        ),
+      ),
+    );
   }
 }
 

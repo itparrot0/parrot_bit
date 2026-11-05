@@ -11,6 +11,10 @@ final class SettingsRepository {
   static const String safetyNoticeKey = 'sleep_log.safety_notice_enabled';
   static const String restShownKey = 'sleep_log.safety_rest_last_shown';
   static const String supportShownKey = 'sleep_log.safety_support_last_shown';
+  static const String checkInEnabledKey = 'sleep_log.check_in_enabled';
+  static const String checkInMorningKey = 'sleep_log.check_in_morning_minute';
+  static const String checkInAfternoonKey =
+      'sleep_log.check_in_afternoon_minute';
 
   final KeyValueStore _store;
 
@@ -59,6 +63,26 @@ final class SettingsRepository {
       await _store.setString(key, date.toIso());
     }
   }
+
+  Future<CheckInSettings> loadCheckInSettings() async => CheckInSettings(
+    enabled: await _store.getBool(checkInEnabledKey) ?? false,
+    morningTime: _clock(await _store.getInt(checkInMorningKey)),
+    afternoonTime: _clock(await _store.getInt(checkInAfternoonKey)),
+  );
+
+  Future<void> saveCheckInSettings(CheckInSettings settings) async {
+    await _store.setBool(checkInEnabledKey, settings.enabled);
+    await _store.setInt(checkInMorningKey, settings.morningTime.totalMinutes);
+    await _store.setInt(
+      checkInAfternoonKey,
+      settings.afternoonTime.totalMinutes,
+    );
+  }
+
+  static ClockTime? _clock(int? minutes) =>
+      minutes == null || minutes < 0 || minutes >= 24 * 60
+      ? null
+      : ClockTime(minutes ~/ 60, minutes % 60);
 
   static String? _shownKey(SafetyAdvice advice) => switch (advice) {
     SafetyAdvice.restSuggestion => restShownKey,
