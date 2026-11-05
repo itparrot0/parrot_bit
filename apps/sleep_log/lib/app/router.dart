@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../data/providers.dart';
+import '../screens/backup_screen.dart';
 import '../screens/calendar_screen.dart';
 import '../screens/check_in_screen.dart';
 import '../screens/entry_screen.dart';
@@ -21,6 +22,7 @@ abstract final class Routes {
   static const settings = 'settings';
   static const checkIn = 'check_in';
   static const review = 'review';
+  static const backup = 'backup';
 }
 
 /// 앱 라우터.
@@ -47,6 +49,10 @@ final routerProvider = Provider<GoRouter>((ref) {
     redirect: (context, state) {
       final atOnboarding = state.matchedLocation == '/onboarding';
       if (!hasTarget.value) {
+        // 백업 가져오기만은 예외 — 새 폰의 첫 화면에서 옮겨 올 수 있어야 한다.
+        if (state.matchedLocation == '/backup') {
+          return null;
+        }
         return atOnboarding ? null : '/onboarding';
       }
       return atOnboarding ? '/' : null;
@@ -87,6 +93,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/review',
         name: Routes.review,
         builder: (context, state) => const ReviewScreen(),
+      ),
+      GoRoute(
+        path: '/backup',
+        name: Routes.backup,
+        builder: (context, state) => const BackupScreen(),
       ),
       GoRoute(
         path: '/settings',

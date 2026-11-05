@@ -62,6 +62,7 @@ void main() {
       Routes.settings,
       Routes.checkIn,
       Routes.review,
+      Routes.backup,
     });
   });
 

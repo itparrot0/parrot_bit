@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../app/router.dart';
 import '../data/providers.dart';
 import '../domain/domain.dart';
 import '../widgets/sleep_target_picker.dart';
@@ -49,6 +51,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             Text('달력에는 이렇게 표시돼요', style: theme.textTheme.titleSmall),
             const SizedBox(height: 8),
             MarkLegend(target: SleepTarget(_target)),
+            const SizedBox(height: 32),
+            // 새 폰에서는 처음부터 다시 정하지 않고 이전 기기의 기록을 옮겨 온다.
+            Center(
+              child: TextButton.icon(
+                onPressed: () => context.pushNamed(Routes.backup),
+                icon: const Icon(Icons.download),
+                label: const Text('이전 기기의 백업 가져오기'),
+              ),
+            ),
           ],
         ),
       ),

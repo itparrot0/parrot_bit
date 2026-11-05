@@ -27,6 +27,10 @@ void main() {
     Map<String, Object>? stored,
     bool permissionGranted = true,
   }) async {
+    // 항목이 많아 기본 800x600에서는 아래쪽이 화면 밖이다.
+    tester.view.physicalSize = const Size(800, 2000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     reminder = FakeCheckInReminder(permissionGranted: permissionGranted);
     dialer = FakePhoneDialer();
     store = InMemoryKeyValueStore(stored);

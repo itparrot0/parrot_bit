@@ -6,6 +6,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/domain.dart';
 import 'database.dart';
+import 'backup/backup_codec.dart';
+import 'backup/backup_file_gateway.dart';
+import 'backup/backup_service.dart';
 import 'check_in_reminder.dart';
 import 'check_in_repository.dart';
 import 'diary_repository.dart';
@@ -173,13 +176,18 @@ class CheckInSettingsNotifier extends AsyncNotifier<CheckInSettings> {
   ///
   /// 알림을 보낼 수 없으면(권한 거절) false — 기능은 켜진 채로 두고 화면이
   /// 안내한다. 달력의 버튼으로는 언제든 할 수 있기 때문이다.
-  Future<bool> set(CheckInSettings settings) async {
+  ///
+  /// [askPermission]을 false로 주면 권한을 묻지 않는다(백업 가져오기).
+  Future<bool> set(CheckInSettings settings, {bool? askPermission}) async {
     final wasEnabled = state.value?.enabled ?? false;
     await ref.read(settingsRepositoryProvider).saveCheckInSettings(settings);
     state = AsyncData(settings);
     return ref
         .read(checkInReminderProvider)
-        .apply(settings, askPermission: settings.enabled && !wasEnabled);
+        .apply(
+          settings,
+          askPermission: askPermission ?? (settings.enabled && !wasEnabled),
+        );
   }
 }
 
@@ -191,4 +199,16 @@ final checkInReminderProvider = Provider<CheckInReminder>(
 /// 상담 번호 전화 연결. 테스트는 가짜로 바꿔 끼운다.
 final phoneDialerProvider = Provider<PhoneDialer>(
   (ref) => const UrlLauncherPhoneDialer(),
+);
+
+final backupServiceProvider = Provider<BackupService>(BackupService.new);
+
+/// 백업 키를 만들 때의 PBKDF2 반복 횟수. 테스트는 작게 줄인다.
+final backupIterationsProvider = Provider<int>(
+  (ref) => BackupCodec.defaultIterations,
+);
+
+/// 백업 파일 보내기·고르기. 테스트는 가짜로 바꿔 끼운다.
+final backupFileGatewayProvider = Provider<BackupFileGateway>(
+  (ref) => const PlatformBackupFileGateway(),
 );

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../app/format.dart';
+import '../app/router.dart';
 import '../data/providers.dart';
 import '../domain/domain.dart';
 import '../widgets/sleep_target_picker.dart';
@@ -59,6 +61,14 @@ class SettingsScreen extends ConsumerWidget {
           ),
           const Divider(height: 32),
           ..._buildCheckIn(context, ref),
+          const Divider(height: 32),
+          ListTile(
+            leading: const Icon(Icons.cloud_sync_outlined),
+            title: const Text('백업과 기기 이전'),
+            subtitle: const Text('폰을 바꾸기 전에 기록을 파일로 옮겨 두세요.'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.pushNamed(Routes.backup),
+          ),
           const Divider(height: 32),
           ListTile(
             leading: Icon(
