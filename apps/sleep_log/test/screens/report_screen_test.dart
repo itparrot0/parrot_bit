@@ -136,6 +136,12 @@ void main() {
     expect(find.text('머릿속 속도별 그날의 수면시간'), findsNothing);
   });
 
+  testWidgets('앱바에 기간 돌아보기 버튼이 있다', (tester) async {
+    await pumpScreen(tester, Stream.value(const []));
+
+    expect(find.text('기간 돌아보기'), findsOneWidget);
+  });
+
   testWidgets('기록을 읽는 동안에는 로딩 표시', (tester) async {
     await tester.pumpWidget(
       ProviderScope(

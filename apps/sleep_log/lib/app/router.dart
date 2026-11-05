@@ -8,6 +8,7 @@ import '../screens/check_in_screen.dart';
 import '../screens/entry_screen.dart';
 import '../screens/onboarding_screen.dart';
 import '../screens/report_screen.dart';
+import '../screens/review_screen.dart';
 import '../screens/settings_screen.dart';
 
 /// 라우트 이름. **docs/screen-flow/sleep_log.md의 화면 ID와 1:1로 대응시킨다.**
@@ -19,6 +20,7 @@ abstract final class Routes {
   static const report = 'report';
   static const settings = 'settings';
   static const checkIn = 'check_in';
+  static const review = 'review';
 }
 
 /// 앱 라우터.
@@ -80,6 +82,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/report',
         name: Routes.report,
         builder: (context, state) => const ReportScreen(),
+      ),
+      GoRoute(
+        path: '/review',
+        name: Routes.review,
+        builder: (context, state) => const ReviewScreen(),
       ),
       GoRoute(
         path: '/settings',

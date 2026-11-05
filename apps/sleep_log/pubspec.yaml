@@ -10,6 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   core_ui: ^0.1.0
   core_storage: ^0.1.0
   core_analytics: ^0.1.0

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../app/format.dart';
+import '../app/router.dart';
 import '../data/providers.dart';
 import '../domain/domain.dart';
 
@@ -20,7 +22,16 @@ class ReportScreen extends ConsumerWidget {
     final entries = ref.watch(diaryEntriesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('리포트')),
+      appBar: AppBar(
+        title: const Text('리포트'),
+        actions: [
+          TextButton.icon(
+            onPressed: () => context.pushNamed(Routes.review),
+            icon: const Icon(Icons.date_range),
+            label: const Text('기간 돌아보기'),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: switch (entries) {
           AsyncData(:final value) =>

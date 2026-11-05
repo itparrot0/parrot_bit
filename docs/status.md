@@ -185,9 +185,9 @@ v0.1 원문으로 전면 교체**됐다. 이전 PRD에만 있던 결정들 — �
 |---|---|
 | 코드 | `apps/sleep_log` |
 | 문서 | `docs/prd/sleep_log.md`, `docs/screen-flow/sleep_log.md` |
-| 마지막 갱신 | 2026-11-05 (생각 돌아보기) |
+| 마지막 갱신 | 2026-11-05 (기간 돌아보기) |
 
-**끝난 것**: 스캐폴딩 → 도메인 → 달력 위젯 → 저장 계층 → 기록 화면(entry) → 온보딩 → 리포트 → 설정 → 안전 배너 → **생각 돌아보기**. 테스트 209개 통과.
+**끝난 것**: 스캐폴딩 → 도메인 → 달력 위젯 → 저장 계층 → 기록 화면(entry) → 온보딩 → 리포트 → 설정 → 안전 배너 → 생각 돌아보기 → **기간 돌아보기**. 테스트 235개 통과.
 
 - `lib/domain/` — 수면시간 계산(자정 넘김), z 4단계 판정, 감정 태그 팔레트,
   안전 안내 2단계 판정, 태그별 수면 집계. 순수 Dart.
@@ -261,6 +261,11 @@ v0.1 원문으로 전면 교체**됐다. 이전 PRD에만 있던 결정들 — �
     2단계와 쉬는 기간 공유).
   - 앱 표시 이름을 PRD §10대로 `슬립로그`로 바꿨다(AndroidManifest label).
 
+- 기간 돌아보기 (2026-11-05, PRD §3-4): 리포트 앱바 → `review` 화면.
+  분석은 `domain/period_review.dart`(3일 이상 연속 흐름, 겹침 흐름, 같은 구간 묶기),
+  편지 100문장은 `domain/developer_letters.dart`. 무작위는 `randomProvider`(테스트는 시드 고정).
+  앱 전체를 한국어 로케일로 설정했다(`flutter_localizations`) — 날짜·시간 선택기가 한국어로 뜬다.
+
 **확인 못 한 것**: 실기기 실행. 이 클라우드 환경에 Android SDK가 없다 —
 로컬에서 `flutter run`으로 DB 파일이 열리고 기록이 남는지 확인 필요.
 
@@ -271,7 +276,8 @@ v0.1 원문으로 전면 교체**됐다. 이전 PRD에만 있던 결정들 — �
    알림**(권한 요청, 지정 시각 도착, 눌러서 체크인 열림, 재부팅 후 유지). 처음 빌드라
    desugaring·receiver 설정이 맞는지도 여기서 확인된다.
 2. 문구 검토 (기획·전문가) — 안전 배너 `widgets/safety_banner.dart`, 체크인 질문
-   `screens/check_in_screen.dart`, 알림 문구 `data/check_in_reminder.dart`.
+   `screens/check_in_screen.dart`, 알림 문구 `data/check_in_reminder.dart`, 흐름 문구
+   `domain/period_review.dart`, 편지 100문장 `domain/developer_letters.dart`.
 3. 진단 여부에 따른 안전장치 차등 — PRD §3-3 "열린 질문". 지금은 묻지 않는다.
 4. iOS 실기기에서 알림 확인 (Xcode 빌드는 이 환경에서 못 한다).
 5. 기록 저장 이벤트 (PRD §8, `core_analytics`) — 저장 여부만, 내용은 담지 않는다.

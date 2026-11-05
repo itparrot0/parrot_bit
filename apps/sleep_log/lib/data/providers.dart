@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:core_storage/core_storage.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -50,6 +52,9 @@ final settingsRepositoryProvider = Provider<SettingsRepository>(
 final todayProvider = Provider<DiaryDate>(
   (ref) => DiaryDate.fromDateTime(ref.watch(clockProvider)()),
 );
+
+/// 무작위(생각 섞기, 편지 고르기). 테스트는 시드를 고정한다.
+final randomProvider = Provider<Random>((ref) => Random());
 
 /// 지금 시각을 읽는 함수. 테스트가 시각을 고정할 수 있게 한 곳에 둔다.
 final clockProvider = Provider<DateTime Function()>((ref) => DateTime.now);

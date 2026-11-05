@@ -61,6 +61,7 @@ void main() {
       Routes.report,
       Routes.settings,
       Routes.checkIn,
+      Routes.review,
     });
   });
 
