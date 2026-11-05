@@ -16,6 +16,14 @@ export 'producer.dart';
 export 'theme.dart';
 export 'zone.dart';
 
+/// [BoardModel.discard] 결과: 버린 조각과, 산출원이었다면 버리기 전에 거둔 자원.
+final class DiscardResult {
+  const DiscardResult(this.content, this.harvested);
+
+  final CellContent content;
+  final (Resource, int)? harvested;
+}
+
 /// 드롭 판정 결과.
 enum MoveOutcome { merged, moved, swapped, rejected }
 
@@ -336,6 +344,29 @@ class BoardModel {
         if (value.floor() > 0) key: value.floor(),
     };
   }
+
+  /// [pos]의 조각을 버린다 (보드 막힘 해소 장치). 자원은 돌려주지 않는다 —
+  /// 생성기를 무한으로 누를 수 있어서, 버릴 때 자원을 주면 키워서 버리는 게
+  /// 산출원보다 빠른 자원 공급원이 된다 (경제 시뮬레이션 문서).
+  ///
+  /// 생성기는 버릴 수 없다 (하나뿐인 생성기를 버리면 그 자체로 막힌다).
+  /// 산출원은 쌓여 있던 다 익은 양을 [DiscardResult.harvested]로 돌려준다 — 호출자가
+  /// 창고에 넣는다. 버린 게 없으면 null.
+  DiscardResult? discard(CellPos pos) {
+    final content = _cells[pos];
+    if (content == null || content is GeneratorContent) {
+      return null;
+    }
+    final harvested = harvest(pos);
+    _cells.remove(pos);
+    return DiscardResult(content, harvested);
+  }
+
+  /// 버릴 수 있는 조각인가.
+  bool canDiscard(CellPos pos) => switch (_cells[pos]) {
+    ItemContent() || ProducerContent() => true,
+    _ => false,
+  };
 
   /// [pos] 칸을 연다. 다음에 열 수 있는 칸([frontier])이 아니면 false.
   /// 동굴 칸을 처음 열면(동굴 진입) 그 칸에 동굴 생성기를 놓고 [caveGenerator]로 알려 준다.

@@ -12,6 +12,7 @@ import '../economy/hints.dart';
 import '../economy/providers.dart';
 import '../game/grove_game.dart';
 import '../save/save_repository.dart';
+import 'purchase_actions.dart' show withObject;
 import 'sheets.dart';
 
 /// 보드 (홈). 저장을 불러온 뒤 게임을 띄운다.
@@ -194,6 +195,38 @@ class _BoardViewState extends ConsumerState<_BoardView>
   void onBoardChanged() {
     _syncHint();
     _save();
+  }
+
+  @override
+  Future<bool> confirmDiscard(Producer producer) async {
+    final chain = producer.chain;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('${withObject(chain.nameOf(chain.maxLevel))} 버릴까요?'),
+        content: Text(
+          '쌓여 있던 ${resourceLabel(chain.resource)}은 받고 버려요. 되돌릴 수 없어요.\n'
+          '다시 만들려면 ${chain.nameOf(1)} ${1 << (chain.maxLevel - 1)}개를 합쳐야 해요.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('그만두기'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('버리기'),
+          ),
+        ],
+      ),
+    );
+    if (ok ?? false) {
+      ref.read(analyticsProvider).logEvent('piece_discarded', {
+        'kind': 'producer',
+        'chain': chain.id,
+      });
+    }
+    return ok ?? false;
   }
 
   @override

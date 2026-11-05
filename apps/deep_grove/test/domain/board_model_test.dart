@@ -393,4 +393,29 @@ void main() {
       expect(board.hasZoneBonus(at(2, 0)), isFalse);
     });
   });
+
+  group('버리기', () {
+    test('아이템은 버리면 사라지고 자원은 없다', () {
+      final board = emptyBoard()..placeItem(at(0, 0), const Item(woodChain, 4));
+      final r = board.discard(at(0, 0))!;
+      expect((r.content as ItemContent).item, const Item(woodChain, 4));
+      expect(r.harvested, isNull);
+      expect(board.isEmptyCell(at(0, 0)), isTrue);
+    });
+
+    test('산출원은 다 익은 양을 거둔 뒤 버린다', () {
+      final board = emptyBoard()..placeItem(at(0, 0), const Item(woodChain, 5));
+      board.advance(40, plenty);
+      expect(board.discard(at(0, 0))!.harvested, (Resource.wood, 3));
+      expect(board.producers, isEmpty);
+    });
+
+    test('생성기·빈 칸은 버릴 수 없다', () {
+      final board = BoardModel(forestCaveTheme);
+      expect(board.canDiscard(at(1, 3)), isFalse);
+      expect(board.discard(at(1, 3)), isNull);
+      expect(board.discard(at(2, 0)), isNull);
+      expect(board.contentAt(at(1, 3)), isA<GeneratorContent>());
+    });
+  });
 }

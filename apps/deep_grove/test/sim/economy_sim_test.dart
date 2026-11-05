@@ -26,4 +26,16 @@ void main() {
     expect(r.stuck, isFalse);
     expect(r.cleared, isNotNull);
   });
+
+  test('산출을 늦춰 막히던 수치도 버리기로 풀려 완주한다', () {
+    // 버리기가 없을 때는 이 수치에서 20판 모두 막혔다 (숲을 목재 산출원으로 채운 뒤
+    // 광석이 필요해지면 돌 키울 칸이 없었다).
+    final r = Simulator(
+      theme: scaledCosts(forestCaveTheme, 1, secondsPerUnit: 120),
+      seed: 1,
+    ).run();
+    expect(r.stuck, isFalse);
+    expect(r.cleared, isNotNull);
+    expect(r.discardedItems, greaterThan(0));
+  });
 }

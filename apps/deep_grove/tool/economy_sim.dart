@@ -42,7 +42,7 @@ void main(List<String> args) {
       ];
       final m = SimSummary('', rs);
       print(
-        '$name | $p | 첫 칸 ${m.stat((r) => r.firstCell)} | 동굴 ${m.stat((r) => r.caveEntered)} | 완주 ${m.stat((r) => r.cleared)} (${m.cleared}/$n) | 막힘 ${m.stuck}/$n | 기다림 ${m.waitingShare()}',
+        '$name | $p | 첫 칸 ${m.stat((r) => r.firstCell)} | 동굴 ${m.stat((r) => r.caveEntered)} | 완주 ${m.stat((r) => r.cleared)} (${m.cleared}/$n) | 막힘 ${m.stuck}/$n | 기다림 ${m.waitingShare()} | 버림 아이템 ${(rs.fold<int>(0, (a, r) => a + r.discardedItems) / n).toStringAsFixed(1)} · 산출원 ${(rs.fold<int>(0, (a, r) => a + r.discardedProducers) / n).toStringAsFixed(1)}',
       );
     }
   }

@@ -7,6 +7,7 @@ import '../domain/board_model.dart';
 import '../economy/economy.dart';
 import '../economy/hints.dart';
 import 'components/board_piece_component.dart';
+import 'components/discard_bin_component.dart';
 import 'components/expand_target_component.dart';
 import 'components/finger_hint_component.dart';
 import 'components/generator_component.dart';
@@ -44,6 +45,9 @@ abstract interface class GroveBridge {
 
   /// 생성기 탭으로 아이템이 생겼다 (첫 실행 안내 1 끝).
   void onSpawned();
+
+  /// 산출원을 버리기 칸에 놓았다 — 정말 버릴지 묻는다 (아이템은 묻지 않는다).
+  Future<bool> confirmDiscard(Producer producer);
 }
 
 /// 머지 보드 게임. 규칙 판정은 전부 [BoardModel]에 위임하고,
@@ -108,6 +112,7 @@ class GroveGame extends FlameGame {
   }
 
   void _redrawText() {
+    _placeBin();
     refreshHandles();
     for (final piece in _pieces.values) {
       if (piece.isLoaded) {
@@ -160,6 +165,7 @@ class GroveGame extends FlameGame {
       _add(_tiles, tile);
     }
     _paintTiles();
+    _placeBin();
     _fitCamera();
     refreshHandles();
   }
@@ -167,10 +173,46 @@ class GroveGame extends FlameGame {
   /// 완주 막대 자리를 둘지는 그릴 때마다 바뀔 수 있어서 따로 잡는다.
   bool _clearBarShown = false;
 
+  /// 보드 아래 버리기 칸 높이.
+  static const double _binHeight = kCellSize * 0.7;
+
+  DiscardBinComponent? _bin;
+
+  /// 버리기 칸 위치·크기 (보드 바로 아래, 보드 폭).
+  Vector2 get _binPosition => Vector2(0, board.rows * kCellSize + _margin);
+
+  void _placeBin() {
+    // 다시 만들 때(확장·웹 폰트 로드) 드래그 중 밝힌 상태를 이어받는다.
+    final wasLit = _bin?.active ?? false;
+    _bin?.removeFromParent();
+    _bin = DiscardBinComponent(
+      position: _binPosition,
+      size: Vector2(board.columns * kCellSize, _binHeight),
+    )..active = wasLit;
+    world.add(_bin!);
+  }
+
+  /// 테스트용: 버리기 칸이 밝혀져 있는가.
+  @visibleForTesting
+  bool get binLit => _bin?.active ?? false;
+
+  /// 월드 좌표가 버리기 칸 안인가.
+  bool isOverBin(Vector2 point) {
+    final p = _binPosition;
+    return point.x >= p.x &&
+        point.x <= p.x + board.columns * kCellSize &&
+        point.y >= p.y &&
+        point.y <= p.y + _binHeight;
+  }
+
   void _fitCamera() {
     final width = board.columns * kCellSize + _margin * 2;
     final height =
-        board.rows * kCellSize + (_clearBarShown ? kCellSize : 0) + _margin * 2;
+        board.rows * kCellSize +
+        _margin +
+        _binHeight +
+        (_clearBarShown ? kCellSize : 0) +
+        _margin * 2;
     camera.viewport = FixedResolutionViewport(
       resolution: Vector2(width, height),
     );
@@ -215,10 +257,12 @@ class GroveGame extends FlameGame {
     final content = board.contentAt(piece.cell);
     _highlighted = content == null ? null : BoardModel.bonusZoneOf(content);
     _paintTiles();
+    _bin?.active = board.canDiscard(piece.cell);
   }
 
   /// 손에서 놓았다: 밝힌 칸을 되돌린다.
   void clearBonusZone() {
+    _bin?.active = false;
     if (_highlighted == null) {
       return;
     }
@@ -264,7 +308,7 @@ class GroveGame extends FlameGame {
         label: '테마 완주  ${_costLines(clear.cost, separator: ' · ')}',
         affordable: clear.affordable,
         color: const Color(0xFF3E7D4A),
-        position: Vector2(0, board.rows * kCellSize + _margin),
+        position: _binPosition + Vector2(0, _binHeight + _margin),
         size: Vector2(board.columns * kCellSize, kCellSize - _margin),
       );
     }
@@ -362,6 +406,10 @@ class GroveGame extends FlameGame {
 
   /// 드래그 종료 판정: 모델 결과에 따라 머지/이동/교체/스냅백을 적용한다.
   void resolveDrop(BoardPieceComponent piece) {
+    if (isOverBin(piece.position)) {
+      _dropOnBin(piece);
+      return;
+    }
     final target = cellAt(piece.position);
     final outcome = target == null
         ? MoveOutcome.rejected
@@ -401,6 +449,33 @@ class GroveGame extends FlameGame {
     if (outcome != MoveOutcome.rejected) {
       bridge.onBoardChanged();
     }
+  }
+
+  /// 버리기 칸에 놓았다: 생성기는 거부, 아이템은 바로, 산출원은 물어보고 버린다.
+  Future<void> _dropOnBin(BoardPieceComponent piece) async {
+    final pos = piece.cell;
+    final content = board.contentAt(pos);
+    if (content == null || !board.canDiscard(pos)) {
+      piece.settleTo(cellCenter(pos));
+      piece.shake();
+      return;
+    }
+    if (content case ProducerContent(:final producer)) {
+      piece.settleTo(cellCenter(pos));
+      if (!await bridge.confirmDiscard(producer)) {
+        return;
+      }
+      // 묻는 사이 옮겨졌으면 그만둔다.
+      if (board.contentAt(pos) != content) {
+        return;
+      }
+    }
+    final result = board.discard(pos)!;
+    if (result.harvested case (final r, final amount)) {
+      bridge.deposit(r, amount);
+    }
+    _pieces.remove(pos)?.removeFromParent();
+    bridge.onBoardChanged();
   }
 
   void _addContent(

@@ -48,6 +48,15 @@ class FakeBridge implements GroveBridge {
 
   int spawns = 0;
 
+  bool discardAnswer = true;
+  int discardAsked = 0;
+
+  @override
+  Future<bool> confirmDiscard(Producer producer) async {
+    discardAsked++;
+    return discardAnswer;
+  }
+
   @override
   void onSpawned() => spawns++;
 }
@@ -243,6 +252,93 @@ void main() {
           .firstWhere((t) => t.text == '×1.5');
       expect(bonus.priority, greaterThan(0));
       expect(labelsOf(at(0, 4)), isNot(contains('×1.5')));
+    });
+  });
+
+  group('버리기 칸', () {
+    Future<void> dropOnBin(
+      WidgetTester tester,
+      GroveGame game,
+      CellPos from,
+    ) async {
+      final start = screenOf(tester, game, game.cellCenter(from));
+      final bin = screenOf(
+        tester,
+        game,
+        Vector2(
+          game.board.columns * kCellSize / 2,
+          game.board.rows * kCellSize + 40,
+        ),
+      );
+      expect(
+        game.isOverBin(
+          Vector2(
+            game.board.columns * kCellSize / 2,
+            game.board.rows * kCellSize + 40,
+          ),
+        ),
+        isTrue,
+      );
+      await tester.timedDragFrom(
+        start,
+        bin - start,
+        const Duration(milliseconds: 300),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+    }
+
+    testWidgets('버릴 수 있는 조각을 드는 동안 버리기 칸이 밝아진다 (생성기는 아님)', (tester) async {
+      final (game, _) = await pumpGame(tester);
+      Future<void> holdAndCheck(CellPos pos, bool lit) async {
+        final start = screenOf(tester, game, game.cellCenter(pos));
+        final g = await tester.startGesture(start);
+        for (var i = 1; i <= 5; i++) {
+          await g.moveTo(start + Offset(0, 8.0 * i));
+          await tester.pump(const Duration(milliseconds: 16));
+        }
+        expect(game.binLit, lit, reason: '$pos');
+        await g.moveTo(start);
+        await g.up();
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(game.binLit, isFalse);
+      }
+
+      await holdAndCheck(at(0, 3), true); // 씨앗
+      await holdAndCheck(at(1, 3), false); // 생성기
+    });
+
+    testWidgets('아이템을 버리기 칸에 놓으면 묻지 않고 사라진다', (tester) async {
+      final (game, bridge) = await pumpGame(tester);
+      await dropOnBin(tester, game, at(0, 3));
+      expect(game.board.contentAt(at(0, 3)), isNull);
+      expect(game.pieceAt(at(0, 3)), isNull);
+      expect(bridge.discardAsked, 0);
+    });
+
+    testWidgets('생성기는 버릴 수 없다 — 제자리로 돌아간다', (tester) async {
+      final (game, _) = await pumpGame(tester);
+      await dropOnBin(tester, game, at(1, 3));
+      expect(game.board.contentAt(at(1, 3)), isA<GeneratorContent>());
+      expect(game.pieceAt(at(1, 3)), isNotNull);
+    });
+
+    testWidgets('산출원은 물어보고, 쌓인 자원을 받은 뒤 버린다', (tester) async {
+      final board = emptyBoard()..placeItem(at(0, 0), const Item(woodChain, 5));
+      final (game, bridge) = await pumpGame(tester, board: board);
+      board.advance(40, plenty); // 목재 3
+      await dropOnBin(tester, game, at(0, 0));
+      expect(bridge.discardAsked, 1);
+      expect(board.contentAt(at(0, 0)), isNull);
+      expect(bridge.economy.amountOf(Resource.wood), 3);
+    });
+
+    testWidgets('산출원 버리기를 그만두면 그대로 남는다', (tester) async {
+      final board = emptyBoard()..placeItem(at(0, 0), const Item(woodChain, 5));
+      final (game, bridge) = await pumpGame(tester, board: board);
+      bridge.discardAnswer = false;
+      await dropOnBin(tester, game, at(0, 0));
+      expect(bridge.discardAsked, 1);
+      expect(board.contentAt(at(0, 0)), isA<ProducerContent>());
     });
   });
 }

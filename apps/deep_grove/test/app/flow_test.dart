@@ -449,4 +449,40 @@ void main() {
       expect(gameOf(tester).visibleHint, isNull);
     });
   });
+
+  testWidgets('산출원을 버리기 칸에 놓으면 확인 창이 뜨고, 버리면 저장된다', (tester) async {
+    final store = InMemoryKeyValueStore();
+    await saveWith(
+      store,
+      emptyBoard()..placeItem(at(0, 0), const Item(woodChain, 5)),
+      const Economy(theme: forestCaveTheme),
+    );
+    await pumpApp(tester, store: store);
+    final game = gameOf(tester);
+    final origin = tester.getTopLeft(find.byType(GameWidget<GroveGame>));
+    Offset screen(Vector2 w) {
+      final p = game.camera.localToGlobal(w);
+      return origin + Offset(p.x, p.y);
+    }
+
+    final start = screen(game.cellCenter(at(0, 0)));
+    final bin = screen(
+      Vector2(
+        game.board.columns * kCellSize / 2,
+        game.board.rows * kCellSize + 40,
+      ),
+    );
+    await tester.timedDragFrom(
+      start,
+      bin - start,
+      const Duration(milliseconds: 300),
+    );
+    await settle(tester);
+    expect(find.text('거목을 버릴까요?'), findsOneWidget);
+    await tester.tap(find.text('버리기').last);
+    await settle(tester);
+    expect(game.board.producers, isEmpty);
+    final saved = await SaveRepository(store).load(forestCaveTheme, now: t0);
+    expect(saved.board.producers, isEmpty);
+  });
 }

@@ -59,6 +59,10 @@ class SimResult {
   int merges = 0;
   int expansions = 0;
 
+  /// 막힘을 풀려고 버린 조각 수 (아이템, 산출원).
+  int discardedItems = 0;
+  int discardedProducers = 0;
+
   /// 영영 진행할 수 없는 상태에 빠졌는가. 산출원이 있어도 막힐 수 있다 —
   /// 예: 보드가 목재 산출원으로 가득 차 돌을 키울 칸이 없는데 다음 칸이 모두 광석을 요구할 때.
   /// 판정: 플레이 중 [Simulator.stuckAfterHours] 동안 확장·완주가 한 번도 없음.
@@ -250,7 +254,8 @@ class Simulator {
       _harvest() ||
       _merge() ||
       _relocateProducer() ||
-      _spawn();
+      _spawn() ||
+      _unjam();
 
   bool _canDoAnything() =>
       board.emptyCells.isNotEmpty || _mergePair() != null || _goal() != null;
@@ -422,6 +427,50 @@ class Simulator {
     if (energy != null) _energy -= 1;
     _tap();
     return true;
+  }
+
+  /// 막힘 풀기: 보드가 꽉 찼고 머지할 짝도 없는데, 다음 목표에 모자란 자원을 낼
+  /// 산출원이 하나도 없으면 — 기다려도 영원히 안 풀린다 — 하나를 버린다.
+  /// 필요 없는 체인의 낮은 아이템 → 아무 낮은 아이템 → 필요 없는 자원의 산출원 순.
+  bool _unjam() {
+    if (board.emptyCells.isNotEmpty || _mergePair() != null) return false;
+    final goal = _goal();
+    if (goal == null || economy.canAfford(goal.cost)) return false;
+    final producing = {for (final (_, p) in board.producers) p.chain.resource};
+    final missing = [
+      for (final e in goal.cost.entries)
+        if (e.value > economy.amountOf(e.key) && !producing.contains(e.key))
+          e.key,
+    ];
+    if (missing.isEmpty) return false;
+    final items = [
+      for (final e in board.cells.entries)
+        if (e.value case ItemContent(:final item)) (e.key, item),
+    ]..sort((a, b) => a.$2.level.compareTo(b.$2.level));
+    final useless = items.where((e) => !missing.contains(e.$2.chain.resource));
+    final victim = useless.isNotEmpty
+        ? useless.first.$1
+        : items.isNotEmpty
+        ? items.first.$1
+        : null;
+    if (victim != null) {
+      board.discard(victim);
+      result.discardedItems++;
+      _drag();
+      return true;
+    }
+    for (final (pos, producer) in board.producers) {
+      if (missing.contains(producer.chain.resource)) continue;
+      final r = board.discard(pos)!;
+      if (r.harvested case (final res, final amount)) {
+        economy = economy.add(res, amount).$1;
+      }
+      result.discardedProducers++;
+      _drag();
+      _spend(times.decide);
+      return true;
+    }
+    return false;
   }
 
   ItemChain get _wood => theme.chains.firstWhere((c) => c.id == 'wood');
