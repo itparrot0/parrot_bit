@@ -26,10 +26,12 @@ class MonthCalendar extends StatefulWidget {
 
   final ValueChanged<DiaryDate>? onDateTap;
 
-  /// 과거로 넘길 수 있는 개월 수.
+  /// 과거로 넘길 수 있는 개월 수. 미래로는 넘어갈 수 없다 (기록할 수 없는
+  /// 날들이다).
   ///
-  /// 임시 상한이다 — 저장 계층이 생기면 **가장 오래된 기록의 달**에서 구해야
-  /// 한다. 미래로는 넘어갈 수 없다 (기록할 수 없는 날들이다).
+  /// 앱에서는 가장 오래된 기록의 달에서 구한다(`CalendarView.monthsBack`).
+  /// 생성 후 바뀌어도 페이저에 반영되지 않으므로, 값이 바뀌면 key를 바꿔
+  /// 새로 만든다.
   final int monthsBack;
 
   final int firstWeekday;

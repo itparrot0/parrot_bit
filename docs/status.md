@@ -4,11 +4,12 @@
 > 설계 근거는 각 PRD·설계 문서에 있으므로 여기서 되풀이하지 않는다.
 > 새 작업을 시작할 때 이 문서를 먼저 읽고, 멈출 때 갱신한다.
 
-- **마지막 갱신**: 2026-11-04
+- **마지막 갱신**: 2026-11-05
 - **진행 중**: Bloom Wave — Flutter 전환 완료, 출시 준비 단계 /
   방치형 수집(`proto_idle_visit`) — 첫 동작판, 플레이 판정 대기 /
+  슬립로그 — 저장 계층 연결, 기록 화면 직전 /
   Garden Grow — 프로토타입 동작, 플레이 판정 대기
-- **보류**: 머지 게임, 슬립로그
+- **보류**: 머지 게임
 
 ---
 
@@ -178,34 +179,46 @@ v0.1 원문으로 전면 교체**됐다. 이전 PRD에만 있던 결정들 — �
 
 ---
 
-## 2. 슬립로그 — 저장 계층 직전에서 멈춤
+## 2. 슬립로그 — 저장 계층 연결, 기록 화면(entry) 직전
 
 | | |
 |---|---|
 | 코드 | `apps/sleep_log` |
 | 문서 | `docs/prd/sleep_log.md`, `docs/screen-flow/sleep_log.md` |
-| 마지막 커밋 | `e5f0a6a` (2026-09-27) |
+| 마지막 갱신 | 2026-11-05 (저장 계층) |
 
-**끝난 것**: 스캐폴딩 → 도메인 → 달력 위젯. 테스트 95개 통과.
+**끝난 것**: 스캐폴딩 → 도메인 → 달력 위젯 → **저장 계층**. 테스트 124개 통과.
 
 - `lib/domain/` — 수면시간 계산(자정 넘김), z 4단계 판정, 감정 태그 팔레트,
   안전 안내 2단계 판정, 태그별 수면 집계. 순수 Dart.
 - `lib/widgets/calendar/` — 월간 달력. 패키지를 쓰지 않고 직접 만들었다.
+- `lib/data/` (2026-11-05) — 저장소에서 drift를 처음 쓴다 (PRD §9-3).
+  - `database.dart`: 표 2개. `diary_entries`(날짜 ISO 문자열 키, 취침·기상 분) +
+    `entry_tags`(날짜, 태그 id). 태그 표는 외래 키 CASCADE로 기록과 함께 지워진다.
+    `database.g.dart`는 생성 파일이지만 커밋한다 — 앱을 돌리는 데 build_runner가
+    필요 없게. 스키마를 바꾸면 `dart run build_runner build` 후 함께 커밋한다.
+  - `diary_repository.dart`: `watchAll`(전체, 날짜순 스트림) / `find` / `save`
+    (같은 날 덮어쓰기, 빈 기록이면 삭제) / `delete` / `deleteAll`. 모르는 태그 id·
+    깨진 행은 건너뛴다.
+  - `settings_repository.dart`: 목표 수면시간을 `core_storage`에. 설정 전이면
+    null — 온보딩 판단에 쓰려고 기본값과 구분한다.
+  - `providers.dart`: DB·저장소·오늘 날짜·전체 기록·목표 Provider.
+- 달력 화면이 실제 기록을 그린다. "오늘 기록" 버튼은 오늘 기록이 없을 때만,
+  넘길 수 있는 범위는 가장 오래된 기록의 달까지(최소 지난달).
 - 화면은 `calendar`만 구현. `onboarding`/`entry`/`report`/`settings`는 placeholder.
 
-**멈춘 지점**: **`lib/data/`가 없다.** 그래서 달력이 비어 있다 —
-모든 날이 "기록 없음" 점으로 그려지고, 저장·조회가 전혀 안 된다.
+**확인 못 한 것**: 실기기 실행. 이 클라우드 환경에 Android SDK가 없다 —
+로컬에서 `flutter run`으로 DB 파일이 열리고 기록이 남는지 확인 필요.
 
-**다시 시작하면 할 일** (권하는 순서):
+**다음 할 일** (권하는 순서):
 
-1. **`lib/data/` — drift DB + Repository.** 이 앱이 저장소에서 drift를 처음 쓴다.
-   스키마는 앱 안에 두고 `core_storage`는 설정값만 (PRD §9-3 확정).
-   `drift`·`drift_dev`·`build_runner` 의존 추가가 여기서 처음 필요하다.
-2. 데이터가 붙으면 코드의 `TODO(sleep_log)` 3개가 풀린다:
-   - `calendar_screen.dart:17` — `today`·`records`를 Provider에서 받기
-   - `calendar_screen.dart:27` — "오늘 기록" CTA를 기록 없을 때만 띄우기
-   - `month_calendar.dart` `monthsBack` — 임시 상한(24)을 가장 오래된 기록의 달로
-3. `entry` 화면 (시각 입력 + 태그 복수 선택) → `onboarding` → `report` → `settings`
+1. **`entry` 화면** — 취침·기상 시각 입력 + 즉시 수면시간·z 표시, 태그 복수 선택
+   (최근 사용 태그 앞으로), 편집·삭제, 저장 안 하고 나갈 때 확인 (screen-flow §5).
+   이게 붙어야 앱에 처음으로 기록이 들어간다.
+2. `onboarding` — 목표 수면시간 설정. `SettingsRepository.loadTarget()`이 null이면
+   라우터가 보낸다.
+3. `report` → `settings`(목표 변경 시 `sleepTargetProvider` 무효화, 전체 삭제는
+   `DiaryRepository.deleteAll`) → 달력의 안전 배너.
 4. `router.dart:56` — `tag_palette`는 v1.x 범위이므로 v1에서는 그대로 둔다.
 
 **남은 확인 사항** (전부 코드 상수·데이터라 구현 중 조정 가능):
