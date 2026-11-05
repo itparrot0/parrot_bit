@@ -362,7 +362,7 @@ class GachaScreenState extends State<GachaScreen>
               key: const ValueKey('gacha-progress'),
               style: textStyle(38, color: C.inkSoft, weight: FontWeight.w600),
             ),
-            if (r.outcome == PullOutcome.duplicate && r.refund > 0) ...[
+            if (r.outcome == PullOutcome.duplicate) ...[
               const SizedBox(height: 20),
               Row(
                 mainAxisSize: MainAxisSize.min,

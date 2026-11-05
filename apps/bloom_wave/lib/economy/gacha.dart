@@ -7,7 +7,7 @@
 //  - 한 스킨의 조각을 모두 모으면 해금되고, 그 뒤로는 그 스킨의 조각이 후보에서 빠진다.
 //  - 모든 스킨을 해금하면 뽑기를 할 수 없다.
 //  - 무료 뽑기 (2026-11-05): 보상형 광고를 끝까지 보면 하루 1번 골드 없이 뽑는다 (햇빛 광고 충전과 같은 아침 6시 초기화).
-//    낸 골드가 없으므로 중복 조각이어도 돌려받는 골드는 없다.
+//    중복 조각이면 일반 뽑기와 같이 [GachaConfig.refund] 골드를 돌려준다.
 import 'dart:math' as math;
 
 import '../save/save_store.dart';
@@ -93,7 +93,7 @@ class PullResult {
 }
 
 /// 한 번 뽑는다. d 를 바로 바꾼다 (골드 차감·조각 추가·반환). 뽑을 수 없으면 StateError.
-/// free = 무료 뽑기(광고): 골드를 내지 않고, 중복이어도 돌려받지 않는다
+/// free = 무료 뽑기(광고): 골드를 내지 않는다. 중복 반환은 일반 뽑기와 같다
 PullResult pull(SaveData d, math.Random rng, {bool free = false}) {
   final block = pullBlock(d, free: free);
   if (block != null) throw StateError('cannot pull: ${block.name}');
@@ -103,7 +103,7 @@ PullResult pull(SaveData d, math.Random rng, {bool free = false}) {
   d.gold -= cost;
   final owned = d.skinPieces.putIfAbsent(p.skin.id, () => <int>{});
   if (!owned.add(p.index)) {
-    final refund = free ? 0 : GachaConfig.refund;
+    final refund = GachaConfig.refund;
     d.gold += refund;
     return PullResult(
       skin: p.skin,

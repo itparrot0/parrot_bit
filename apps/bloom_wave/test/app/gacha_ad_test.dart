@@ -14,7 +14,7 @@ bool enabled(WidgetTester tester, String key) =>
     tester.widget<PillButton>(byKey(key)).enabled;
 
 void main() {
-  test('무료 뽑기: 골드를 내지 않고, 골드가 없어도 뽑으며, 중복이어도 돌려받지 않는다', () {
+  test('무료 뽑기: 골드를 내지 않고, 골드가 없어도 뽑으며, 중복이면 10 골드를 돌려받는다', () {
     final d = SaveData(gold: 0);
     expect(pullBlock(d), PullBlock.notEnoughGold);
     expect(pullBlock(d, free: true), isNull);
@@ -42,8 +42,8 @@ void main() {
       final rr = pull(c, math.Random(k), free: true);
       if (rr.outcome == PullOutcome.duplicate) {
         dup = true;
-        expect(rr.refund, 0);
-        expect(c.gold, 0);
+        expect(rr.refund, GachaConfig.refund);
+        expect(c.gold, GachaConfig.refund);
       }
     }
     expect(dup, isTrue);
