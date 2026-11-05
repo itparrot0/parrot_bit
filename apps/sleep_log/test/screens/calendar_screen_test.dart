@@ -97,7 +97,7 @@ void main() {
           overrides: [
             todayProvider.overrideWithValue(today),
             diaryEntriesProvider.overrideWith((ref) => entries),
-            sleepTargetProvider.overrideWith((ref) async => target),
+            sleepTargetProvider.overrideWithValue(target),
           ],
           child: const MaterialApp(home: CalendarScreen()),
         ),
@@ -135,6 +135,12 @@ void main() {
       );
 
       expect(find.text(SleepMark.enough.label), findsOneWidget);
+    });
+
+    testWidgets('앱바의 리포트 버튼이 보인다', (tester) async {
+      await pumpScreen(tester, entries: Stream.value(const []));
+
+      expect(find.byTooltip('리포트'), findsOneWidget);
     });
   });
 }

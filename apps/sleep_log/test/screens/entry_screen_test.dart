@@ -22,8 +22,8 @@ void main() {
         overrides: [
           diaryRepositoryProvider.overrideWithValue(repository),
           todayProvider.overrideWithValue(today),
-          sleepTargetProvider.overrideWith(
-            (ref) async => SleepTarget(const Duration(hours: 7)),
+          sleepTargetProvider.overrideWithValue(
+            SleepTarget(const Duration(hours: 7)),
           ),
         ],
         child: MaterialApp(

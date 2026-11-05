@@ -354,5 +354,27 @@ void main() {
       expect(TagSleepReport.build([]), isEmpty);
       expect(TagSleepReport.build([_entry(0, tags: _negative)]), isEmpty);
     });
+
+    test('전체 평균은 수면이 기록된 날만으로 낸다', () {
+      final entries = [
+        _entry(0, slept: const Duration(hours: 6)),
+        _entry(1, slept: const Duration(hours: 7, minutes: 30)),
+        _entry(2, tags: _negative),
+      ];
+
+      expect(TagSleepReport.sleepDayCount(entries), 2);
+      expect(
+        TagSleepReport.overallAverage(entries),
+        const Duration(hours: 6, minutes: 45),
+      );
+    });
+
+    test('수면 기록이 없으면 전체 평균은 null', () {
+      expect(TagSleepReport.overallAverage([]), isNull);
+      expect(
+        TagSleepReport.overallAverage([_entry(0, tags: _negative)]),
+        isNull,
+      );
+    });
   });
 }

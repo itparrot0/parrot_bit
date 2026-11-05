@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../data/providers.dart';
 import '../screens/calendar_screen.dart';
 import '../screens/entry_screen.dart';
 import '../screens/onboarding_screen.dart';
@@ -19,12 +21,32 @@ abstract final class Routes {
 
 /// 앱 라우터.
 ///
-/// Provider로 두는 이유: `onboarding` 리다이렉트가 "목표 수면시간이 설정됐는가"를
-/// 읽어야 하고(docs/screen-flow/sleep_log.md §2), 그 값은 core_storage를 감싼
-/// Provider가 갖게 된다. 라우터가 그 Provider를 읽을 수 있어야 한다.
+/// Provider로 두는 이유: `onboarding` 리다이렉트가 "목표 수면시간이 설정됐는가"
+/// ([savedSleepTargetProvider])를 읽어야 한다 (docs/screen-flow/sleep_log.md §2).
 final routerProvider = Provider<GoRouter>((ref) {
+  // 라우터를 다시 만들면 내비게이션 스택이 날아가므로, 목표 설정 여부는
+  // watch하지 않고 바뀔 때 redirect만 다시 돌게 한다.
+  final hasTarget = ValueNotifier(ref.read(savedSleepTargetProvider) != null);
+  ref
+    ..listen(
+      savedSleepTargetProvider,
+      (_, next) => hasTarget.value = next != null,
+    )
+    ..onDispose(hasTarget.dispose);
+
   return GoRouter(
     initialLocation: '/',
+    refreshListenable: hasTarget,
+    // 목표가 없으면 z 판정이 성립하지 않으므로 어디로 가든 온보딩으로 보낸다.
+    // 리마인더 알림으로 entry에 직행해도 마찬가지다 (screen-flow §2, §4).
+    // 정한 뒤에는 온보딩으로 돌아갈 수 없다 — 바꾸는 곳은 settings다.
+    redirect: (context, state) {
+      final atOnboarding = state.matchedLocation == '/onboarding';
+      if (!hasTarget.value) {
+        return atOnboarding ? null : '/onboarding';
+      }
+      return atOnboarding ? '/' : null;
+    },
     routes: [
       GoRoute(
         path: '/',
