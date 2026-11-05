@@ -7,6 +7,8 @@ import 'package:sleep_log/data/providers.dart';
 import 'package:sleep_log/domain/domain.dart';
 import 'package:sleep_log/main.dart';
 
+import 'support/in_memory_diary_repository.dart';
+
 void main() {
   testWidgets('앱을 띄우면 달력 화면으로 진입한다', (tester) async {
     // 실제 DB·설정 저장소는 기기 플러그인이 필요하므로 기록만 비워 끼운다.
@@ -46,7 +48,12 @@ void main() {
   });
 
   testWidgets('entry 라우트는 경로의 날짜를 화면에 전달한다', (tester) async {
-    final container = ProviderContainer();
+    final container = ProviderContainer(
+      overrides: [
+        diaryRepositoryProvider.overrideWithValue(InMemoryDiaryRepository()),
+        todayProvider.overrideWithValue(const DiaryDate(2026, 11, 5)),
+      ],
+    );
     addTearDown(container.dispose);
 
     final router = container.read(routerProvider);
@@ -60,6 +67,6 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('2026-09-27'), findsOneWidget);
+    expect(find.text('9월 27일 (일)'), findsOneWidget);
   });
 }

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../domain/domain.dart';
 import 'database.dart';
 import 'diary_repository.dart';
+import 'drift_diary_repository.dart';
 import 'settings_repository.dart';
 
 // 저장 계층 Provider. 테스트는 appDatabaseProvider와 keyValueStoreProvider를
@@ -22,7 +23,7 @@ final keyValueStoreProvider = Provider<KeyValueStore>(
 );
 
 final diaryRepositoryProvider = Provider<DiaryRepository>(
-  (ref) => DiaryRepository(ref.watch(appDatabaseProvider)),
+  (ref) => DriftDiaryRepository(ref.watch(appDatabaseProvider)),
 );
 
 final settingsRepositoryProvider = Provider<SettingsRepository>(

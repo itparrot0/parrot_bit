@@ -7,7 +7,7 @@
 - **마지막 갱신**: 2026-11-05
 - **진행 중**: Bloom Wave — Flutter 전환 완료, 출시 준비 단계 /
   방치형 수집(`proto_idle_visit`) — 첫 동작판, 플레이 판정 대기 /
-  슬립로그 — 저장 계층 연결, 기록 화면 직전 /
+  슬립로그 — 기록 화면까지 동작, 온보딩 직전 /
   Garden Grow — 프로토타입 동작, 플레이 판정 대기
 - **보류**: 머지 게임
 
@@ -179,15 +179,15 @@ v0.1 원문으로 전면 교체**됐다. 이전 PRD에만 있던 결정들 — �
 
 ---
 
-## 2. 슬립로그 — 저장 계층 연결, 기록 화면(entry) 직전
+## 2. 슬립로그 — 기록 화면까지 동작, 온보딩 직전
 
 | | |
 |---|---|
 | 코드 | `apps/sleep_log` |
 | 문서 | `docs/prd/sleep_log.md`, `docs/screen-flow/sleep_log.md` |
-| 마지막 갱신 | 2026-11-05 (저장 계층) |
+| 마지막 갱신 | 2026-11-05 (기록 화면) |
 
-**끝난 것**: 스캐폴딩 → 도메인 → 달력 위젯 → **저장 계층**. 테스트 124개 통과.
+**끝난 것**: 스캐폴딩 → 도메인 → 달력 위젯 → 저장 계층 → **기록 화면(entry)**. 테스트 136개 통과.
 
 - `lib/domain/` — 수면시간 계산(자정 넘김), z 4단계 판정, 감정 태그 팔레트,
   안전 안내 2단계 판정, 태그별 수면 집계. 순수 Dart.
@@ -197,28 +197,35 @@ v0.1 원문으로 전면 교체**됐다. 이전 PRD에만 있던 결정들 — �
     `entry_tags`(날짜, 태그 id). 태그 표는 외래 키 CASCADE로 기록과 함께 지워진다.
     `database.g.dart`는 생성 파일이지만 커밋한다 — 앱을 돌리는 데 build_runner가
     필요 없게. 스키마를 바꾸면 `dart run build_runner build` 후 함께 커밋한다.
-  - `diary_repository.dart`: `watchAll`(전체, 날짜순 스트림) / `find` / `save`
+  - `diary_repository.dart`(인터페이스) + `drift_diary_repository.dart`(구현):
+    `watchAll`(전체, 날짜순 스트림) / `find` / `save`
     (같은 날 덮어쓰기, 빈 기록이면 삭제) / `delete` / `deleteAll`. 모르는 태그 id·
-    깨진 행은 건너뛴다.
+    깨진 행은 건너뛴다. 인터페이스로 나눈 이유: drift 쿼리는 위젯 테스트의 가짜
+    시간 안에서 끝나지 않는다 — 화면 테스트는 `test/support/`의 메모리 구현을 쓰고,
+    drift 구현은 `test/data/`가 실제 SQLite(메모리)로 검증한다.
   - `settings_repository.dart`: 목표 수면시간을 `core_storage`에. 설정 전이면
     null — 온보딩 판단에 쓰려고 기본값과 구분한다.
   - `providers.dart`: DB·저장소·오늘 날짜·전체 기록·목표 Provider.
 - 달력 화면이 실제 기록을 그린다. "오늘 기록" 버튼은 오늘 기록이 없을 때만,
   넘길 수 있는 범위는 가장 오래된 기록의 달까지(최소 지난달).
-- 화면은 `calendar`만 구현. `onboarding`/`entry`/`report`/`settings`는 placeholder.
+- `entry` 화면 (2026-11-05): "수면 시각 넣기"를 누르면 가장 최근 수면 시각(없으면
+  23:00→07:00)으로 채워지고, 시각을 누르면 시간 선택기. 수면시간과 z 단계를 입력
+  즉시 표시. 태그는 묶음별 칩, 묶음 안에서 최근 쓴 태그가 앞(`domain/tag_order.dart`,
+  화면이 열릴 때 한 번 정해 고르는 중에 움직이지 않는다). 수면만·태그만 저장 가능,
+  둘 다 없으면 저장 버튼이 꺼진다. 기록된 날은 편집 모드 + 삭제(확인). 저장 안 하고
+  뒤로 가면 버릴지 묻는다. 미래 날짜는 안내만 보여 준다.
+- 화면은 `calendar`·`entry`까지 구현. `onboarding`/`report`/`settings`는 placeholder.
 
 **확인 못 한 것**: 실기기 실행. 이 클라우드 환경에 Android SDK가 없다 —
 로컬에서 `flutter run`으로 DB 파일이 열리고 기록이 남는지 확인 필요.
 
 **다음 할 일** (권하는 순서):
 
-1. **`entry` 화면** — 취침·기상 시각 입력 + 즉시 수면시간·z 표시, 태그 복수 선택
-   (최근 사용 태그 앞으로), 편집·삭제, 저장 안 하고 나갈 때 확인 (screen-flow §5).
-   이게 붙어야 앱에 처음으로 기록이 들어간다.
-2. `onboarding` — 목표 수면시간 설정. `SettingsRepository.loadTarget()`이 null이면
+1. **`onboarding`** — 목표 수면시간 설정. `SettingsRepository.loadTarget()`이 null이면
    라우터가 보낸다.
-3. `report` → `settings`(목표 변경 시 `sleepTargetProvider` 무효화, 전체 삭제는
+2. `report` → `settings`(목표 변경 시 `sleepTargetProvider` 무효화, 전체 삭제는
    `DiaryRepository.deleteAll`) → 달력의 안전 배너.
+3. 기록 저장 이벤트(PRD §8, `core_analytics`) — 저장 여부만, 내용은 담지 않는다.
 4. `router.dart:56` — `tag_palette`는 v1.x 범위이므로 v1에서는 그대로 둔다.
 
 **남은 확인 사항** (전부 코드 상수·데이터라 구현 중 조정 가능):

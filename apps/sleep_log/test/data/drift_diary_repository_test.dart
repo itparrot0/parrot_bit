@@ -2,18 +2,18 @@ import 'package:drift/drift.dart' show Value, driftRuntimeOptions;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sleep_log/data/database.dart';
-import 'package:sleep_log/data/diary_repository.dart';
+import 'package:sleep_log/data/drift_diary_repository.dart';
 import 'package:sleep_log/domain/domain.dart';
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
 
   late AppDatabase database;
-  late DiaryRepository repository;
+  late DriftDiaryRepository repository;
 
   setUp(() {
     database = AppDatabase(NativeDatabase.memory());
-    repository = DiaryRepository(database);
+    repository = DriftDiaryRepository(database);
   });
 
   tearDown(() => database.close());
