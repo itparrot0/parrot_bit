@@ -33,6 +33,9 @@ const _v3 = PartialOptions(visible: 3);
 /// 출시 팩 스테이지 수
 const totalStages = 1000;
 
+/// "?" 물방울 스테이지: [mysteryFrom] 부터 [mysteryEvery] 스테이지마다 (노말이면 가장 가까운 어려움 스테이지)
+const mysteryFrom = 100, mysteryEvery = 18;
+
 /// 한 그림을 쓰는 최대 횟수 / 같은 그림 사이 최소 간격 / 같은 유형 사이 최소 간격
 const maxUses = 3, minGap = 100, familyGap = 8;
 
@@ -178,6 +181,30 @@ PackConfig makeConfig() {
   //  - 같은 유형(art_gen.familyOf: 산 풍경끼리, 친구 캐릭터끼리 …)은 [familyGap] 스테이지 안에 겹치지 않게 (안 되면 이것만 완화)
   //  - 초반 노말은 단순한 그림부터, Super/Mega Hard 는 복잡한 2/3 에서 (안 되면 이것도 완화)
   //  - 그 안에서 가장 적게 쓴 그림, 같으면 무작위
+  // "?" 물방울 스테이지 (2026-11-05): 100스테이지부터 18스테이지마다 하나. 목표 스테이지가 노말이면
+  // 가장 가까운 노말 아닌 스테이지로(같은 거리면 앞쪽). 그래서 간격이 정확히 18은 아니다
+  final mystery = <int>{};
+  for (
+    var target = mysteryFrom;
+    target <= totalStages;
+    target += mysteryEvery
+  ) {
+    for (var d = 0; d <= mysteryEvery; d++) {
+      final cands = [target - d, if (d > 0) target + d];
+      final hit = cands.where(
+        (n) =>
+            n >= mysteryFrom &&
+            n <= totalStages &&
+            tiers.containsKey(n) &&
+            !mystery.contains(n),
+      );
+      if (hit.isNotEmpty) {
+        mystery.add(hit.first);
+        break;
+      }
+    }
+  }
+
   final uses = <String, int>{}; // 그림별 사용 횟수 → variant 번호 (id: <그림>-<n>)
   final lastUse = <String, int>{};
   final lastFamily = <String, int>{};
@@ -241,6 +268,7 @@ PackConfig makeConfig() {
         winRange: p.range,
         options: _v3,
         difficulty: tier.name,
+        mystery: mystery.contains(n),
       ),
     );
   }

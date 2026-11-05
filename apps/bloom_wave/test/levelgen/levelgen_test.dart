@@ -1,5 +1,6 @@
 // 레벨 생성기(tool/levelgen) 테스트. flutter test test/levelgen
 import 'dart:convert';
+import 'dart:math' as math;
 import 'dart:io';
 
 import 'package:bloom_wave/domain/engine.dart';
@@ -366,4 +367,71 @@ void main() {
       expect(taps.last, lessThanOrEqualTo(100));
     },
   );
+
+  test(
+    '"?" 물방울 스테이지: 100부터 18마다 하나, 노말이면 가장 가까운 어려움 스테이지, 물방울 3%(최소 1) 숨김',
+    () {
+      final pack = jsonDecode(packText) as List;
+      final diff = [
+        for (final l in pack)
+          ((l as Map)['meta'] as Map)['difficulty'] as String,
+      ];
+      List<Map> drops(Map l) => [
+        for (final lane in l['lanes'] as List)
+          for (final d in lane as List) d as Map,
+      ];
+      final mystery = [
+        for (var i = 0; i < pack.length; i++)
+          if (drops(pack[i] as Map).any((d) => d['hidden'] == true)) i + 1,
+      ];
+      final targets = [for (var t = 100; t <= 1000; t += 18) t];
+      expect(mystery.length, targets.length);
+      for (var k = 0; k < targets.length; k++) {
+        final n = mystery[k], t = targets[k];
+        expect(diff[n - 1], isNot('normal'), reason: '$n');
+        // 목표보다 더 가까운 노말 아닌 스테이지가 비어 있으면 안 된다 (같은 거리면 앞쪽)
+        final dist = (n - t).abs();
+        for (var m = t - dist; m <= t + dist; m++) {
+          if ((m - t).abs() < dist || (m < n && (m - t).abs() == dist)) {
+            if (m >= 100 && m <= 1000 && !mystery.contains(m)) {
+              expect(
+                diff[m - 1],
+                'normal',
+                reason: 'target $t → $n, but $m is closer',
+              );
+            }
+          }
+        }
+        final ds = drops(pack[n - 1] as Map);
+        final hidden = ds.where((d) => d['hidden'] == true).length;
+        expect(
+          hidden,
+          math.max(1, (ds.length * 0.03 + 0.5).floor()),
+          reason: '$n',
+        );
+        // 줄 맨 앞(처음부터 탭할 자리)은 숨기지 않는다
+        for (final lane in (pack[n - 1] as Map)['lanes'] as List) {
+          expect(((lane as List).first as Map)['hidden'], isNull, reason: '$n');
+        }
+      }
+      expect(mystery.first, 100);
+      // 숨김은 표시만 바꾸므로 규칙·검증과 무관하다 (verify 가 1000개 모두 통과)
+    },
+  );
+
+  test('hideDrops 는 같은 레벨 id 에서 언제나 같은 물방울을 숨긴다', () {
+    final lanes = [
+      [for (var i = 0; i < 20; i++) Drop(i % 3, 5)],
+      [for (var i = 0; i < 20; i++) Drop(i % 2, 7)],
+      [for (var i = 0; i < 20; i++) Drop(1, 3)],
+    ];
+    String key(List<List<Drop>> ls) =>
+        ls.map((l) => l.map((d) => d.hidden ? 1 : 0).join()).join('|');
+    expect(key(hideDrops(lanes, 'x')), key(hideDrops(lanes, 'x')));
+    expect(
+      hideDrops(lanes, 'x').expand((l) => l).where((d) => d.hidden).length,
+      2,
+    ); // 60 × 3% ≈ 2
+    expect(hideDrops(lanes, 'x').every((l) => !l.first.hidden), isTrue);
+  });
 }

@@ -102,6 +102,8 @@ const Map<String, String> ko = {
       '물방울을 꾹 누르고 있으면\n보드에서 그 색 칸만 또렷하게 보여 줘요.\n동그라미 안에서 손을 떼면 넣고,\n누른 채 동그라미 밖으로 빼면 취소돼요.',
   'tutorial_similar':
       '이 그림에는 비슷한 색이 있어요.\n헷갈리면 물방울을 꾹 눌러\n어느 칸의 색인지 먼저 확인하세요.\n아니면 동그라미 밖으로 빼서 취소!',
+  'tutorial_mystery':
+      '"?" 물방울이 섞여 있어요.\n대기열 맨 위(탭할 자리)에 올라와야\n색과 크기가 보여요.\n미리 계획하기 어려우니 슬롯을 넉넉히 비워 두세요.',
   'tutorial_slots': '슬롯 4칸이 모두 퍼질 수 없는 물방울로 차면 집니다.\n슬롯이 3칸 차면 빨갛게 경고해요.',
   'privacyText':
       'Bloom Wave 개인정보처리방침\n\n게임 진행도·골드·설정은 이 기기 안에만 저장되며,\n앱을 삭제하면 함께 지워집니다.\n게임 화면 아래 배너와 스테이지 완성 후 Google AdMob 광고가 표시되며,\nAdMob은 광고 제공을 위해 광고 ID 등 기기 정보를\n수집할 수 있습니다 (Google 개인정보처리방침 적용).\n광고 제거를 구매하면 광고가 표시되지 않습니다.\n계정·분석 기능은 없습니다.',
@@ -212,6 +214,8 @@ const Map<String, String> en = {
       'Press and hold a drop\nto highlight the cells of its color on the board.\nLift inside the circle to drop it,\nor slide out of the circle to cancel.',
   'tutorial_similar':
       'This picture has colors that look alike.\nIf unsure, press and hold a drop\nto check which cells it matches.\nSlide out of the circle to cancel.',
+  'tutorial_mystery':
+      'Some drops are "?".\nTheir color and size show only\nwhen they reach the top of the lane.\nThey are hard to plan for, so keep a slot free.',
   'tutorial_slots':
       "You lose when all 4 slots hold drops that can't spread.\nThe slots turn red when 3 are taken.",
   'privacyText':

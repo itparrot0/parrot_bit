@@ -2685,7 +2685,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "mystery": true
     },
     {
       "art": "c_kid_16",
@@ -3112,7 +3113,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "mystery": true
     },
     {
       "art": "g_tile1_2",
@@ -3622,7 +3624,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "mystery": true
     },
     {
       "art": "g_desert_dusk",
@@ -4105,7 +4108,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "mystery": true
     },
     {
       "art": "g_hills_night",
@@ -4610,7 +4614,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "mystery": true
     },
     {
       "art": "c_room_bakery",
@@ -5090,7 +5095,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "mystery": true
     },
     {
       "art": "g_slime_2",
@@ -5571,7 +5577,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "mystery": true
     },
     {
       "art": "g_desert_sunset",
@@ -6054,7 +6061,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "mystery": true
     },
     {
       "art": "g_food_onigiri",
@@ -6539,7 +6547,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "mystery": true
     },
     {
       "art": "g_friend_8",
@@ -7048,7 +7057,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "mystery": true
     },
     {
       "art": "g_tile1_3",
@@ -7503,7 +7513,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "mystery": true
     },
     {
       "art": "c_beach_resort_dawn",
@@ -7984,7 +7995,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "mystery": true
     },
     {
       "art": "carousel",
@@ -8465,7 +8477,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "mystery": true
     },
     {
       "art": "g_pirate_0",
@@ -8920,7 +8933,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "mystery": true
     },
     {
       "art": "c_autumn_road_dusk",
@@ -9428,7 +9442,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "mystery": true
     },
     {
       "art": "g_waterfall_night",
@@ -9857,7 +9872,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "mystery": true
     },
     {
       "art": "g_city_night",
@@ -10421,7 +10437,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "mystery": true
     },
     {
       "art": "c_snow_cabin_day",
@@ -10874,7 +10891,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "mystery": true
     },
     {
       "art": "g_farmer_0",
@@ -11356,7 +11374,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "mystery": true
     },
     {
       "art": "g_tile2_0",
@@ -11810,7 +11829,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "mystery": true
     },
     {
       "art": "watermelon_slice",
@@ -12295,7 +12315,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "mystery": true
     },
     {
       "art": "peach",
@@ -12817,7 +12838,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "mystery": true
     },
     {
       "art": "c_room_cafe",
@@ -13315,7 +13337,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "mystery": true
     },
     {
       "art": "butterfly",
@@ -13758,7 +13781,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "mystery": true
     },
     {
       "art": "g_hills_dusk",
@@ -14342,7 +14366,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "mystery": true
     },
     {
       "art": "g_wizard_0",
@@ -14815,7 +14840,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "mystery": true
     },
     {
       "art": "c_room_kitchen",
@@ -15288,7 +15314,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "mystery": true
     },
     {
       "art": "g_aurora_sunset",
@@ -15813,7 +15840,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "mystery": true
     },
     {
       "art": "g_desert_dusk",
@@ -16341,7 +16369,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "mystery": true
     },
     {
       "art": "g_friend_25",
@@ -16841,7 +16870,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "mystery": true
     },
     {
       "art": "c_animal_koi",
@@ -17312,7 +17342,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "mystery": true
     },
     {
       "art": "c_kid_9",
@@ -17783,7 +17814,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "mystery": true
     },
     {
       "art": "g_ufo_0",
@@ -18283,7 +18315,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "mystery": true
     },
     {
       "art": "mushroom",
@@ -18785,7 +18818,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "mystery": true
     },
     {
       "art": "c_kid_20",
@@ -19315,7 +19349,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "mystery": true
     },
     {
       "art": "bicycle",
@@ -19787,7 +19822,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "mystery": true
     },
     {
       "art": "g_pal_lion",
@@ -20261,7 +20297,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "mystery": true
     },
     {
       "art": "sunflower",
@@ -20846,7 +20883,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "mystery": true
     },
     {
       "art": "g_pal_bunny",
@@ -21288,7 +21326,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "mystery": true
     },
     {
       "art": "g_ufo_1",
@@ -21789,7 +21828,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "mystery": true
     },
     {
       "art": "cupcake",
@@ -22290,7 +22330,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "mystery": true
     },
     {
       "art": "lighthouse",
@@ -22817,7 +22858,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "mystery": true
     },
     {
       "art": "c_kid_0",
@@ -23343,7 +23385,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "mystery": true
     },
     {
       "art": "g_pal_piggy",
@@ -23842,7 +23885,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "mystery": true
     },
     {
       "art": "g_desert_day",
@@ -24288,7 +24332,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "mystery": true
     },
     {
       "art": "g_dragon_0",
@@ -24817,7 +24862,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "mystery": true
     },
     {
       "art": "g_friend_24",
@@ -25318,7 +25364,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "mystery": true
     },
     {
       "art": "c_glass4_0",
@@ -25818,7 +25865,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "mystery": true
     },
     {
       "art": "teapot",
@@ -26319,7 +26367,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "mystery": true
     },
     {
       "art": "rabbit",
@@ -26820,7 +26869,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "mystery": true
     },
     {
       "art": "g_chef_2",
@@ -27267,7 +27317,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "mystery": true
     },
     {
       "art": "c_animal_elephant",

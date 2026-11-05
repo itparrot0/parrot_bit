@@ -1,13 +1,21 @@
 // 플레이 화면 UI 개편 (2026-11-04): 힌트·하단 재시작·뒤로 버튼 없음, x2(남은 시간), 아이템 칸 3종, 아이템 튜토리얼
+import 'dart:typed_data';
+
 import 'package:bloom_wave/domain/engine.dart';
 import 'package:bloom_wave/economy/items.dart';
-import 'package:bloom_wave/game/game_painter.dart' show previewLit;
+import 'package:bloom_wave/game/game_painter.dart'
+    show previewLit, showsAsMystery;
 import 'package:bloom_wave/save/save_store.dart';
 import 'package:bloom_wave/screens/game_screen.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart' hide State;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../helpers.dart';
+
+/// "?" 물방울이 처음 나오는 스테이지 (팩 기준)
+final h0 =
+    pack.indexWhere((l) => l.lanes.any((lane) => lane.any((d) => d.hidden))) +
+    1;
 
 GameScreenState game(WidgetTester tester) =>
     tester.state<GameScreenState>(find.byType(GameScreen));
@@ -272,5 +280,52 @@ void main() {
       g.fxForTest.laneX(1),
       closeTo(g.fxForTest.layout.laneXs[1], 1),
     ); // 그리는 자리도 따라왔다
+  });
+
+  test('"?" 물방울: 맨 위에 오기 전까지만 숨김 (맨 위에서는 색·크기가 보인다), JSON 왕복', () {
+    final h = Drop(2, 14, hidden: true);
+    expect(showsAsMystery(h, 1), isTrue);
+    expect(showsAsMystery(h, 2), isTrue);
+    expect(showsAsMystery(h, 0), isFalse);
+    expect(showsAsMystery(Drop(2, 14), 1), isFalse);
+    expect(Drop.fromJson(h.toJson()), h);
+    expect(Drop(1, 3).toJson().containsKey('hidden'), isFalse);
+    // 섞기로 자리를 옮겨도 숨김 표시가 물방울을 따라간다
+    final s = State(
+      cell: Int8List(0),
+      seq: Int32List(0),
+      bornTick: Int32List(0),
+      nextSeq: 0,
+      tick: 0,
+      sproutCount: Int32List(3),
+      remaining: 0,
+      lanes: [
+        [Drop(0, 1), h],
+        [Drop(1, 2), Drop(1, 3)],
+      ],
+      slots: [null],
+      status: Status.playing,
+    );
+    shuffleLanes(s, (m) => m - 1);
+    expect(s.lanes.expand((l) => l).where((d) => d.hidden).single, h);
+  });
+
+  testWidgets('"?" 물방울이 처음 나오는 스테이지에서 안내창', (tester) async {
+    await phone(tester);
+    final h = Harness(data: at(h0));
+    expect(h.services.firstMystery, h0);
+    await start(tester, h);
+    for (
+      var i = 0;
+      i < 4 && byKey('overlay-tutorial-mystery').evaluate().isEmpty;
+      i++
+    ) {
+      final ok = byKey('btn-difficulty-ok');
+      if (ok.evaluate().isEmpty) break;
+      await tester.tap(ok);
+      await advance(tester, 300);
+    }
+    expect(byKey('overlay-tutorial-mystery'), findsOneWidget);
+    expect(byKey('tutorial-mystery-icon'), findsOneWidget);
   });
 }

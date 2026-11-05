@@ -50,6 +50,43 @@ class JobResult {
   final List<String> warnings;
 }
 
+/// "?" 물방울 비율 (스테이지 물방울의 3%, 최소 1개)
+const mysteryRate = 0.03;
+
+/// "?" 물방울 고르기: 줄 맨 앞(처음부터 보이는 자리)을 뺀 물방울 중에서 [mysteryRate] 만큼(최소 1개).
+/// 레벨 id 로 시드를 정해 언제 돌려도 같은 물방울이 숨는다
+List<List<Drop>> hideDrops(List<List<Drop>> lanes, String id) {
+  final slots = [
+    for (var l = 0; l < lanes.length; l++)
+      for (var k = 1; k < lanes[l].length; k++) (l, k),
+  ];
+  final total = lanes.fold<int>(0, (n, l) => n + l.length);
+  final want = math.min(
+    slots.length,
+    math.max(1, jsRound(total * mysteryRate)),
+  );
+  var seed = 17;
+  for (final c in id.codeUnits) {
+    seed = (seed * 31 + c) & 0x7fffffff;
+  }
+  final rng = mulberry32(seed);
+  final picked = <(int, int)>{};
+  while (picked.length < want) {
+    picked.add(slots[(rng() * slots.length).floor()]);
+  }
+  return [
+    for (var l = 0; l < lanes.length; l++)
+      [
+        for (var k = 0; k < lanes[l].length; k++)
+          Drop(
+            lanes[l][k].color,
+            lanes[l][k].amount,
+            hidden: picked.contains((l, k)),
+          ),
+      ],
+  ];
+}
+
 /// 같은 그림의 n 번째 레벨 이름 뒤에 붙는 로마 숫자 (2 → II, 14 → XIV)
 String roman(int n) {
   const v = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
@@ -200,7 +237,7 @@ JobResult runJob(Job job) {
     palette: raw.palette,
     cells: raw.cells,
     starts: raw.starts,
-    lanes: raw.lanes,
+    lanes: spec.mystery ? hideDrops(raw.lanes, id) : raw.lanes,
     slotCount: raw.slotCount,
     // 기본값과 다른 옵션만 기록 (키 순서 visible → realtime, Level.toJson 이 지킨다)
     visible: options.visible != defaultOptions.visible ? options.visible : null,

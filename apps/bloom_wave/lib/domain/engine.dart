@@ -20,23 +20,33 @@ const int sprout = 1; // 발아 (*)
 const int bloom = 2; // 개화 (@)
 
 class Drop {
-  Drop(this.color, this.amount);
+  Drop(this.color, this.amount, {this.hidden = false});
   final int color;
   int amount;
 
-  Drop copy() => Drop(color, amount);
+  /// "?" 물방울 (2026-11-05): 대기열 맨 위(탭할 자리)에 오기 전까지 색·크기를 숨긴다. 표시 전용 — 규칙에는 영향 없음
+  final bool hidden;
+
+  Drop copy() => Drop(color, amount, hidden: hidden);
 
   factory Drop.fromJson(Map<String, dynamic> j) =>
-      Drop(j['color'] as int, j['amount'] as int);
-  Map<String, dynamic> toJson() => {'color': color, 'amount': amount};
+      Drop(j['color'] as int, j['amount'] as int, hidden: j['hidden'] == true);
+  Map<String, dynamic> toJson() => {
+    'color': color,
+    'amount': amount,
+    if (hidden) 'hidden': true,
+  };
 
   @override
   bool operator ==(Object other) =>
-      other is Drop && other.color == color && other.amount == amount;
+      other is Drop &&
+      other.color == color &&
+      other.amount == amount &&
+      other.hidden == hidden;
   @override
-  int get hashCode => Object.hash(color, amount);
+  int get hashCode => Object.hash(color, amount, hidden);
   @override
-  String toString() => 'Drop($color:$amount)';
+  String toString() => 'Drop($color:$amount${hidden ? '?' : ''})';
 }
 
 enum Difficulty {

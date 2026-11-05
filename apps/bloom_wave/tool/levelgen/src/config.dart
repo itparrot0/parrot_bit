@@ -42,6 +42,7 @@ class LevelSpec {
     this.displacements,
     this.options,
     this.difficulty,
+    this.mystery = false,
   });
 
   /// `art/<art>.png`
@@ -80,6 +81,9 @@ class LevelSpec {
   /// 없으면 예전처럼 winRange 기준으로 고른다.
   final String? difficulty;
 
+  /// "?" 물방울 스테이지 (2026-11-05): 물방울의 3%(최소 1개)를 맨 위에 오기 전까지 숨긴다
+  final bool mystery;
+
   factory LevelSpec.fromJson(Map<String, dynamic> j) {
     final wr = j['winRange'] as List;
     return LevelSpec(
@@ -101,6 +105,7 @@ class LevelSpec {
           ? null
           : PartialOptions.fromJson(j['options'] as Map<String, dynamic>),
       difficulty: j['difficulty'] as String?,
+      mystery: j['mystery'] == true,
     );
   }
 
@@ -122,6 +127,7 @@ class LevelSpec {
     'winRange': [winRange.$1, winRange.$2],
     if (options != null) 'options': options!.toJson(),
     'difficulty': ?difficulty,
+    if (mystery) 'mystery': true,
   };
 }
 

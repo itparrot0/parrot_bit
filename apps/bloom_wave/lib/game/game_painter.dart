@@ -16,6 +16,11 @@ import 'game_layout.dart';
 bool previewLit(int? preview, int colorIndex, int cellState) =>
     preview != null && preview == colorIndex && cellState == e.sprout;
 
+/// "?" 물방울을 숨긴 채 그리나: 숨김 물방울이 맨 위(k = 0, 탭할 자리)가 아닐 때. 맨 위에 오면 색·크기가 드러난다
+bool showsAsMystery(e.Drop d, int k) => d.hidden && k > 0;
+
+const mysteryColor = Color(0xFF9CA3AF);
+
 class GamePainter extends CustomPainter {
   GamePainter(this.c, this.fx, this.L, {this.skinId = 'basic'})
     : super(repaint: fx);
@@ -68,6 +73,12 @@ class GamePainter extends CustomPainter {
   }
 
   /// 물방울 + 숫자 (흰색·밝은 물방울에서도 숫자가 보이게)
+  /// "?" 물방울: 회색 물방울 + "?" (색·크기 모두 숨김)
+  void _mysteryDrop(Canvas canvas, Offset at, double r) {
+    drawDrop(canvas, at, r, mysteryColor);
+    _centerText(canvas, '?', at + Offset(0, r * 0.12), r * 0.85, Colors.white);
+  }
+
   void _drop(
     Canvas canvas,
     Offset at,
@@ -276,7 +287,11 @@ class GamePainter extends CustomPainter {
           at -= Offset(0, fx.laneBounce(li));
           if (fx.pressedLane == li) r *= 1.1;
         }
-        _drop(canvas, at, r, q[k], alpha: k == 0 ? 1 : 0.85);
+        if (showsAsMystery(q[k], k)) {
+          _mysteryDrop(canvas, at, r);
+        } else {
+          _drop(canvas, at, r, q[k], alpha: k == 0 ? 1 : 0.85);
+        }
       }
     }
   }

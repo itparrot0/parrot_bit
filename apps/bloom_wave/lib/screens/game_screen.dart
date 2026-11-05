@@ -141,6 +141,7 @@ class GameScreenState extends State<GameScreen>
     // 길게 눌러 색 미리보기: 1스테이지에서 안내, 비슷한 색이 처음 나오는 스테이지에서 한 번 더
     if (n == 1) _intro.add('tut:hold');
     if (n > 1 && n == app.firstSimilar) _intro.add('tut:similar');
+    if (n == app.firstMystery) _intro.add('tut:mystery');
     // 아이템 해금 스테이지: 처음이면 3개 지급, 튜토리얼(1개 쓰기)을 아직 안 했으면 안내 → 꼭 한 번 쓰게 한다
     for (final def in itemDefs) {
       if (def.unlockStage != n) continue;
@@ -748,21 +749,26 @@ class GameScreenState extends State<GameScreen>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            // 배지 폭을 패널 안으로 묶는다 (두근거림 1.12배까지 넘치지 않게)
             _Pulse(
               child: Container(
+                width: 640,
                 height: 170,
-                padding: const EdgeInsets.symmetric(horizontal: 70),
+                padding: const EdgeInsets.symmetric(horizontal: 50),
                 decoration: BoxDecoration(
                   color: color,
                   borderRadius: BorderRadius.circular(85),
                 ),
                 alignment: Alignment.center,
-                child: Text(
-                  app.t(textKey),
-                  style: textStyle(
-                    92,
-                    color: Colors.white,
-                    weight: FontWeight.w900,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    app.t(textKey),
+                    style: textStyle(
+                      92,
+                      color: Colors.white,
+                      weight: FontWeight.w900,
+                    ),
                   ),
                 ),
               ),
@@ -830,7 +836,14 @@ class GameScreenState extends State<GameScreen>
     }
     // 위쪽 그림: 기본은 물방울 하나, 색 안내(hold/similar)는 비슷한 두 색 물방울 견본
     final Widget icon;
-    if (key == 'hold' || key == 'similar') {
+    if (key == 'mystery') {
+      icon = SizedBox(
+        key: const ValueKey('tutorial-mystery-icon'),
+        width: 160,
+        height: 160,
+        child: CustomPaint(painter: _MysteryPainter()),
+      );
+    } else if (key == 'hold' || key == 'similar') {
       final pair = key == 'similar' ? similarPair(level) : null;
       final cols = pair != null
           ? [hexColor(level.palette[pair.$1]), hexColor(level.palette[pair.$2])]
@@ -1336,4 +1349,28 @@ class _ItemButton extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 안내창 그림: 회색 "?" 물방울
+class _MysteryPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final c = size.center(Offset.zero);
+    drawDrop(canvas, c, 64, mysteryColor);
+    final tp = TextPainter(
+      text: const TextSpan(
+        text: '?',
+        style: TextStyle(
+          fontSize: 56,
+          color: Colors.white,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    tp.paint(canvas, c + Offset(-tp.width / 2, -tp.height / 2 + 8));
+  }
+
+  @override
+  bool shouldRepaint(covariant _MysteryPainter old) => false;
 }

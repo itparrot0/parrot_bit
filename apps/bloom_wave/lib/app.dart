@@ -28,7 +28,12 @@ class AppServices extends ChangeNotifier {
     this.version = '1.0.0',
     this.manualTick = false,
   }) : rng = rng ?? math.Random(),
-       firstSimilar = firstSimilarLevel(levels);
+       firstSimilar = firstSimilarLevel(levels),
+       firstMystery =
+           levels.indexWhere(
+             (l) => l.lanes.any((lane) => lane.any((d) => d.hidden)),
+           ) +
+           1;
 
   final List<Level> levels;
   final SaveStore save;
@@ -46,6 +51,9 @@ class AppServices extends ChangeNotifier {
 
   /// 비슷한 색이 처음 나오는 스테이지 번호 (도움말용)
   final int firstSimilar;
+
+  /// "?" 물방울이 처음 나오는 스테이지 번호 (도움말용, 없으면 0)
+  final int firstMystery;
 
   Strings get strings => Strings(save.data.settings.lang);
   String t(String key, [Map<String, Object> vars = const {}]) =>
