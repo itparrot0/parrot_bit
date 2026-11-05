@@ -74,7 +74,6 @@ class ThoughtCheckIns extends Table {
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
-  @override
   /// 1: 기록·태그. 2: 생각 돌아보기 체크인 표 추가.
   @override
   int get schemaVersion => 2;
