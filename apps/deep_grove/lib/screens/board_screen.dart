@@ -248,15 +248,20 @@ class _BoardViewState extends ConsumerState<_BoardView>
     if (cost == null) {
       return;
     }
-    final confirmed = await showExpandConfirm(
-      context,
-      expansion: expansion,
-      board: _board,
-      economy: economy,
-      cost: cost,
-    );
-    if (!confirmed || !mounted) {
-      return;
+    // 자원이 충분한 칸은 탭 한 번에 바로 연다 — 확장이 30번이라 매번 묻으면 번거롭다.
+    // 모자랄 때(무엇이 모자란지 보여 준다)와 테마 완주(한 번뿐인 큰 결정)만 시트를 띄운다.
+    final instant = expansion is UnlockCell && economy.canAfford(cost);
+    if (!instant) {
+      final confirmed = await showExpandConfirm(
+        context,
+        expansion: expansion,
+        board: _board,
+        economy: economy,
+        cost: cost,
+      );
+      if (!confirmed || !mounted) {
+        return;
+      }
     }
     final enteringCave =
         expansion is UnlockCell &&

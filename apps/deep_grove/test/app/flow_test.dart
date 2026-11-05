@@ -164,10 +164,9 @@ void main() {
       const Economy(theme: forestCaveTheme, amounts: {Resource.wood: 15}),
     );
     await pumpApp(tester, store: store);
+    // 자원이 충분하면 확인 시트 없이 탭 한 번에 열린다.
     await tapExpansion(tester, const UnlockCell((col: 0, row: 4)));
-    expect(find.text('동굴 진입'), findsWidgets);
-    await tester.tap(find.text('확장'));
-    await settle(tester);
+    expect(find.text('확장'), findsNothing);
 
     expect(find.text('동굴에 들어섰어요'), findsOneWidget);
     await tester.tap(find.text('확인'));
@@ -426,8 +425,6 @@ void main() {
       );
 
       await tapExpansion(tester, const UnlockCell((col: 3, row: 0)));
-      await tester.tap(find.text('확장'));
-      await settle(tester);
       expect(game.visibleHint, isNull);
       expect(container.read(hintsProvider).isDone(Hint.firstExpand), isTrue);
     });
@@ -484,5 +481,53 @@ void main() {
     expect(game.board.producers, isEmpty);
     final saved = await SaveRepository(store).load(forestCaveTheme, now: t0);
     expect(saved.board.producers, isEmpty);
+  });
+
+  group('확인 시트 생략', () {
+    testWidgets('자원이 충분한 잠긴 칸은 탭 한 번에 열리고 비용이 빠진다', (tester) async {
+      final store = InMemoryKeyValueStore();
+      await saveWith(
+        store,
+        BoardModel(forestCaveTheme),
+        const Economy(theme: forestCaveTheme, amounts: {Resource.wood: 5}),
+      );
+      await pumpApp(tester, store: store);
+      await tapExpansion(tester, const UnlockCell((col: 3, row: 1)));
+      expect(find.text('숲 칸 열기'), findsNothing);
+      expect(gameOf(tester).board.isInside((col: 3, row: 1)), isTrue);
+      expect(find.text('목재 3/30'), findsOneWidget);
+      // 바로 다음 칸(숲 2번째, 목재 3)도 한 번에
+      await tapExpansion(tester, const UnlockCell((col: 3, row: 2)));
+      expect(find.text('목재 0/30'), findsOneWidget);
+    });
+
+    testWidgets('모자라면 시트로 무엇이 모자란지 보여 주고 열지 않는다', (tester) async {
+      await pumpApp(tester);
+      await tapExpansion(tester, const UnlockCell((col: 3, row: 1)));
+      expect(find.text('숲 칸 열기'), findsOneWidget);
+      expect(find.text('0 / 2'), findsOneWidget);
+      expect(find.text('자원이 모자라요'), findsOneWidget);
+      expect(gameOf(tester).board.isInside((col: 3, row: 1)), isFalse);
+    });
+
+    testWidgets('테마 완주는 자원이 있어도 확인을 받는다', (tester) async {
+      final store = InMemoryKeyValueStore();
+      await saveWith(
+        store,
+        emptyBoard()..openAll(),
+        const Economy(
+          theme: forestCaveTheme,
+          amounts: {Resource.wood: 100, Resource.ore: 100},
+          storageLevel: 2,
+        ),
+      );
+      await pumpApp(tester, store: store);
+      await tapExpansion(tester, const ClearTheme());
+      expect(find.text('테마 완주'), findsWidgets);
+      expect(find.text('확장'), findsOneWidget);
+      await tester.tap(find.text('확장'));
+      await settle(tester);
+      expect(find.text('동굴이 있는 숲을 완성했어요'), findsOneWidget);
+    });
   });
 }

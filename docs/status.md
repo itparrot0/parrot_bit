@@ -154,7 +154,7 @@ v0.1 원문으로 전면 교체**됐다. 이전 PRD에만 있던 결정들 — �
 
 | | |
 |---|---|
-| 코드 | `apps/deep_grove` — Flutter + Flame + Riverpod. 테스트 109개. `apps/proto_merge`는 이식 후 삭제 |
+| 코드 | `apps/deep_grove` — Flutter + Flame + Riverpod. 테스트 112개. `apps/proto_merge`는 이식 후 삭제 |
 | 문서 | `docs/prd/deep_grove.md` (PRD), `docs/screen-flow/deep_grove.md` (화면 흐름), `docs/design/deep_grove-themes.md` (규칙·컨텐츠·수치), `docs/prd/proto_merge.md` (승격 판정) |
 
 **끝난 것 (2026-11-05)**: 열린 결정 5개 확정 → 이름 Deep Grove → PRD·화면 흐름 → 앱 생성·이식.
@@ -205,6 +205,8 @@ in_app_purchase(Bloom Wave `StoreBilling`과 같은 구조), 웹은 "구매/취�
 
 **버리기 칸 (2026-11-05)**: 보드 막힘 해소 장치. 보드 아래 칸에 놓으면 버린다 — 자원 환급 없음, 생성기 제외,
 산출원은 확인 창. 시뮬레이터에서 막히던 수치(산출 120초)가 낮은 아이템 2~4개만 버리고 모두 완주.
+
+**확인 시트 생략 (2026-11-05)**: 자원이 충분한 잠긴 칸은 탭 한 번에 바로 열린다. 모자랄 때와 테마 완주만 시트.
 
 **다음 할 일**: 첫 테마 목표 길이·속도 손잡이(에너지 등) 결정 → 시뮬레이터로 수치 맞추기. 그 밖에 실제 그래픽(`lib/game/skins/skin_registry.dart`), 실기기 광고·결제 확인, 그리고
 직접 플레이해서 PRD §10 열린 질문(보드 막힘·탭 제한·경제 수치)에 답한다.
