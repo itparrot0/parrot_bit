@@ -1,0 +1,238 @@
+// 화면 문구 (한국어 / 영어). 키를 바꾸면 두 언어를 함께 바꾼다 — 테스트가 키 짝을 확인한다.
+
+const Map<String, String> ko = {
+  'x2': 'x2',
+  'x2Empty': 'x2 시간을 다 썼어요',
+  'item_slot': '슬롯 추가',
+  'item_shuffle': '섞기',
+  'item_bloom': '즉시 개화',
+  'itemLocked': '{n}스테이지',
+  'itemEmpty': '남은 아이템이 없어요',
+  'itemSlotMax': '슬롯은 6칸까지예요',
+  'itemShuffleFail': '지금은 섞을 수 없어요',
+  'itemShuffleDone': '물방울을 섞었어요',
+  'itemBloomPick': '쓸 수 없는 물방울이 든 슬롯을 고르세요',
+  'itemBloomNone': '퍼질 곳이 없는 물방울이 든 슬롯이 없어요',
+  'itemUseNow': '아이템을 눌러 써 보세요',
+  'itemTutorialOk': '써 보기',
+  'itemGot': '{name} 3개를 받았어요!',
+  'itemTut_slot':
+      '새 아이템: 슬롯 추가\n이번 판의 활성 슬롯이 1칸 늘어나요.\n슬롯이 막힐 것 같을 때 쓰세요.\n(최대 6칸까지)',
+  'itemTut_shuffle':
+      '새 아이템: 섞기\n대기열에 남은 물방울을 맨 위까지\n모든 줄에 걸쳐 무작위로 섞어요.\n섞은 뒤에도 완성할 수 있게 섞어 줘요.',
+  'itemTut_bloom':
+      '새 아이템: 즉시 개화\n퍼질 곳이 없어 슬롯에 묶인 물방울을 고르면\n그 물방울을 다 쓸 때까지\n같은 색 칸을 무작위로 바로 피워요.',
+  'shop': '상점',
+  'openShop': '상점',
+  'skinGacha': '스킨 뽑기',
+  'skinsTitle': '꽃 스킨',
+  'skinsSub': '퍼즐 조각을 모두 모으면 스킨이 해금돼요',
+  'pieces': '조각 {n}/{total}',
+  'equip': '장착',
+  'equipped': '장착 중',
+  'locked': '잠김',
+  'goGacha': '스킨 뽑으러 가기',
+  'pull': '뽑기',
+  'pullCost': '{n} 골드',
+  'odds': '확률 보기',
+  'oddsTitle': '뽑기 확률',
+  'oddsNote':
+      '해금하지 않은 스킨의 퍼즐 조각이\n모두 같은 확률로 나와요.\n이미 가진 조각이 나오면\n{n} 골드(뽑기 골드의 10%)를 돌려받아요.\n해금한 스킨의 조각은 더 이상 나오지 않아요.',
+  'oddsPiece': '조각 하나 {p}',
+  'oddsExcluded': '해금됨 · 제외',
+  'notEnoughGold': '골드가 부족해요',
+  'allSkinsUnlocked': '모든 스킨을 해금했어요!',
+  'newPiece': '새 조각!',
+  'duplicatePiece': '이미 가진 조각',
+  'refund': '+{n} 골드 돌려받음',
+  'skinUnlocked': '스킨 해금!',
+  'equipNow': '바로 장착',
+  'pullAgain': '한 번 더',
+  'ok': '확인',
+  'tapToSkip': '탭하면 건너뛰기',
+  'title': 'Bloom Wave',
+  'subtitle': '물방울로 그림을 꽃피우세요',
+  'startStage': '스테이지 {n} 시작',
+  'allCleared': '모든 스테이지 완성!',
+  'allClearedSub': '새 스테이지를 준비하고 있어요',
+  'gold': '골드',
+  'goldEarned': '+{n}',
+  'home': '홈',
+  'settings': '설정',
+  'stage': '스테이지 {n}',
+  'restart': '재시작',
+  'pause': '일시정지',
+  'resume': '계속하기',
+  'next': '다음 스테이지',
+  'retry': '다시 하기',
+  'cleared': '완성!',
+  'fullBloom': 'FULL BLOOM',
+  'diffHard': 'Hard',
+  'diffSuperHard': 'Super Hard',
+  'diffMegaHard': 'Mega Hard',
+  'diffSub': '어려운 스테이지예요.\n어느 줄을 언제 넣을지 신중하게 골라 보세요.',
+  'diffStart': '도전하기',
+  'removeAds': '광고 제거',
+  'removeAdsOwned': '광고 제거됨',
+  'restorePurchases': '구매 복원',
+  'purchaseFailed': '결제를 완료하지 못했어요',
+  'purchaseDone': '광고가 제거되었어요',
+  'adTest': '광고 (테스트)',
+  'adClose': '닫기',
+  'failed': '슬롯이 막혔어요',
+  'failedSub': '4칸이 모두 쓸 수 없는 물방울로 찼습니다',
+  'sound': '사운드',
+  'vibration': '진동',
+  'fastFx': '빠른 연출',
+  'language': '언어',
+  'privacy': '개인정보처리방침',
+  'version': '버전 {v}',
+  'close': '닫기',
+  'exitTitle': '게임을 종료할까요?',
+  'exitYes': '종료',
+  'exitNo': '취소',
+  'tapToStart': '탭해서 시작',
+  'tutorial_wave':
+      '아래 물방울을 탭하세요.\n같은 색 싹(밝은 칸)에서 꽃이 한 바퀴씩 퍼지고,\n숫자만큼 피우면 물방울이 사라집니다.\n핀 꽃은 주변 8칸의 씨앗을 깨워요.',
+  'tutorial_lanes':
+      '물방울 줄이 여러 개예요.\n아무 줄이나 맨 위 물방울을 탭할 수 있어요.\n어느 줄을 먼저 쓸지가 승부를 가릅니다.',
+  'tutorial_realtime': '꽃이 퍼지는 도중에도 다음 물방울을 넣을 수 있어요.\n지금 넣을지, 기다릴지 골라 보세요.',
+  'tutorial_waiting': '아직 같은 색 싹이 없는 물방울을 넣으면\n싹이 생길 때까지 슬롯 한 칸을 차지한 채 기다립니다.',
+  'tutorial_hold':
+      '물방울을 꾹 누르고 있으면\n보드에서 그 색 칸만 또렷하게 보여 줘요.\n동그라미 안에서 손을 떼면 넣고,\n누른 채 동그라미 밖으로 빼면 취소돼요.',
+  'tutorial_similar':
+      '이 그림에는 비슷한 색이 있어요.\n헷갈리면 물방울을 꾹 눌러\n어느 칸의 색인지 먼저 확인하세요.\n아니면 동그라미 밖으로 빼서 취소!',
+  'tutorial_mystery':
+      '"?" 물방울이 섞여 있어요.\n대기열 맨 위(탭할 자리)에 올라와야\n색과 크기가 보여요.\n미리 계획하기 어려우니 슬롯을 넉넉히 비워 두세요.',
+  'tutorial_slots': '슬롯 4칸이 모두 퍼질 수 없는 물방울로 차면 집니다.\n슬롯이 3칸 차면 빨갛게 경고해요.',
+  'privacyText':
+      'Bloom Wave 개인정보처리방침\n\n게임 진행도·골드·설정은 이 기기 안에만 저장되며,\n앱을 삭제하면 함께 지워집니다.\n게임 화면 아래 배너와 스테이지 완성 후 Google AdMob 광고가 표시되며,\nAdMob은 광고 제공을 위해 광고 ID 등 기기 정보를\n수집할 수 있습니다 (Google 개인정보처리방침 적용).\n광고 제거를 구매하면 광고가 표시되지 않습니다.\n계정·분석 기능은 없습니다.',
+};
+
+const Map<String, String> en = {
+  'x2': 'x2',
+  'x2Empty': 'Out of x2 time',
+  'item_slot': 'Extra Slot',
+  'item_shuffle': 'Shuffle',
+  'item_bloom': 'Instant Bloom',
+  'itemLocked': 'Stage {n}',
+  'itemEmpty': 'No items left',
+  'itemSlotMax': 'Up to 6 slots',
+  'itemShuffleFail': "Can't shuffle right now",
+  'itemShuffleDone': 'Drops shuffled',
+  'itemBloomPick': 'Pick a slot holding a stuck drop',
+  'itemBloomNone': 'No slot holds a stuck drop',
+  'itemUseNow': 'Tap the item to try it',
+  'itemTutorialOk': 'Try it',
+  'itemGot': 'You got 3 {name}!',
+  'itemTut_slot':
+      'New item: Extra Slot\nAdds one active slot for this stage.\nUse it when the slots are about to jam.\n(Up to 6 slots)',
+  'itemTut_shuffle':
+      'New item: Shuffle\nShuffles every drop left in the lanes,\ntop drops included, across all lanes.\nIt always keeps the stage clearable.',
+  'itemTut_bloom':
+      'New item: Instant Bloom\nPick a slot whose drop has nowhere to spread:\nit blooms random cells of its color\nuntil the drop is used up.',
+  'shop': 'Shop',
+  'openShop': 'Shop',
+  'skinGacha': 'Skin Gacha',
+  'skinsTitle': 'Flower Skins',
+  'skinsSub': 'Collect every puzzle piece to unlock a skin',
+  'pieces': 'Pieces {n}/{total}',
+  'equip': 'Equip',
+  'equipped': 'Equipped',
+  'locked': 'Locked',
+  'goGacha': 'Go to Skin Gacha',
+  'pull': 'Pull',
+  'pullCost': '{n} gold',
+  'odds': 'Odds',
+  'oddsTitle': 'Gacha Odds',
+  'oddsNote':
+      'Every puzzle piece of a locked skin\nhas the same chance.\nA piece you already own returns\n{n} gold (10% of the cost).\nPieces of unlocked skins no longer appear.',
+  'oddsPiece': 'each piece {p}',
+  'oddsExcluded': 'Unlocked · excluded',
+  'notEnoughGold': 'Not enough gold',
+  'allSkinsUnlocked': 'All skins unlocked!',
+  'newPiece': 'New piece!',
+  'duplicatePiece': 'Already owned',
+  'refund': '+{n} gold returned',
+  'skinUnlocked': 'Skin unlocked!',
+  'equipNow': 'Equip now',
+  'pullAgain': 'Pull again',
+  'ok': 'OK',
+  'tapToSkip': 'Tap to skip',
+  'title': 'Bloom Wave',
+  'subtitle': 'Bring pixel pictures to bloom',
+  'startStage': 'Start Stage {n}',
+  'allCleared': 'All stages complete!',
+  'allClearedSub': 'New stages are on the way',
+  'gold': 'Gold',
+  'goldEarned': '+{n}',
+  'home': 'Home',
+  'settings': 'Settings',
+  'stage': 'Stage {n}',
+  'restart': 'Restart',
+  'pause': 'Paused',
+  'resume': 'Resume',
+  'next': 'Next Stage',
+  'retry': 'Try Again',
+  'cleared': 'Complete!',
+  'fullBloom': 'FULL BLOOM',
+  'diffHard': 'Hard',
+  'diffSuperHard': 'Super Hard',
+  'diffMegaHard': 'Mega Hard',
+  'diffSub':
+      'This stage is tough.\nChoose carefully which lane to drop, and when.',
+  'diffStart': "Let's go",
+  'removeAds': 'Remove Ads',
+  'removeAdsOwned': 'Ads removed',
+  'restorePurchases': 'Restore purchases',
+  'purchaseFailed': "The purchase didn't go through",
+  'purchaseDone': 'Ads have been removed',
+  'adTest': 'Ad (test)',
+  'adClose': 'Close',
+  'failed': 'Slots are jammed',
+  'failedSub': "All 4 slots hold drops that can't spread",
+  'sound': 'Sound',
+  'vibration': 'Vibration',
+  'fastFx': 'Fast effects',
+  'language': 'Language',
+  'privacy': 'Privacy Policy',
+  'version': 'Version {v}',
+  'close': 'Close',
+  'exitTitle': 'Quit the game?',
+  'exitYes': 'Quit',
+  'exitNo': 'Cancel',
+  'tapToStart': 'Tap to start',
+  'tutorial_wave':
+      'Tap a drop below.\nFlowers bloom ring by ring from sprouts of the same color,\nand the drop is used up after its number of blooms.\nEach bloom wakes the 8 seeds around it.',
+  'tutorial_lanes':
+      'There are several lanes of drops.\nYou can tap the top drop of any lane.\nWhich lane you use first decides the game.',
+  'tutorial_realtime':
+      'You can drop the next one while the wave is still spreading.\nDrop now, or wait?',
+  'tutorial_waiting':
+      'A drop with no sprouts of its color yet\nsits in a slot until that color wakes up.',
+  'tutorial_hold':
+      'Press and hold a drop\nto highlight the cells of its color on the board.\nLift inside the circle to drop it,\nor slide out of the circle to cancel.',
+  'tutorial_similar':
+      'This picture has colors that look alike.\nIf unsure, press and hold a drop\nto check which cells it matches.\nSlide out of the circle to cancel.',
+  'tutorial_mystery':
+      'Some drops are "?".\nTheir color and size show only\nwhen they reach the top of the lane.\nThey are hard to plan for, so keep a slot free.',
+  'tutorial_slots':
+      "You lose when all 4 slots hold drops that can't spread.\nThe slots turn red when 3 are taken.",
+  'privacyText':
+      "Bloom Wave Privacy Policy\n\nYour progress, gold and settings are stored only on this device\nand are removed when you uninstall the app.\nGoogle AdMob ads are shown as a banner during play\nand after a stage is complete.\nAdMob may collect device data such as the advertising ID\nto serve ads (Google's Privacy Policy applies).\nBuying Remove Ads turns ads off.\nThere are no accounts or analytics.",
+};
+
+class Strings {
+  const Strings(this.lang);
+  final String lang;
+
+  Map<String, String> get _dict => lang == 'ko' ? ko : en;
+
+  bool has(String key) => _dict.containsKey(key);
+
+  String t(String key, [Map<String, Object> vars = const {}]) {
+    var s = _dict[key] ?? key;
+    vars.forEach((k, v) => s = s.replaceAll('{$k}', '$v'));
+    return s;
+  }
+}

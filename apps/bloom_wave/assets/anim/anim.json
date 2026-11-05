@@ -1,0 +1,11 @@
+{
+  "seed": {
+    "frameMs": 0
+  },
+  "sprout": {
+    "frameMs": 32.0
+  },
+  "bloom": {
+    "frameMs": 32.0
+  }
+}
