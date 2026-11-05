@@ -16,10 +16,6 @@ import 'game_layout.dart';
 bool previewLit(int? preview, int colorIndex, int cellState) =>
     preview != null && preview == colorIndex && cellState == e.sprout;
 
-/// 대기열 줄 아래 글자. 남은 물방울 수(+N)는 보여 주지 않는다 (2026-11-05):
-/// 줄이 언제 끝날지, 다음 2개 뒤에 어떤 색이 남았는지 모르게. 다 빈 줄만 '—'
-String? laneFooterText(int remaining) => remaining == 0 ? '—' : null;
-
 class GamePainter extends CustomPainter {
   GamePainter(this.c, this.fx, this.L, {this.skinId = 'basic'})
     : super(repaint: fx);
@@ -255,8 +251,8 @@ class GamePainter extends CustomPainter {
 
   void _lanes(Canvas canvas) {
     final visible = math.max(1, c.options.visible);
-    for (var li = 0; li < L.laneXs.length; li++) {
-      final x = L.laneXs[li];
+    for (final li in L.laneIds) {
+      final x = fx.laneX(li);
       final h = L.laneBottom - L.laneTop + L.frontR + 30;
       canvas.drawRRect(
         RRect.fromRectAndRadius(
@@ -274,23 +270,13 @@ class GamePainter extends CustomPainter {
           ? c.state.lanes[li]
           : const <e.Drop>[];
       for (var k = 0; k < visible && k < q.length; k++) {
-        var at = L.laneDrop(li, k);
+        var at = Offset(x, L.laneDrop(li, k).dy);
         var r = k == 0 ? L.frontR : L.nextR;
         if (k == 0) {
           at -= Offset(0, fx.laneBounce(li));
           if (fx.pressedLane == li) r *= 1.1;
         }
         _drop(canvas, at, r, q[k], alpha: k == 0 ? 1 : 0.85);
-      }
-      final footer = laneFooterText(q.length);
-      if (footer != null) {
-        _centerText(
-          canvas,
-          footer,
-          Offset(x, L.laneBottom - 34),
-          38,
-          C.inkSoft,
-        );
       }
     }
   }

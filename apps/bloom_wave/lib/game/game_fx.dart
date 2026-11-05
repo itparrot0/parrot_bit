@@ -55,6 +55,7 @@ class GameFx extends ChangeNotifier {
   /// 슬롯 수가 바뀐 배치로 갈아 끼운다 (슬롯 추가 아이템)
   void relayout(GameLayout l) {
     layout = l;
+    // 줄이 사라지면 남은 줄이 새 자리로 미끄러져 간다 (그리는 x 는 [laneX])
     while (slotPulse.length < l.slots.length) {
       slotPulse.add(-1e9);
       flying.add(null);
@@ -97,8 +98,21 @@ class GameFx extends ChangeNotifier {
 
   bool fast = false;
 
+  final Map<int, double> _laneX = {};
+
+  /// 줄을 그릴 x: 배치가 바뀌면 목표 자리로 부드럽게 따라간다 (약 0.25초)
+  double laneX(int lane) => _laneX[lane] ?? layout.laneXs[lane];
+
   void update(double dt) {
     now += dt;
+    final k = 1 - math.exp(-dt / 70);
+    for (final li in layout.laneIds) {
+      final target = layout.laneXs[li];
+      final cur = _laneX[li];
+      _laneX[li] = cur == null || (cur - target).abs() < 0.5
+          ? target
+          : cur + (target - cur) * k;
+    }
     if (_pending.isNotEmpty) {
       final due = _pending.where((p) => p.at <= now).toList();
       _pending.removeWhere((p) => p.at <= now);
@@ -190,7 +204,7 @@ class GameFx extends ChangeNotifier {
   }
 
   void bounceFront() {
-    bounceLanes = [for (var i = 0; i < layout.laneXs.length; i++) i];
+    bounceLanes = List.of(layout.laneIds);
     bounceStart = now;
   }
 

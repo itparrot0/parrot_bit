@@ -1,7 +1,7 @@
 // 플레이 화면 UI 개편 (2026-11-04): 힌트·하단 재시작·뒤로 버튼 없음, x2(남은 시간), 아이템 칸 3종, 아이템 튜토리얼
 import 'package:bloom_wave/domain/engine.dart';
 import 'package:bloom_wave/economy/items.dart';
-import 'package:bloom_wave/game/game_painter.dart';
+import 'package:bloom_wave/game/game_painter.dart' show previewLit;
 import 'package:bloom_wave/save/save_store.dart';
 import 'package:bloom_wave/screens/game_screen.dart';
 import 'package:flutter/widgets.dart';
@@ -39,13 +39,6 @@ String itemCount(WidgetTester tester, ItemKind k) =>
     (tester.widget<Text>(byKey('item-count-${k.name}'))).data!;
 
 void main() {
-  test('대기열에 남은 물방울 수(+N)를 보여 주지 않는다, 다 빈 줄만 —', () {
-    for (final n in [1, 3, 4, 10, 40]) {
-      expect(laneFooterText(n), isNull);
-    }
-    expect(laneFooterText(0), '—');
-  });
-
   test('색 미리보기는 그 색의 발아 칸만 (씨앗·개화·다른 색은 흐리게)', () {
     expect(previewLit(2, 2, sprout), isTrue);
     expect(previewLit(2, 2, seed), isFalse);
@@ -235,5 +228,49 @@ void main() {
     await tester.tap(byKey('btn-pause-home'));
     await advance(tester, 400);
     expect(byKey('btn-start'), findsOneWidget);
+  });
+
+  testWidgets('다 쓴 줄은 영역째 사라지고 남은 줄이 가운데 정렬된다', (tester) async {
+    await phone(tester);
+    Drop d(int c, int a) => Drop(c, a);
+    // 1행 5칸 a a b a a. 0번 줄은 물방울 1개뿐
+    final lv = Level(
+      id: 'lanes',
+      width: 5,
+      height: 1,
+      palette: const ['#e5484d', '#3e9bdb'],
+      cells: const [0, 0, 1, 0, 0],
+      starts: const [0],
+      lanes: [
+        [d(0, 2)],
+        [d(1, 1), d(0, 1)],
+        [d(0, 1)],
+      ],
+    );
+    final h = Harness(
+      levels: [
+        lv,
+        lv.copyWith(id: 'lanes-2'),
+      ],
+    );
+    await start(tester, h);
+    await closeTutorials(tester);
+    final screen = tester.view.physicalSize / tester.view.devicePixelRatio;
+    double cx(int li) => tester.getCenter(byKey('lane-front-$li')).dx;
+    expect([0, 1, 2].map((i) => byKey('lane-front-$i').evaluate().length), [
+      1,
+      1,
+      1,
+    ]);
+    expect(cx(1), closeTo(screen.width / 2, 1)); // 3줄일 때 가운데는 1번
+    await tester.tap(byKey('lane-front-0'));
+    await advance(tester, 500);
+    expect(byKey('lane-front-0'), findsNothing); // 다 쓴 줄은 없어졌다
+    expect((cx(1) + cx(2)) / 2, closeTo(screen.width / 2, 1)); // 남은 2줄이 가운데
+    final g = game(tester);
+    expect(
+      g.fxForTest.laneX(1),
+      closeTo(g.fxForTest.layout.laneXs[1], 1),
+    ); // 그리는 자리도 따라왔다
   });
 }

@@ -13,6 +13,7 @@ class GameLayout {
     double safeTop = 0,
     double safeBottom = 0,
     int? slotCount,
+    List<int>? laneIds,
   }) {
     final top = safeTop;
     final bottom = kH - safeBottom;
@@ -42,13 +43,17 @@ class GameLayout {
         Offset(kW / 2 + (i - (n - 1) / 2) * spacing, slotY),
     ];
 
+    // 대기열: 물방울이 남은 줄만 가운데 정렬로 놓는다 (2026-11-05: 다 쓴 줄은 영역째 사라진다).
+    // 줄 폭·물방울 크기는 처음 줄 수로 정해 줄이 사라져도 크기가 바뀌지 않는다
     final lanesN = level.lanes.length;
+    final ids = laneIds ?? [for (var i = 0; i < lanesN; i++) i];
     final laneW = math.min(240.0, (kW - 120) / lanesN - 24);
     final gap = math.min(270.0, (kW - 120) / lanesN);
     final laneTop = slotY + 78 + 210;
-    final laneXs = [
-      for (var i = 0; i < lanesN; i++) kW / 2 + (i - (lanesN - 1) / 2) * gap,
-    ];
+    final laneXs = List<double>.filled(lanesN, double.nan);
+    for (var k = 0; k < ids.length; k++) {
+      laneXs[ids[k]] = kW / 2 + (k - (ids.length - 1) / 2) * gap;
+    }
     final frontR = math.min(84.0, laneW * 0.36);
     return GameLayout._(
       top: top,
@@ -63,6 +68,7 @@ class GameLayout {
       slots: slots,
       laneW: laneW,
       laneXs: laneXs,
+      laneIds: ids,
       laneTop: laneTop,
       laneBottom: laneBottom,
       frontR: frontR,
@@ -87,6 +93,7 @@ class GameLayout {
     required this.slots,
     required this.laneW,
     required this.laneXs,
+    required this.laneIds,
     required this.laneTop,
     required this.laneBottom,
     required this.frontR,
@@ -104,7 +111,12 @@ class GameLayout {
   final double slotR;
   final List<Offset> slots;
   final double laneW;
+
+  /// 대기열 줄의 가운데 x (엔진 줄 번호 → x). 사라진 줄은 NaN
   final List<double> laneXs;
+
+  /// 화면에 보이는 줄 (물방울이 남은 줄, 엔진 줄 번호 순)
+  final List<int> laneIds;
 
   /// 줄 맨 앞 물방울 중심 y / 줄 영역 아래 끝
   final double laneTop, laneBottom;

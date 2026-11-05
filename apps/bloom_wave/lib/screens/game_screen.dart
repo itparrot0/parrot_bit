@@ -4,6 +4,7 @@
 // 실패하면 [다시 하기] [홈]. 일시정지 메뉴에서 설정을 연다 (홈에는 시작 버튼만 있으므로).
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -103,6 +104,8 @@ class GameScreenState extends State<GameScreen>
         onDeploy: (slot, _, lane) {
           app.sfx.tap();
           fx.fly(slot, lane);
+          // 줄의 마지막 물방울을 넣었으면 그 줄 영역을 없애고 남은 줄을 가운데로 (다시 배치)
+          if (controller.state.lanes[lane].isEmpty) setState(() {});
         },
         onIdle: () {
           app.sfx.resetPitch();
@@ -152,10 +155,15 @@ class GameScreenState extends State<GameScreen>
   GameLayout _layoutFor(double top, double bottom) {
     final l = _layout;
     final slots = controller.state.slots.length;
+    final lanes = [
+      for (var i = 0; i < controller.state.lanes.length; i++)
+        if (controller.state.lanes[i].isNotEmpty) i,
+    ];
     if (l != null &&
         l.top == top &&
         l.bottom == kH - bottom &&
-        l.slots.length == slots) {
+        l.slots.length == slots &&
+        listEquals(l.laneIds, lanes)) {
       return l;
     }
     final nl = GameLayout(
@@ -163,6 +171,7 @@ class GameScreenState extends State<GameScreen>
       safeTop: top,
       safeBottom: bottom,
       slotCount: slots,
+      laneIds: lanes,
     );
     final old = _layout;
     _layout = nl;
@@ -597,7 +606,7 @@ class GameScreenState extends State<GameScreen>
                   ),
                   // 대기열 맨 앞 물방울: 누르고 있으면 보드에 그 색 미리보기,
                   // 동그라미 안에서 떼면 넣기, 누른 채 동그라미 밖으로 벗어나면 취소
-                  for (var li = 0; li < L.laneXs.length; li++)
+                  for (final li in L.laneIds)
                     Positioned(
                       key: ValueKey('lane-front-$li'),
                       left: L.laneXs[li] - L.hitR,
