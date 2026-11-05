@@ -39,47 +39,68 @@ void main() {
     expect(economy.storageUpgradeCost, isNull);
   });
 
-  test('확장 비용은 보드 크기를 따라가고, 끝난 방향은 null', () {
+  test('칸 비용은 지대별로 "몇 번째로 여는 칸인가"로 정한다', () {
     const economy = Economy(theme: theme);
     final board = emptyBoard();
-    expect(economy.expansionCost(ExpandDirection.widen, board), {
-      Resource.wood: 5,
+    // 숲 첫 칸은 어느 칸이든 같은 값
+    expect(economy.expansionCost(const UnlockCell((col: 3, row: 0)), board), {
+      Resource.wood: 2,
     });
-    expect(economy.expansionCost(ExpandDirection.dig, board), {
+    expect(economy.expansionCost(const UnlockCell((col: 3, row: 3)), board), {
+      Resource.wood: 2,
+    });
+    // 동굴 첫 칸 = 동굴 진입
+    expect(economy.expansionCost(const UnlockCell((col: 0, row: 4)), board), {
       Resource.wood: 12,
     });
-    expect(economy.expansionCost(ExpandDirection.clear, board), isNull);
-
-    board
-      ..widen()
-      ..dig();
-    expect(economy.expansionCost(ExpandDirection.widen, board), {
-      Resource.wood: 20,
-      Resource.ore: 8,
+    board.unlock((col: 3, row: 0));
+    expect(economy.expansionCost(const UnlockCell((col: 3, row: 1)), board), {
+      Resource.wood: 3,
     });
+    // 동굴 비용은 숲을 열어도 그대로
+    expect(economy.expansionCost(const UnlockCell((col: 0, row: 4)), board), {
+      Resource.wood: 12,
+    });
+  });
 
-    board
-      ..widen()
-      ..widen()
-      ..dig()
-      ..dig();
-    expect(economy.expansionCost(ExpandDirection.widen, board), isNull);
-    expect(economy.expansionCost(ExpandDirection.dig, board), isNull);
+  test('열 수 없는 칸·이미 열린 칸은 null', () {
+    const economy = Economy(theme: theme);
+    final board = emptyBoard();
     expect(
-      economy.expansionCost(ExpandDirection.clear, board),
-      theme.clearCost,
+      economy.expansionCost(const UnlockCell((col: 5, row: 0)), board),
+      isNull,
     );
     expect(
-      economy.markCleared().expansionCost(ExpandDirection.clear, board),
+      economy.expansionCost(const UnlockCell((col: 0, row: 0)), board),
       isNull,
     );
   });
 
-  test('테마 완주 비용은 최고 창고 용량 안에 든다 (완주 가능)', () {
+  test('테마 완주는 모든 칸을 연 뒤에만, 한 번만', () {
+    const economy = Economy(theme: theme);
+    final board = emptyBoard();
+    expect(economy.expansionCost(const ClearTheme(), board), isNull);
+    board.openAll();
+    expect(economy.expansionCost(const ClearTheme(), board), theme.clearCost);
+    expect(
+      economy.markCleared().expansionCost(const ClearTheme(), board),
+      isNull,
+    );
+  });
+
+  test('비용표 길이 = 열 수 있는 칸 수 (숲 12, 동굴 18)', () {
+    expect(
+      theme.forestCellCosts,
+      hasLength(theme.maxColumns * theme.forestRows - theme.startCellCount),
+    );
+    expect(theme.caveCellCosts, hasLength(theme.maxColumns * theme.caveRows));
+  });
+
+  test('모든 비용은 최고 창고 용량 안에 든다 (완주 가능)', () {
     final top = theme.storageCapacities.last;
     final everyCost = [
-      ...theme.widenSteps.map((s) => s.cost),
-      ...theme.digSteps.map((s) => s.cost),
+      ...theme.forestCellCosts,
+      ...theme.caveCellCosts,
       ...theme.storageUpgradeCosts,
       theme.clearCost,
     ];
@@ -90,9 +111,12 @@ void main() {
     }
   });
 
-  test('광석은 동굴 진입 뒤에만 들어오므로 첫 확장 두 갈래는 목재만 요구한다', () {
-    expect(theme.widenSteps.first.cost.keys, [Resource.wood]);
-    expect(theme.digSteps.first.cost.keys, [Resource.wood]);
+  test('광석이 들어오기 전 선택지는 목재만 요구한다', () {
+    // 동굴 진입 전에 열 수 있는 숲 칸(앞 6칸)·동굴 진입·첫 창고 확장
+    for (final cost in theme.forestCellCosts.take(6)) {
+      expect(cost.keys, [Resource.wood]);
+    }
+    expect(theme.caveCellCosts.first.keys, [Resource.wood]);
     expect(theme.storageUpgradeCosts.first.keys, [Resource.wood]);
   });
 

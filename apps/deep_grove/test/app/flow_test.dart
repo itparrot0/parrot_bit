@@ -5,7 +5,7 @@ import 'package:deep_grove/economy/ad_rewards.dart';
 import 'package:deep_grove/economy/economy.dart';
 import 'package:deep_grove/economy/hints.dart';
 import 'package:deep_grove/economy/providers.dart';
-import 'package:deep_grove/game/components/expand_handle_component.dart';
+import 'package:deep_grove/game/components/expand_target_component.dart';
 import 'package:deep_grove/game/grove_game.dart';
 import 'package:deep_grove/economy/products.dart';
 import 'package:deep_grove/platform/ads.dart';
@@ -97,13 +97,14 @@ GroveGame gameOf(WidgetTester tester) => tester
     .widget<GameWidget<GroveGame>>(find.byType(GameWidget<GroveGame>))
     .game!;
 
-Future<void> tapHandle(WidgetTester tester, ExpandDirection direction) async {
+/// 확장 대상(잠긴 칸·완주 막대)을 탭한다.
+Future<void> tapExpansion(WidgetTester tester, Expansion expansion) async {
   final game = gameOf(tester);
-  final handle = game.world.children
-      .whereType<ExpandHandleComponent>()
-      .firstWhere((h) => h.direction == direction);
+  final target = game.world.children
+      .whereType<ExpandTargetComponent>()
+      .firstWhere((t) => t.expansion == expansion);
   final origin = tester.getTopLeft(find.byType(GameWidget<GroveGame>));
-  final p = game.camera.localToGlobal(handle.position + handle.size / 2);
+  final p = game.camera.localToGlobal(target.position + target.size / 2);
   await tester.tapAt(origin + Offset(p.x, p.y));
   await settle(tester);
 }
@@ -150,8 +151,8 @@ void main() {
 
   testWidgets('자원이 모자라면 확장 버튼이 막혀 있다', (tester) async {
     await pumpApp(tester);
-    await tapHandle(tester, ExpandDirection.widen);
-    expect(find.text('숲 넓히기'), findsOneWidget);
+    await tapExpansion(tester, const UnlockCell((col: 3, row: 0)));
+    expect(find.text('숲 칸 열기'), findsOneWidget);
     expect(find.text('자원이 모자라요'), findsOneWidget);
   });
 
@@ -163,7 +164,7 @@ void main() {
       const Economy(theme: forestCaveTheme, amounts: {Resource.wood: 15}),
     );
     await pumpApp(tester, store: store);
-    await tapHandle(tester, ExpandDirection.dig);
+    await tapExpansion(tester, const UnlockCell((col: 0, row: 4)));
     expect(find.text('동굴 진입'), findsWidgets);
     await tester.tap(find.text('확장'));
     await settle(tester);
@@ -173,11 +174,13 @@ void main() {
     await settle(tester);
     expect(find.text('목재 3/30'), findsOneWidget);
     expect(find.text('광석 0/30'), findsOneWidget);
-    expect(gameOf(tester).board.caveRows, 1);
+    expect(gameOf(tester).board.isInside((col: 0, row: 4)), isTrue);
+    expect(gameOf(tester).pieceAt((col: 0, row: 4)), isNotNull); // 자갈 생성기
 
     // 확장 결과가 저장됐다.
     final reloaded = await SaveRepository(store).load(forestCaveTheme, now: t0);
-    expect(reloaded.board.caveRows, 1);
+    expect(reloaded.board.caveEntered, isTrue);
+    expect(reloaded.board.unlocked, hasLength(13));
     expect(reloaded.economy.amountOf(Resource.wood), 3);
   });
 
@@ -394,14 +397,14 @@ void main() {
       expect(saved.hints.isDone(Hint.tapGenerator), isTrue);
     });
 
-    testWidgets('첫 확장 자원이 모이면 넓히기 손잡이를 가리키고, 확장하면 끝난다', (tester) async {
+    testWidgets('첫 확장 자원이 모이면 가장 싼 잠긴 칸을 가리키고, 열면 끝난다', (tester) async {
       final store = InMemoryKeyValueStore();
       await SaveRepository(store).write(
         GroveSave(
           board: BoardModel(forestCaveTheme),
           economy: const Economy(
             theme: forestCaveTheme,
-            amounts: {Resource.wood: 4},
+            amounts: {Resource.wood: 1},
           ),
           hints: const Hints().complete(Hint.tapGenerator),
           savedAt: t0,
@@ -409,9 +412,9 @@ void main() {
       );
       await pumpApp(tester, store: store);
       final game = gameOf(tester);
-      expect(game.visibleHint, isNull); // 목재 4 < 5
+      expect(game.visibleHint, isNull); // 목재 1 < 숲 첫 칸 2
 
-      // 거목 산출원에서 목재 1을 더 받으면 넓히기를 할 수 있다.
+      // 목재 1을 더 받으면 숲 첫 칸을 열 수 있다.
       final container = ProviderScope.containerOf(
         tester.element(find.byType(GameWidget<GroveGame>)),
       );
@@ -419,10 +422,10 @@ void main() {
       await settle(tester);
       expect(
         game.visibleHint,
-        const HandleHint(Hint.firstExpand, ExpandDirection.widen),
+        const UnlockHint(Hint.firstExpand, (col: 3, row: 0)),
       );
 
-      await tapHandle(tester, ExpandDirection.widen);
+      await tapExpansion(tester, const UnlockCell((col: 3, row: 0)));
       await tester.tap(find.text('확장'));
       await settle(tester);
       expect(game.visibleHint, isNull);
@@ -433,7 +436,7 @@ void main() {
       final store = InMemoryKeyValueStore();
       await saveWith(
         store,
-        BoardModel(forestCaveTheme)..widen(),
+        BoardModel(forestCaveTheme)..unlock((col: 3, row: 0)),
         const Economy(theme: forestCaveTheme, amounts: {Resource.wood: 30}),
       );
       // saveWith 는 hints 를 기본값(빈 목록)으로 쓰므로, 옛 저장처럼 칸을 지운다.

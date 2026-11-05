@@ -1,6 +1,6 @@
 import 'package:deep_grove/domain/board_model.dart';
 import 'package:deep_grove/economy/economy.dart';
-import 'package:deep_grove/game/components/expand_handle_component.dart';
+import 'package:deep_grove/game/components/expand_target_component.dart';
 import 'package:deep_grove/game/components/generator_component.dart';
 import 'package:deep_grove/game/components/item_component.dart';
 import 'package:deep_grove/game/components/producer_component.dart';
@@ -14,7 +14,7 @@ import '../helpers.dart';
 /// 창고를 흉내 내는 브리지. 넣은 양과 확장 요청을 기록한다.
 class FakeBridge implements GroveBridge {
   Economy economy = const Economy(theme: forestCaveTheme);
-  final List<ExpandDirection> requested = [];
+  final List<Expansion> requested = [];
   int changes = 0;
   double multiplier = 1;
 
@@ -32,8 +32,8 @@ class FakeBridge implements GroveBridge {
   }
 
   @override
-  ({Cost cost, bool affordable})? expansionOffer(ExpandDirection direction) =>
-      switch (economy.expansionCost(direction, _board!)) {
+  ({Cost cost, bool affordable})? expansionOffer(Expansion expansion) =>
+      switch (economy.expansionCost(expansion, _board!)) {
         null => null,
         final cost => (cost: cost, affordable: economy.canAfford(cost)),
       };
@@ -41,7 +41,7 @@ class FakeBridge implements GroveBridge {
   BoardModel? _board;
 
   @override
-  void onExpandRequested(ExpandDirection direction) => requested.add(direction);
+  void onExpandRequested(Expansion expansion) => requested.add(expansion);
 
   @override
   void onBoardChanged() => changes++;
@@ -100,15 +100,23 @@ Future<void> tapCell(WidgetTester tester, GroveGame game, CellPos pos) async {
 }
 
 void main() {
-  testWidgets('시작 보드: 생성기 1, 씨앗 2, 손잡이 2 (넓히기·동굴 진입)', (tester) async {
+  testWidgets('시작 보드: 생성기 1, 씨앗 2, 열 수 있는 잠긴 칸 7', (tester) async {
     final (game, _) = await pumpGame(tester);
     expect(game.world.children.whereType<GeneratorComponent>(), hasLength(1));
     expect(game.world.children.whereType<ItemComponent>(), hasLength(2));
-    final handles = game.world.children.whereType<ExpandHandleComponent>();
-    expect(handles.map((h) => h.direction).toSet(), {
-      ExpandDirection.widen,
-      ExpandDirection.dig,
-    });
+    final targets = game.world.children.whereType<ExpandTargetComponent>();
+    expect(
+      targets.map((t) => (t.expansion as UnlockCell).pos).toSet(),
+      game.board.frontier.toSet(),
+    );
+  });
+
+  testWidgets('잠긴 칸을 탭하면 그 칸을 여는 확장을 요청한다', (tester) async {
+    final (game, bridge) = await pumpGame(tester);
+    final p = screenOf(tester, game, game.cellCenter(at(3, 2)));
+    await tester.tapAt(p);
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(bridge.requested, [const UnlockCell((col: 3, row: 2))]);
   });
 
   testWidgets('씨앗 두 개를 드래그드롭으로 머지하면 새싹이 된다', (tester) async {
@@ -156,16 +164,18 @@ void main() {
     expect(game.board.cells, hasLength(4));
   });
 
-  testWidgets('동굴 진입: 행이 늘고 자갈 생성기가 등장한다', (tester) async {
+  testWidgets('동굴 진입: 칸이 열리고 그 칸에 자갈 생성기가 등장한다', (tester) async {
     final (game, _) = await pumpGame(tester);
-    game.applyExpansion(ExpandDirection.dig);
+    game.applyExpansion(const UnlockCell((col: 2, row: 4)));
     await tester.pump(const Duration(milliseconds: 300));
-    expect(game.board.rows, 5);
+    expect(game.board.isInside(at(2, 4)), isTrue);
+    expect(game.board.rows, 6); // 열린 칸 아래 잠긴 칸까지 그린다
     final generators = game.world.children.whereType<GeneratorComponent>();
     expect(generators.map((g) => g.generator.spawnChain).toSet(), {
       woodChain,
       stoneChain,
     });
+    expect(game.pieceAt(at(2, 4)), isA<GeneratorComponent>());
   });
 
   group('드래그 중 지대 밝히기', () {
@@ -184,7 +194,7 @@ void main() {
     }
 
     BoardModel caveBoard() => emptyBoard()
-      ..dig()
+      ..openCaveRow()
       ..placeItem(at(0, 0), const Item(stoneChain, 5))
       ..placeItem(at(1, 0), const Item(woodChain, 3));
 
@@ -213,7 +223,7 @@ void main() {
 
     testWidgets('자기 지대의 산출원에만 배율 표시가 붙는다', (tester) async {
       final board = emptyBoard()
-        ..dig()
+        ..openCaveRow()
         ..placeItem(at(0, 0), const Item(woodChain, 5))
         ..placeItem(at(0, 4), const Item(woodChain, 5));
       final (game, _) = await pumpGame(tester, board: board);

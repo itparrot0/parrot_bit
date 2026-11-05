@@ -66,19 +66,25 @@ Future<bool> showWelcomeBack(
 /// 확장 확인 (화면 흐름 §5 `expand_confirm`). 확장하기로 하면 true.
 Future<bool> showExpandConfirm(
   BuildContext context, {
-  required ExpandDirection direction,
+  required Expansion expansion,
   required BoardModel board,
   required Economy economy,
   required Cost cost,
 }) async {
-  final (title, detail) = switch (direction) {
-    ExpandDirection.widen => ('숲 넓히기', '오른쪽에 ${board.rows}칸이 열립니다.'),
-    ExpandDirection.dig when !board.caveEntered => (
-      '동굴 진입',
-      '아래에 동굴 ${board.columns}칸이 열리고 자갈 생성기를 얻습니다.',
+  final (title, detail) = switch (expansion) {
+    UnlockCell(:final pos) when board.zoneOf(pos) == Zone.forest => (
+      '숲 칸 열기',
+      '이 칸이 숲으로 열려요. (숲 ${board.openedIn(Zone.forest)}칸 → ${board.openedIn(Zone.forest) + 1}칸)',
     ),
-    ExpandDirection.dig => ('동굴 파기', '아래에 동굴 ${board.columns}칸이 열립니다.'),
-    ExpandDirection.clear => ('테마 완주', '동굴이 있는 숲을 완성합니다.'),
+    UnlockCell() when !board.caveEntered => (
+      '동굴 진입',
+      '첫 동굴 칸이 열리고, 그 칸에 자갈 생성기가 놓여요.',
+    ),
+    UnlockCell() => (
+      '동굴 칸 열기',
+      '이 칸이 동굴로 열려요. (동굴 ${board.openedIn(Zone.cave)}칸 → ${board.openedIn(Zone.cave) + 1}칸)',
+    ),
+    ClearTheme() => ('테마 완주', '동굴이 있는 숲을 완성합니다.'),
   };
   final affordable = economy.canAfford(cost);
   final result = await showModalBottomSheet<bool>(

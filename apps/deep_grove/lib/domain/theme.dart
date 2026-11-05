@@ -6,13 +6,6 @@ import 'zone.dart';
 /// 자원 비용 (자원 → 양).
 typedef Cost = Map<Resource, int>;
 
-/// 확장 한 단계.
-final class ExpansionStep {
-  const ExpansionStep(this.cost);
-
-  final Cost cost;
-}
-
 /// 테마 하나의 전체 데이터 (테마 문서 §8 "테마 = 데이터").
 ///
 /// **게임 숫자의 단일 출처다.** 문서(§5)의 표는 의도만 남기고, 실제 값은 여기서 고친다.
@@ -26,8 +19,10 @@ final class GroveTheme {
     required this.forestRows,
     required this.startGenerators,
     required this.startItems,
-    required this.widenSteps,
-    required this.digSteps,
+    required this.maxColumns,
+    required this.caveRows,
+    required this.forestCellCosts,
+    required this.caveCellCosts,
     required this.caveGeneratorChain,
     required this.clearCost,
     required this.storageCapacities,
@@ -44,23 +39,28 @@ final class GroveTheme {
   /// 생성기 레벨별 스폰 확률표. 길이가 생성기 최고 레벨이다.
   final SpawnOdds spawnOdds;
 
-  /// 시작 보드: 열 수 × 숲 행 수. 동굴은 0행에서 시작한다.
+  /// 시작 때 열린 칸: 왼쪽 위 [startColumns]열 × 숲 [forestRows]행.
   final int startColumns;
   final int forestRows;
+
+  /// 테마의 최대 보드: [maxColumns]열 × (숲 [forestRows] + 동굴 [caveRows])행.
+  /// 숲이 위, 동굴이 아래. 확장은 이 안에서 **한 칸씩** 연다 (테마 문서 §7-1).
+  final int maxColumns;
+  final int caveRows;
 
   final Map<CellPos, ItemChain> startGenerators;
   final Map<CellPos, (ItemChain, int)> startItems;
 
-  /// 가로 확장(오른쪽 손잡이): 단계마다 열 +1. 숲·동굴이 함께 넓어진다.
-  final List<ExpansionStep> widenSteps;
+  /// 숲 칸을 n번째로 열 때의 비용 (`[n - 1]`). 길이 = 시작 뒤 열 수 있는 숲 칸 수.
+  final List<Cost> forestCellCosts;
 
-  /// 하향 확장(아래 손잡이): 단계마다 동굴 행 +1. 첫 단계가 동굴 진입이다.
-  final List<ExpansionStep> digSteps;
+  /// 동굴 칸을 n번째로 열 때의 비용. 첫 칸이 동굴 진입이다. 길이 = 동굴 칸 수.
+  final List<Cost> caveCellCosts;
 
   /// 동굴 진입 때 새 동굴 칸에 놓아 주는 생성기의 체인 (자갈 생성기).
   final ItemChain caveGeneratorChain;
 
-  /// 두 방향 확장을 다 끝낸 뒤 테마 완주에 드는 비용.
+  /// 모든 칸을 연 뒤 테마 완주에 드는 비용.
   final Cost clearCost;
 
   /// 창고 단계별 용량 (자원마다 같은 용량). 길이가 창고 최고 단계다.
@@ -75,8 +75,9 @@ final class GroveTheme {
   /// 산출원이 자기 체인의 지대에 있을 때 산출량 배율 (테마 문서 §7-6).
   final double homeZoneBonus;
 
-  int get maxColumns => startColumns + widenSteps.length;
-  int get maxCaveRows => digSteps.length;
+  int get maxRows => forestRows + caveRows;
+
+  int get startCellCount => startColumns * forestRows;
 
   ItemChain chainById(String id) => chains.firstWhere((c) => c.id == id);
 
@@ -114,15 +115,43 @@ const GroveTheme forestCaveTheme = GroveTheme(
     (col: 0, row: 3): (woodChain, 1),
     (col: 2, row: 3): (woodChain, 1),
   },
-  widenSteps: [
-    ExpansionStep({Resource.wood: 5}),
-    ExpansionStep({Resource.wood: 20, Resource.ore: 8}),
-    ExpansionStep({Resource.wood: 40, Resource.ore: 20}),
+  maxColumns: 6,
+  caveRows: 3,
+  // 숲 12칸: 광석이 없는 동안(동굴 진입 전)에도 열 수 있게 앞 6칸은 목재만.
+  forestCellCosts: [
+    {Resource.wood: 2},
+    {Resource.wood: 3},
+    {Resource.wood: 4},
+    {Resource.wood: 5},
+    {Resource.wood: 6},
+    {Resource.wood: 8},
+    {Resource.wood: 10, Resource.ore: 3},
+    {Resource.wood: 12, Resource.ore: 4},
+    {Resource.wood: 14, Resource.ore: 5},
+    {Resource.wood: 16, Resource.ore: 6},
+    {Resource.wood: 18, Resource.ore: 8},
+    {Resource.wood: 20, Resource.ore: 10},
   ],
-  digSteps: [
-    ExpansionStep({Resource.wood: 12}),
-    ExpansionStep({Resource.wood: 25, Resource.ore: 10}),
-    ExpansionStep({Resource.wood: 40, Resource.ore: 25}),
+  // 동굴 18칸: 첫 칸 = 동굴 진입(자갈 생성기). 광석이 나오기 전 몇 칸은 목재만.
+  caveCellCosts: [
+    {Resource.wood: 12},
+    {Resource.wood: 5},
+    {Resource.wood: 6},
+    {Resource.wood: 8},
+    {Resource.wood: 10, Resource.ore: 2},
+    {Resource.wood: 12, Resource.ore: 3},
+    {Resource.wood: 14, Resource.ore: 4},
+    {Resource.wood: 16, Resource.ore: 5},
+    {Resource.wood: 18, Resource.ore: 6},
+    {Resource.wood: 20, Resource.ore: 7},
+    {Resource.wood: 22, Resource.ore: 8},
+    {Resource.wood: 24, Resource.ore: 9},
+    {Resource.wood: 26, Resource.ore: 10},
+    {Resource.wood: 28, Resource.ore: 12},
+    {Resource.wood: 30, Resource.ore: 14},
+    {Resource.wood: 32, Resource.ore: 16},
+    {Resource.wood: 34, Resource.ore: 18},
+    {Resource.wood: 36, Resource.ore: 20},
   ],
   caveGeneratorChain: stoneChain,
   clearCost: {Resource.wood: 80, Resource.ore: 50},

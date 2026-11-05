@@ -49,7 +49,7 @@ void main() {
   test('영구 가속은 광고 가속과 곱해져 오프라인 산출에 걸린다', () {
     final morning = DateTime(2026, 11, 5, 9);
     final board = emptyBoard()
-      ..dig()
+      ..openCaveRow()
       ..placeItem(at(0, 4), const Item(woodChain, 5)); // 동굴: 20초에 1
     final ads = const AdRewards().startBoost(morning);
     // 1시간: 앞 30분 2×1.5(270) + 뒤 30분 1.5(135) = 405

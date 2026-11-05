@@ -25,17 +25,19 @@ enum MoveOutcome { merged, moved, swapped, rejected }
 /// 정식판에서 더한 것은 `docs/design/deep_grove-themes.md` §8:
 /// 산출원(최고 레벨 변신)·지대·보드 확장·생성기 확률 스폰.
 ///
-/// 보드는 언제나 직사각형이다: [columns] 열 × ([forestRows] + [caveRows]) 행.
-/// 숲이 위, 동굴이 아래. 확장은 열을 오른쪽에, 동굴 행을 아래에 붙이므로
-/// 기존 조각의 좌표는 바뀌지 않는다.
+/// 테마의 최대 보드([GroveTheme.maxColumns] × [GroveTheme.maxRows]) 안에서 **열린 칸**만
+/// 쓸 수 있다. 숲이 위, 동굴이 아래. 확장은 열린 칸과 상하좌우로 맞닿은 잠긴 칸
+/// ([frontier]) 하나를 연다. 좌표는 최대 보드 기준이라 확장해도 바뀌지 않는다.
 ///
 /// 창고(아웃게임)는 모른다. 산출은 호출자가 넘겨준 창고 빈 공간까지만 쌓고,
 /// 거둔 양은 호출자가 창고에 넣는다.
 class BoardModel {
-  BoardModel(this.theme, {Random? random})
-    : _random = random ?? Random(),
-      columns = theme.startColumns,
-      caveRows = 0 {
+  BoardModel(this.theme, {Random? random}) : _random = random ?? Random() {
+    for (var row = 0; row < theme.forestRows; row++) {
+      for (var col = 0; col < theme.startColumns; col++) {
+        _unlocked.add((col: col, row: row));
+      }
+    }
     theme.startGenerators.forEach((pos, chain) {
       _cells[pos] = GeneratorContent(theme.generatorFor(chain));
     });
@@ -47,46 +49,91 @@ class BoardModel {
 
   BoardModel._restored(
     this.theme, {
-    required this.columns,
-    required this.caveRows,
+    required Iterable<CellPos> unlocked,
     required this.mergeCount,
     Random? random,
-  }) : _random = random ?? Random();
+  }) : _random = random ?? Random() {
+    _unlocked.addAll(unlocked.where(inGrid));
+  }
 
   final GroveTheme theme;
   final Random _random;
 
-  int columns;
-  int caveRows;
   int mergeCount = 0;
 
+  final Set<CellPos> _unlocked = {};
   final Map<CellPos, CellContent> _cells = {};
 
   int get forestRows => theme.forestRows;
-  int get rows => forestRows + caveRows;
 
-  bool get canWiden => columns < theme.maxColumns;
-  bool get canDig => caveRows < theme.maxCaveRows;
-  bool get caveEntered => caveRows > 0;
+  /// 열린 칸 (행·열 순서).
+  List<CellPos> get unlocked => _sort(_unlocked);
+
+  /// 열린 칸과 상하좌우로 맞닿은 잠긴 칸 — 다음에 열 수 있는 칸 (행·열 순서).
+  List<CellPos> get frontier => _sort({
+    for (final p in _unlocked)
+      for (final n in [
+        (col: p.col + 1, row: p.row),
+        (col: p.col - 1, row: p.row),
+        (col: p.col, row: p.row + 1),
+        (col: p.col, row: p.row - 1),
+      ])
+        if (inGrid(n) && !_unlocked.contains(n)) n,
+  });
+
+  bool isFrontier(CellPos pos) =>
+      inGrid(pos) &&
+      !_unlocked.contains(pos) &&
+      [
+        (col: pos.col + 1, row: pos.row),
+        (col: pos.col - 1, row: pos.row),
+        (col: pos.col, row: pos.row + 1),
+        (col: pos.col, row: pos.row - 1),
+      ].any(_unlocked.contains);
+
+  /// 화면에 그릴 범위: 열린 칸과 다음에 열 칸을 다 담는 열·행 수 (왼쪽 위 0,0부터).
+  int get columns => _extent((p) => p.col);
+  int get rows => _extent((p) => p.row);
+
+  int _extent(int Function(CellPos) axis) =>
+      [..._unlocked, ...frontier].map(axis).fold(0, max) + 1;
+
+  /// 그 지대에서 열린 칸 수 (시작 칸 포함).
+  int openedIn(Zone zone) => _unlocked.where((p) => zoneOf(p) == zone).length;
+
+  bool get caveEntered => openedIn(Zone.cave) > 0;
+
+  /// 최대 보드의 모든 칸이 열렸는가 (테마 완주 조건).
+  bool get fullyOpen => _unlocked.length == theme.maxColumns * theme.maxRows;
 
   /// 현재 칸 점유 상태 스냅샷.
   Map<CellPos, CellContent> get cells => Map.unmodifiable(_cells);
 
-  bool isInside(CellPos pos) =>
-      pos.col >= 0 && pos.col < columns && pos.row >= 0 && pos.row < rows;
+  /// 테마의 최대 보드 안인가 (열렸는지와 무관).
+  bool inGrid(CellPos pos) =>
+      pos.col >= 0 &&
+      pos.col < theme.maxColumns &&
+      pos.row >= 0 &&
+      pos.row < theme.maxRows;
+
+  /// 조각을 놓을 수 있는 열린 칸인가.
+  bool isInside(CellPos pos) => _unlocked.contains(pos);
 
   Zone zoneOf(CellPos pos) => pos.row < forestRows ? Zone.forest : Zone.cave;
 
   CellContent? contentAt(CellPos pos) => _cells[pos];
 
-  /// 조각을 놓을 수 있는 빈 칸인가 (보드 안 + 아무 점유물 없음).
+  /// 조각을 놓을 수 있는 빈 칸인가 (열린 칸 + 아무 점유물 없음).
   bool isEmptyCell(CellPos pos) => isInside(pos) && !_cells.containsKey(pos);
 
   List<CellPos> get emptyCells => [
-    for (var row = 0; row < rows; row++)
-      for (var col = 0; col < columns; col++)
-        if (isEmptyCell((col: col, row: row))) (col: col, row: row),
+    for (final pos in unlocked)
+      if (!_cells.containsKey(pos)) pos,
   ];
+
+  static List<CellPos> _sort(Iterable<CellPos> positions) =>
+      positions.toList()
+        ..sort((a, b) => a.row != b.row ? a.row - b.row : a.col - b.col);
 
   /// 산출원 목록 (칸 → 산출원). 행·열 순서로 정렬돼 있다.
   List<(CellPos, Producer)> get producers => [
@@ -94,9 +141,7 @@ class BoardModel {
       if (_cells[pos] case ProducerContent(:final producer)) (pos, producer),
   ];
 
-  Iterable<CellPos> get _sortedPositions =>
-      _cells.keys.toList()
-        ..sort((a, b) => a.row != b.row ? a.row - b.row : a.col - b.col);
+  Iterable<CellPos> get _sortedPositions => _sort(_cells.keys);
 
   /// 직접 배치 (초기 배치·테스트용). 놓을 수 없는 칸이면 무시한다.
   /// 최고 레벨 아이템은 산출원으로 놓인다.
@@ -285,38 +330,30 @@ class BoardModel {
     };
   }
 
-  /// 오른쪽에 열 하나를 붙인다. 더 넓힐 수 없으면 false.
-  bool widen() {
-    if (!canWiden) {
-      return false;
+  /// [pos] 칸을 연다. 다음에 열 수 있는 칸([frontier])이 아니면 false.
+  /// 동굴 칸을 처음 열면(동굴 진입) 그 칸에 동굴 생성기를 놓고 [caveGenerator]로 알려 준다.
+  ({bool opened, CellPos? caveGenerator}) unlock(CellPos pos) {
+    if (!isFrontier(pos)) {
+      return (opened: false, caveGenerator: null);
     }
-    columns++;
-    return true;
-  }
-
-  /// 아래에 동굴 행 하나를 붙인다. 첫 하향 확장(동굴 진입)이면 새 행 가운데에
-  /// 동굴 생성기를 놓고 그 칸을 돌려준다. 더 팔 수 없으면 false.
-  ({bool dug, CellPos? caveGenerator}) dig() {
-    if (!canDig) {
-      return (dug: false, caveGenerator: null);
-    }
-    caveRows++;
-    if (caveRows == 1) {
-      final pos = (col: columns ~/ 2, row: rows - 1);
+    final enteringCave = zoneOf(pos) == Zone.cave && !caveEntered;
+    _unlocked.add(pos);
+    if (enteringCave) {
       _cells[pos] = GeneratorContent(
         theme.generatorFor(theme.caveGeneratorChain),
       );
-      return (dug: true, caveGenerator: pos);
+      return (opened: true, caveGenerator: pos);
     }
-    return (dug: true, caveGenerator: null);
+    return (opened: true, caveGenerator: null);
   }
 
   // ---- 저장 형식 ----
 
   Map<String, Object?> toJson() => {
     'theme': theme.id,
-    'columns': columns,
-    'caveRows': caveRows,
+    'unlocked': [
+      for (final p in unlocked) [p.col, p.row],
+    ],
     'mergeCount': mergeCount,
     'cells': [
       for (final pos in _sortedPositions)
@@ -343,6 +380,25 @@ class BoardModel {
         },
       };
 
+  /// 열린 칸 목록. 한 칸씩 확장 이전 저장(`columns`·`caveRows` 직사각형)도 읽는다.
+  static Iterable<CellPos> _unlockedFromJson(
+    Map<String, Object?> json,
+    GroveTheme theme,
+  ) {
+    if (json['unlocked'] case final List<Object?> cells) {
+      return [
+        for (final c in cells)
+          if (c case [final int col, final int row]) (col: col, row: row),
+      ];
+    }
+    final columns = json['columns']! as int;
+    final rows = theme.forestRows + (json['caveRows']! as int);
+    return [
+      for (var row = 0; row < rows; row++)
+        for (var col = 0; col < columns; col++) (col: col, row: row),
+    ];
+  }
+
   /// [toJson] 결과로 보드를 복원한다. 형식이 깨졌으면 [FormatException].
   static BoardModel fromJson(
     Map<String, Object?> json,
@@ -352,8 +408,7 @@ class BoardModel {
     try {
       final board = BoardModel._restored(
         theme,
-        columns: json['columns']! as int,
-        caveRows: json['caveRows']! as int,
+        unlocked: _unlockedFromJson(json, theme),
         mergeCount: json['mergeCount']! as int,
         random: random,
       );

@@ -70,7 +70,7 @@ void main() {
   test('광고 산출 가속이 걸린 채 저장했으면 오프라인 산출에도 남은 가속을 반영한다', () async {
     final store = InMemoryKeyValueStore();
     final board = emptyBoard()
-      ..dig()
+      ..openCaveRow()
       ..placeItem(at(0, 4), const Item(woodChain, 5)); // 동굴: 20초에 1
     await SaveRepository(store).write(
       GroveSave(

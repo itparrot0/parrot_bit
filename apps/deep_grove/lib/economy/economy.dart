@@ -3,22 +3,39 @@ import 'dart:math';
 import '../domain/board_model.dart';
 import 'products.dart';
 
-/// 확장 방향. 보드 가장자리 손잡이 하나가 하나씩 맡는다 (화면 흐름 §3.2).
-enum ExpandDirection {
-  /// 오른쪽 손잡이: 열 +1 (숲 넓히기).
-  widen,
+/// 확장 한 번: 잠긴 칸 하나 열기, 또는 모든 칸을 연 뒤 테마 완주.
+sealed class Expansion {
+  const Expansion();
+}
 
-  /// 아래 손잡이: 동굴 행 +1 (첫 단계 = 동굴 진입).
-  dig,
+/// 잠긴 칸 [pos]를 연다 (테마 문서 §7-1 — 한 칸씩).
+final class UnlockCell extends Expansion {
+  const UnlockCell(this.pos);
 
-  /// 두 방향을 다 끝낸 뒤 테마 완주.
-  clear,
+  final CellPos pos;
+
+  @override
+  bool operator ==(Object other) => other is UnlockCell && other.pos == pos;
+
+  @override
+  int get hashCode => pos.hashCode;
+}
+
+/// 모든 칸을 연 뒤 테마 완주.
+final class ClearTheme extends Expansion {
+  const ClearTheme();
+
+  @override
+  bool operator ==(Object other) => other is ClearTheme;
+
+  @override
+  int get hashCode => 0;
 }
 
 /// 아웃게임 상태: 창고, 테마 완주 여부, 산 상품. 불변 값 — 바꾸는 메서드는 새 값을 돌려준다.
 ///
-/// 확장 단계는 따로 들고 있지 않는다. 보드 크기([BoardModel.columns]·
-/// [BoardModel.caveRows])가 곧 확장 단계라서, 두 곳에 두면 어긋날 수 있다.
+/// 확장 진행은 따로 들고 있지 않는다. 보드의 열린 칸([BoardModel.unlocked])이 곧
+/// 확장 진행이라서, 두 곳에 두면 어긋날 수 있다.
 final class Economy {
   const Economy({
     required this.theme,
@@ -121,18 +138,26 @@ final class Economy {
 
   // ---- 보드 확장 비용 ----
 
-  /// [board] 상태에서 [direction] 확장의 다음 비용. 그 방향이 끝났으면 null.
-  Cost? expansionCost(ExpandDirection direction, BoardModel board) =>
-      switch (direction) {
-        ExpandDirection.widen when board.canWiden =>
-          theme.widenSteps[board.columns - theme.startColumns].cost,
-        ExpandDirection.dig when board.canDig =>
-          theme.digSteps[board.caveRows].cost,
-        ExpandDirection.clear
-            when !cleared && !board.canWiden && !board.canDig =>
-          theme.clearCost,
+  /// [board] 상태에서 [expansion]의 비용. 지금 할 수 없는 확장이면 null.
+  ///
+  /// 칸 비용은 지대마다 "몇 번째로 여는 칸인가"로 정한다 — 어느 칸을 먼저 열든
+  /// 같은 지대의 n번째 칸은 같은 값이다.
+  Cost? expansionCost(Expansion expansion, BoardModel board) =>
+      switch (expansion) {
+        UnlockCell(:final pos) when board.isFrontier(pos) => switch (board
+            .zoneOf(pos)) {
+          Zone.forest => _nth(
+            theme.forestCellCosts,
+            board.openedIn(Zone.forest) - theme.startCellCount,
+          ),
+          Zone.cave => _nth(theme.caveCellCosts, board.openedIn(Zone.cave)),
+        },
+        ClearTheme() when !cleared && board.fullyOpen => theme.clearCost,
         _ => null,
       };
+
+  static Cost? _nth(List<Cost> costs, int index) =>
+      index >= 0 && index < costs.length ? costs[index] : null;
 
   Economy markCleared() => _copy(cleared: true);
 

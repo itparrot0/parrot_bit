@@ -33,7 +33,7 @@ void main() {
 
   test('자리를 비운 동안 가속이 걸린 앞부분만 2배로 쌓는다', () {
     final board = emptyBoard()
-      ..dig()
+      ..openCaveRow()
       ..placeItem(at(0, 4), const Item(woodChain, 5)); // 동굴 = 보너스 없음
     final ads = const AdRewards().startBoost(morning);
     // 1시간: 앞 30분 2배(180) + 뒤 30분 1배(90) = 270 → 창고 빈 공간 1000
@@ -48,7 +48,7 @@ void main() {
 
   test('가속이 저장 전에 끝났으면 배율 없음', () {
     final board = emptyBoard()
-      ..dig()
+      ..openCaveRow()
       ..placeItem(at(0, 4), const Item(woodChain, 5));
     final ads = const AdRewards().startBoost(morning);
     final later = morning.add(const Duration(hours: 2));

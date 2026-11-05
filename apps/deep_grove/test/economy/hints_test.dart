@@ -33,22 +33,25 @@ void main() {
         board,
         const Economy(theme: theme, amounts: {Resource.wood: 5}),
       ),
-      const HandleHint(Hint.firstExpand, ExpandDirection.widen),
+      // 숲 첫 칸(목재 2) 중 위·왼쪽 먼저
+      const UnlockHint(Hint.firstExpand, (col: 3, row: 0)),
     );
   });
 
-  test('넓히기는 못 하고 파기만 할 수 있으면 파기 손잡이를 가리킨다', () {
+  test('가장 싼 칸을 가리킨다 — 숲을 다 열었으면 동굴 진입 칸', () {
     final hints = const Hints().complete(Hint.tapGenerator);
-    final board = BoardModel(theme)
-      ..widen()
-      ..widen()
-      ..widen();
+    final board = BoardModel(theme);
+    while (board.frontier.any((p) => board.zoneOf(p) == Zone.forest)) {
+      board.unlock(
+        board.frontier.firstWhere((p) => board.zoneOf(p) == Zone.forest),
+      );
+    }
     expect(
       hints.active(
         board,
         const Economy(theme: theme, amounts: {Resource.wood: 12}),
       ),
-      const HandleHint(Hint.firstExpand, ExpandDirection.dig),
+      const UnlockHint(Hint.firstExpand, (col: 0, row: 4)),
     );
   });
 
@@ -77,7 +80,7 @@ void main() {
       ..placeItem(at(0, 0), const Item(woodChain, 1));
     expect(Hints.fromJson(null, played, theme).done, {Hint.tapGenerator});
     // 확장한 보드 → 둘 다 끝남
-    final expanded = BoardModel(theme)..widen();
+    final expanded = BoardModel(theme)..unlock(at(3, 0));
     expect(Hints.fromJson(null, expanded, theme).done, Hint.values.toSet());
   });
 }

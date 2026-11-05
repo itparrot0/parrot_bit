@@ -7,7 +7,7 @@ import '../domain/board_model.dart';
 import '../economy/economy.dart';
 import '../economy/hints.dart';
 import 'components/board_piece_component.dart';
-import 'components/expand_handle_component.dart';
+import 'components/expand_target_component.dart';
 import 'components/finger_hint_component.dart';
 import 'components/generator_component.dart';
 import 'components/item_component.dart';
@@ -33,11 +33,11 @@ abstract interface class GroveBridge {
   /// 거둔 자원을 창고에 넣는다. 실제로 들어간 양을 돌려준다.
   int deposit(Resource resource, int amount);
 
-  /// [direction] 확장의 다음 비용과 낼 수 있는지. 그 방향이 끝났으면 null.
-  ({Cost cost, bool affordable})? expansionOffer(ExpandDirection direction);
+  /// [expansion]의 비용과 낼 수 있는지. 지금 할 수 없는 확장이면 null.
+  ({Cost cost, bool affordable})? expansionOffer(Expansion expansion);
 
-  /// 손잡이를 눌렀다 — 확인 시트는 화면이 띄운다.
-  void onExpandRequested(ExpandDirection direction);
+  /// 잠긴 칸(또는 완주 막대)을 눌렀다 — 확인 시트는 화면이 띄운다.
+  void onExpandRequested(Expansion expansion);
 
   /// 보드 상태가 바뀌었다 (저장 시점).
   void onBoardChanged();
@@ -49,8 +49,9 @@ abstract interface class GroveBridge {
 /// 머지 보드 게임. 규칙 판정은 전부 [BoardModel]에 위임하고,
 /// 여기서는 컴포넌트 생성/제거, 좌표 변환, 산출 시간 흐름만 담당한다.
 ///
-/// 보드 왼쪽 위 칸의 왼쪽 위 모서리가 월드 원점이다. 확장은 오른쪽·아래로만
-/// 붙으므로 기존 조각의 월드 좌표가 바뀌지 않는다.
+/// 최대 보드 왼쪽 위 칸의 왼쪽 위 모서리가 월드 원점이다. 칸 좌표가 최대 보드 기준이라
+/// 확장해도 기존 조각의 월드 좌표가 바뀌지 않는다. 화면에는 열린 칸과 다음에 열 수 있는
+/// 잠긴 칸만 그리고, 카메라는 그 범위에 맞춘다.
 class GroveGame extends FlameGame {
   GroveGame({required this.board, required this.bridge})
     : super(
@@ -80,7 +81,7 @@ class GroveGame extends FlameGame {
     Zone.cave: Color(0xFF6B5436),
   };
   final List<Component> _handles = [];
-  final Map<ExpandDirection, ExpandHandleComponent> _handleOf = {};
+  final Map<Expansion, ExpandTargetComponent> _handleOf = {};
 
   /// 지금 띄운 첫 실행 안내와 그 손가락.
   HintTarget? _hint;
@@ -142,38 +143,40 @@ class GroveGame extends FlameGame {
     return board.isInside(pos) ? pos : null;
   }
 
-  /// 보드 크기가 바뀌면 바닥 타일·손잡이·카메라를 다시 잡는다.
+  /// 열린 칸이 바뀌면 바닥 타일·잠긴 칸·카메라를 다시 잡는다.
   void relayout() {
     _clear(_tiles);
     _tileAt.clear();
 
-    for (var row = 0; row < board.rows; row++) {
-      for (var col = 0; col < board.columns; col++) {
-        final pos = (col: col, row: row);
-        final tile = RectangleComponent(
-          position: cellCenter(pos),
-          size: Vector2.all(kCellSize * 0.94),
-          anchor: Anchor.center,
-          priority: -10,
-          paint: Paint(),
-        );
-        _tileAt[pos] = tile;
-        _add(_tiles, tile);
-      }
+    for (final pos in board.unlocked) {
+      final tile = RectangleComponent(
+        position: cellCenter(pos),
+        size: Vector2.all(kCellSize * 0.94),
+        anchor: Anchor.center,
+        priority: -10,
+        paint: Paint(),
+      );
+      _tileAt[pos] = tile;
+      _add(_tiles, tile);
     }
     _paintTiles();
+    _fitCamera();
+    refreshHandles();
+  }
 
-    final boardW = board.columns * kCellSize;
-    final boardH = board.rows * kCellSize;
-    final width = boardW + kCellSize + _margin * 2;
-    final height = boardH + kCellSize + _margin * 2;
+  /// 완주 막대 자리를 둘지는 그릴 때마다 바뀔 수 있어서 따로 잡는다.
+  bool _clearBarShown = false;
+
+  void _fitCamera() {
+    final width = board.columns * kCellSize + _margin * 2;
+    final height =
+        board.rows * kCellSize + (_clearBarShown ? kCellSize : 0) + _margin * 2;
     camera.viewport = FixedResolutionViewport(
       resolution: Vector2(width, height),
     );
     camera.viewfinder
       ..anchor = Anchor.topLeft
       ..position = Vector2(-_margin, -_margin);
-    refreshHandles();
   }
 
   /// 첫 실행 안내를 [target]으로 바꾼다 (null이면 지운다). 같은 안내면 그대로 둔다.
@@ -191,15 +194,11 @@ class GroveGame extends FlameGame {
     final point = switch (_hint) {
       null => null,
       CellHint(:final pos) => board.isInside(pos) ? cellCenter(pos) : null,
-      HandleHint(:final direction) => switch (_handleOf[direction]) {
-        // 라벨(가운데)을 가리지 않게 빈 쪽을 가리킨다: 세로 손잡이는 위, 가로 손잡이는 왼쪽.
-        final h? =>
-          h.position +
-              (h.size.y > h.size.x
-                  ? Vector2(h.size.x / 2, h.size.y * 0.2)
-                  : Vector2(h.size.x * 0.12, h.size.y / 2)),
-        null => null,
-      },
+      // 잠긴 칸 가운데의 비용 글자를 가리지 않게 칸 위쪽을 가리킨다.
+      UnlockHint(:final pos) =>
+        _handleOf.containsKey(UnlockCell(pos))
+            ? cellCenter(pos) - Vector2(0, kCellSize * 0.3)
+            : null,
     };
     if (point != null) {
       _finger = FingerHintComponent(target: point);
@@ -240,56 +239,64 @@ class GroveGame extends FlameGame {
   @visibleForTesting
   bool isLit(CellPos pos) => _highlighted == board.zoneOf(pos);
 
-  /// 창고 보유량이 바뀌면 손잡이의 비용·강조를 다시 그린다.
+  /// 창고 보유량이 바뀌면 잠긴 칸의 비용·강조와 완주 막대를 다시 그린다.
   void refreshHandles() {
     _clear(_handles);
     _handleOf.clear();
-    final boardW = board.columns * kCellSize;
-    final boardH = board.rows * kCellSize;
-    _addHandle(
-      ExpandDirection.widen,
-      position: Vector2(boardW + _margin, 0),
-      size: Vector2(kCellSize - _margin, boardH),
-      vertical: true,
-    );
-    // 아래 손잡이는 하향 확장이 끝나면 테마 완주 손잡이로 바뀐다.
-    final bottom = board.canDig ? ExpandDirection.dig : ExpandDirection.clear;
-    _addHandle(
-      bottom,
-      position: Vector2(0, boardH + _margin),
-      size: Vector2(boardW, kCellSize - _margin),
-      vertical: false,
-    );
+    for (final pos in board.frontier) {
+      final offer = bridge.expansionOffer(UnlockCell(pos));
+      if (offer == null) continue;
+      final zone = board.zoneOf(pos);
+      final title = zone == Zone.cave && !board.caveEntered ? '동굴 진입\n' : '';
+      _addTarget(
+        UnlockCell(pos),
+        label: title + _costLines(offer.cost),
+        affordable: offer.affordable,
+        color: _tileLit[zone]!,
+        position: cellCenter(pos) - Vector2.all(kCellSize * 0.47),
+        size: Vector2.all(kCellSize * 0.94),
+      );
+    }
+    final clear = bridge.expansionOffer(const ClearTheme());
+    if (clear != null) {
+      _addTarget(
+        const ClearTheme(),
+        label: '테마 완주  ${_costLines(clear.cost, separator: ' · ')}',
+        affordable: clear.affordable,
+        color: const Color(0xFF3E7D4A),
+        position: Vector2(0, board.rows * kCellSize + _margin),
+        size: Vector2(board.columns * kCellSize, kCellSize - _margin),
+      );
+    }
+    if ((clear != null) != _clearBarShown) {
+      _clearBarShown = clear != null;
+      _fitCamera();
+    }
     _placeHint();
   }
 
-  void _addHandle(
-    ExpandDirection direction, {
+  static String _costLines(Cost cost, {String separator = '\n'}) => cost.entries
+      .map((e) => '${resourceLabel(e.key)} ${e.value}')
+      .join(separator);
+
+  void _addTarget(
+    Expansion expansion, {
+    required String label,
+    required bool affordable,
+    required Color color,
     required Vector2 position,
     required Vector2 size,
-    required bool vertical,
   }) {
-    final offer = bridge.expansionOffer(direction);
-    if (offer == null) {
-      return;
-    }
-    final title = switch (direction) {
-      ExpandDirection.widen => '넓히기',
-      ExpandDirection.dig => board.caveEntered ? '파기' : '동굴 진입',
-      ExpandDirection.clear => '테마 완주',
-    };
-    final cost = offer.cost.entries
-        .map((e) => '${resourceLabel(e.key)} ${e.value}')
-        .join(vertical ? '\n' : ' · ');
-    final handle = ExpandHandleComponent(
-      direction: direction,
-      label: vertical ? '$title\n\n$cost' : '$title  $cost',
-      affordable: offer.affordable,
+    final target = ExpandTargetComponent(
+      expansion: expansion,
+      label: label,
+      affordable: affordable,
+      color: color,
       position: position,
       size: size,
     );
-    _handleOf[direction] = handle;
-    _add(_handles, handle);
+    _handleOf[expansion] = target;
+    _add(_handles, target);
   }
 
   void _add(List<Component> group, Component c) {
@@ -341,22 +348,13 @@ class GroveGame extends FlameGame {
     return gains;
   }
 
-  /// 비용을 낸 뒤 화면이 부른다. 동굴 진입이면 자갈 생성기가 등장한다.
-  void applyExpansion(ExpandDirection direction) {
-    switch (direction) {
-      case ExpandDirection.widen:
-        board.widen();
-      case ExpandDirection.dig:
-        final result = board.dig();
-        if (result.caveGenerator case final pos?) {
-          _addContent(
-            pos,
-            board.contentAt(pos)!,
-            entrance: PieceEntrance.spawn,
-          );
-        }
-      case ExpandDirection.clear:
-        break;
+  /// 비용을 낸 뒤 화면이 부른다. 동굴 진입이면 그 칸에 자갈 생성기가 등장한다.
+  void applyExpansion(Expansion expansion) {
+    if (expansion case UnlockCell(:final pos)) {
+      final result = board.unlock(pos);
+      if (result.caveGenerator case final gen?) {
+        _addContent(gen, board.contentAt(gen)!, entrance: PieceEntrance.spawn);
+      }
     }
     relayout();
     bridge.onBoardChanged();

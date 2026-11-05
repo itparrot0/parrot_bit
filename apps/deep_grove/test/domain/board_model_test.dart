@@ -9,7 +9,10 @@ void main() {
   group('시작 보드', () {
     test('숲 3×4, 동굴 없음, 씨앗 생성기 1개 + 씨앗 2개', () {
       final board = BoardModel(forestCaveTheme, random: Random(1));
-      expect((board.columns, board.rows, board.caveRows), (3, 4, 0));
+      expect(board.unlocked, hasLength(12));
+      expect(board.caveEntered, isFalse);
+      // 화면 범위 = 열린 3×4 + 오른쪽·아래 잠긴 칸 한 줄씩
+      expect((board.columns, board.rows), (4, 5));
       expect(board.cells.length, 3);
       final kinds = board.cells.values.map((c) => c.runtimeType).toList();
       expect(
@@ -192,7 +195,7 @@ void main() {
   group('산출', () {
     test('숲의 거목은 보너스 1.5배, 동굴의 거목은 기본 속도', () {
       final board = emptyBoard()
-        ..dig()
+        ..openCaveRow()
         ..placeItem(at(0, 0), const Item(woodChain, 5))
         ..placeItem(at(0, 4), const Item(woodChain, 5));
       board.advance(20, plenty); // 기본 속도 = 20초에 1
@@ -222,7 +225,7 @@ void main() {
 
     test('harvestAll은 모든 산출원을 비우고 자원별로 합친다', () {
       final board = emptyBoard()
-        ..dig()
+        ..openCaveRow()
         ..placeItem(at(0, 0), const Item(woodChain, 5))
         ..placeItem(at(0, 4), const Item(stoneChain, 5));
       board.advance(40, plenty);
@@ -231,51 +234,89 @@ void main() {
     });
   });
 
-  group('확장', () {
-    test('widen은 오른쪽에 열을 붙이고 기존 좌표를 지킨다', () {
+  group('확장 (한 칸씩)', () {
+    test('다음에 열 수 있는 칸은 열린 칸과 상하좌우로 맞닿은 잠긴 칸이다', () {
+      final board = emptyBoard();
+      expect(board.frontier, [
+        at(3, 0), at(3, 1), at(3, 2), at(3, 3), //
+        at(0, 4), at(1, 4), at(2, 4),
+      ]);
+      expect(board.isFrontier(at(4, 0)), isFalse); // 한 칸 건너
+      expect(board.isFrontier(at(3, 4)), isFalse); // 대각선
+      expect(board.isFrontier(at(1, 1)), isFalse); // 이미 열림
+    });
+
+    test('unlock은 한 칸만 열고, 기존 좌표를 지킨다', () {
       final board = emptyBoard()..placeItem(at(2, 3), const Item(woodChain, 1));
-      expect(board.widen(), isTrue);
-      expect(board.columns, 4);
+      expect(board.unlock(at(3, 1)).opened, isTrue);
+      expect(board.unlocked, hasLength(13));
+      expect(board.isEmptyCell(at(3, 1)), isTrue);
+      expect(board.isInside(at(3, 0)), isFalse);
       expect(board.contentAt(at(2, 3)), isA<ItemContent>());
-      expect(board.isEmptyCell(at(3, 0)), isTrue);
+      // 새로 열린 칸 옆이 다음 후보가 된다
+      expect(board.isFrontier(at(4, 1)), isTrue);
     });
 
-    test('열은 최대 6까지', () {
-      final board = emptyBoard();
-      expect(
-        [board.widen(), board.widen(), board.widen(), board.widen()],
-        [true, true, true, false],
-      );
-      expect(board.columns, 6);
+    test('잠긴 칸에는 조각을 옮길 수 없다', () {
+      final board = emptyBoard()..placeItem(at(2, 0), const Item(woodChain, 1));
+      expect(board.tryMove(at(2, 0), at(3, 0)), MoveOutcome.rejected);
     });
 
-    test('첫 dig는 동굴 진입 — 새 동굴 행 가운데에 자갈 생성기', () {
+    test('맞닿지 않은 칸·최대 보드 밖은 열 수 없다', () {
       final board = emptyBoard();
-      final first = board.dig();
-      expect(first.dug, isTrue);
-      expect(first.caveGenerator, at(1, 4));
-      expect(board.zoneOf(at(1, 4)), Zone.cave);
-      final g = (board.contentAt(at(1, 4))! as GeneratorContent).generator;
+      expect(board.unlock(at(5, 0)).opened, isFalse);
+      expect(board.unlock(at(-1, 0)).opened, isFalse);
+      expect(board.unlock(at(0, 7)).opened, isFalse);
+    });
+
+    test('첫 동굴 칸이 동굴 진입 — 그 칸에 자갈 생성기, 두 번째부터는 없다', () {
+      final board = emptyBoard();
+      final first = board.unlock(at(0, 4));
+      expect(first.caveGenerator, at(0, 4));
+      expect(board.caveEntered, isTrue);
+      final g = (board.contentAt(at(0, 4))! as GeneratorContent).generator;
       expect(g.spawnChain, stoneChain);
-      expect(board.dig().caveGenerator, isNull);
-      board.dig();
-      expect(board.dig().dug, isFalse);
-      expect(board.caveRows, 3);
+      expect(board.unlock(at(1, 4)).caveGenerator, isNull);
+    });
+
+    test('최대 보드 6×7 = 42칸을 다 열면 fullyOpen', () {
+      final board = emptyBoard()..openAll();
+      expect(board.unlocked, hasLength(42));
+      expect(board.fullyOpen, isTrue);
+      expect(board.frontier, isEmpty);
+      expect((board.columns, board.rows), (6, 7));
+      expect(board.openedIn(Zone.forest), 24);
+      expect(board.openedIn(Zone.cave), 18);
     });
   });
 
   test('저장 형식 왕복', () {
     final board = emptyBoard()
-      ..dig()
-      ..widen()
+      ..unlock(at(3, 0))
+      ..openCaveRow()
       ..placeItem(at(0, 0), const Item(woodChain, 3))
       ..placeContent(at(1, 0), GeneratorContent(gen(woodChain, 2)))
       ..placeItem(at(3, 4), const Item(stoneChain, 5));
     board.advance(30, plenty);
     final restored = BoardModel.fromJson(board.toJson(), forestCaveTheme);
     expect(restored.toJson(), board.toJson());
-    expect(restored.columns, 4);
-    expect(restored.caveRows, 1);
+    expect(restored.unlocked, board.unlocked);
+    expect(restored.caveEntered, isTrue);
+  });
+
+  test('한 칸씩 확장 이전 저장(columns·caveRows)은 직사각형으로 열어 읽는다', () {
+    final board = BoardModel.fromJson({
+      'columns': 4,
+      'caveRows': 1,
+      'mergeCount': 0,
+      'cells': [
+        {'col': 3, 'row': 4, 'kind': 'item', 'chain': 'stone', 'level': 2},
+      ],
+    }, forestCaveTheme);
+    expect(board.unlocked, hasLength(4 * 5));
+    expect(board.isInside(at(3, 4)), isTrue);
+    expect(board.isInside(at(4, 0)), isFalse);
+    expect(board.contentAt(at(3, 4)), isA<ItemContent>());
   });
 
   test('깨진 저장 형식은 FormatException', () {
@@ -322,7 +363,7 @@ void main() {
 
     test('hasZoneBonus는 산출원이 자기 지대에 있을 때만 true', () {
       final board = emptyBoard()
-        ..dig()
+        ..openCaveRow()
         ..placeItem(at(0, 0), const Item(woodChain, 5))
         ..placeItem(at(0, 4), const Item(woodChain, 5))
         ..placeItem(at(2, 4), const Item(stoneChain, 5)) // (1,4)는 자갈 생성기 자리

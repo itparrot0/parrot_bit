@@ -182,9 +182,9 @@ class _BoardViewState extends ConsumerState<_BoardView>
       ref.read(economyProvider.notifier).deposit(resource, amount);
 
   @override
-  ({Cost cost, bool affordable})? expansionOffer(ExpandDirection direction) {
+  ({Cost cost, bool affordable})? expansionOffer(Expansion expansion) {
     final economy = ref.read(economyProvider);
-    final cost = economy.expansionCost(direction, _board);
+    final cost = economy.expansionCost(expansion, _board);
     return cost == null
         ? null
         : (cost: cost, affordable: economy.canAfford(cost));
@@ -209,15 +209,15 @@ class _BoardViewState extends ConsumerState<_BoardView>
   }
 
   @override
-  Future<void> onExpandRequested(ExpandDirection direction) async {
+  Future<void> onExpandRequested(Expansion expansion) async {
     final economy = ref.read(economyProvider);
-    final cost = economy.expansionCost(direction, _board);
+    final cost = economy.expansionCost(expansion, _board);
     if (cost == null) {
       return;
     }
     final confirmed = await showExpandConfirm(
       context,
-      direction: direction,
+      expansion: expansion,
       board: _board,
       economy: economy,
       cost: cost,
@@ -225,29 +225,38 @@ class _BoardViewState extends ConsumerState<_BoardView>
     if (!confirmed || !mounted) {
       return;
     }
-    final firstDig = direction == ExpandDirection.dig && !_board.caveEntered;
+    final enteringCave =
+        expansion is UnlockCell &&
+        _board.zoneOf(expansion.pos) == Zone.cave &&
+        !_board.caveEntered;
     final notifier = ref.read(economyProvider.notifier)..pay(cost);
     final analytics = ref.read(analyticsProvider);
-    if (direction == ExpandDirection.clear) {
-      notifier.markCleared();
-      analytics.logEvent('theme_cleared', {'theme': _board.theme.id});
-    } else {
-      _game.applyExpansion(direction);
-      ref.read(hintsProvider.notifier).complete(Hint.firstExpand);
-      analytics.logEvent('board_expanded', {'direction': direction.name});
+    switch (expansion) {
+      case ClearTheme():
+        notifier.markCleared();
+        _game.refreshHandles();
+        analytics.logEvent('theme_cleared', {'theme': _board.theme.id});
+      case UnlockCell(:final pos):
+        final zone = _board.zoneOf(pos);
+        _game.applyExpansion(expansion);
+        ref.read(hintsProvider.notifier).complete(Hint.firstExpand);
+        analytics.logEvent('board_expanded', {
+          'zone': zone.name,
+          'cells': _board.unlocked.length,
+        });
     }
     setState(() {});
     if (!mounted) {
       return;
     }
-    if (firstDig) {
+    if (enteringCave) {
       analytics.logEvent('cave_entered');
       await showNotice(
         context,
         title: '동굴에 들어섰어요',
         body: '자갈 생성기를 얻었어요. 돌을 키워 광석바위를 만들면 광석이 쌓여요.',
       );
-    } else if (direction == ExpandDirection.clear) {
+    } else if (expansion is ClearTheme) {
       await showNotice(
         context,
         title: '동굴이 있는 숲을 완성했어요',
