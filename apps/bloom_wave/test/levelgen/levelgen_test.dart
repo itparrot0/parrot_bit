@@ -307,7 +307,8 @@ void main() {
     expect(gen.where((a) => a.name.startsWith('t_')).length, 160);
     for (final a in gen) {
       // 보통 그림 16칸, 복잡한 그림(c_) 22칸, 고해상도(h_) 32칸·800칸까지
-      final big = a.name.startsWith('h_') ||
+      final big =
+          a.name.startsWith('h_') ||
           a.name.startsWith('f_') ||
           a.name.startsWith('t_');
       final max = big
@@ -318,7 +319,7 @@ void main() {
       if (big) {
         expect(
           a.rows.join().replaceAll('.', '').length,
-          inInclusiveRange(500, 800),
+          inInclusiveRange(200, 800), // 네팔 국기처럼 사각형이 아닌 그림도 있다
           reason: a.name,
         );
       }

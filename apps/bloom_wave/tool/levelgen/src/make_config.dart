@@ -58,6 +58,9 @@ int _gap(double Function() rng) => 2 + (rng() * 3).floor();
 /// 가장 큰 배율(1~3). 칸이 많아지는 만큼 물방울을 크게(두 자리 수) 나눠 탭 수는 오히려 줄인다.
 const boardMaxSide = 32, boardMaxCells = 800;
 
+/// 물방울 크기 기준 칸 수 (1~1000 스테이지 칸 수 중앙값, 2026-11-05)
+const dropRefCells = 400;
+
 int _scaleFor(String art) {
   final big = _big(art), cells = _cells(art);
   for (var s = 3; s > 1; s--) {
@@ -354,6 +357,11 @@ PackConfig makeConfig() {
     final sc = _scaleFor(art);
     final scale = sc > 1 ? sc : null;
     final p = _preset(tier, n, r);
+    // 1001 스테이지부터는 큰 판(원본 해상도가 큰 그림)이 많다 → 칸 수에 비례해 물방울을 키워 탭 수를 1~1000 수준으로 맞춘다.
+    // 기준은 1~1000 의 칸 수 중앙값 [dropRefCells]. 1~1000 은 손대지 않는다
+    final k = n > firstPart
+        ? (_cells(art) * sc * sc / dropRefCells).clamp(1.0, 2.2)
+        : 1.0;
     levels.add(
       LevelSpec(
         art: art,
@@ -363,8 +371,8 @@ PackConfig makeConfig() {
         seeds: const [1, 2, 3, 4, 5, 6],
         starts: p.starts,
         lanes: p.lanes,
-        dropMin: p.dropMin,
-        dropMax: p.dropMax,
+        dropMin: (p.dropMin * k).round(),
+        dropMax: (p.dropMax * k).round(),
         displacements: p.displacements,
         targetWinRate: p.target,
         winRange: p.range,
