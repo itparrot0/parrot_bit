@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../domain/domain.dart';
+import 'support_contacts.dart';
 
 /// 달력 상단의 조용한 안전 안내 (docs/prd/sleep_log.md §9-2).
 ///
@@ -18,14 +19,6 @@ class SafetyBannerCard extends StatelessWidget {
   final SafetyAdvice advice;
 
   final VoidCallback onDismiss;
-
-  /// 상담 연락처 (PRD §9-2). 2026-11 확인: 109는 2024년 1월부터 기존 1393을
-  /// 대신하는 자살예방 통합 번호, 1577-0199는 지역 정신건강복지센터로 연결되는
-  /// 24시간 위기상담. **번호가 바뀐 이력이 있으니 출시 전에 다시 확인한다.**
-  static const List<({String name, String number})> contacts = [
-    (name: '자살예방상담전화', number: '109'),
-    (name: '정신건강위기상담전화', number: '1577-0199'),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -79,21 +72,9 @@ class SafetyBannerCard extends StatelessWidget {
                     Text(body, style: theme.textTheme.bodyMedium),
                     if (advice.isSupportStage) ...[
                       const SizedBox(height: 8),
-                      for (final contact in contacts)
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(text: '${contact.name}  '),
-                              TextSpan(
-                                text: contact.number,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          style: theme.textTheme.bodyMedium,
-                        ),
+                      SupportContactButtons(
+                        foreground: theme.colorScheme.onSecondaryContainer,
+                      ),
                     ],
                   ],
                 ),

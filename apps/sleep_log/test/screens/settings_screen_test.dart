@@ -8,6 +8,7 @@ import 'package:sleep_log/domain/domain.dart';
 import 'package:sleep_log/screens/settings_screen.dart';
 
 import '../support/fake_check_in_reminder.dart';
+import '../support/fake_phone_dialer.dart';
 import '../support/in_memory_check_in_repository.dart';
 import '../support/in_memory_diary_repository.dart';
 
@@ -19,6 +20,7 @@ void main() {
   late InMemoryDiaryRepository diary;
   late InMemoryCheckInRepository checkIns;
   late FakeCheckInReminder reminder;
+  late FakePhoneDialer dialer;
 
   Future<void> pumpScreen(
     WidgetTester tester, {
@@ -26,6 +28,7 @@ void main() {
     bool permissionGranted = true,
   }) async {
     reminder = FakeCheckInReminder(permissionGranted: permissionGranted);
+    dialer = FakePhoneDialer();
     store = InMemoryKeyValueStore(stored);
     diary = InMemoryDiaryRepository([
       DiaryEntry(date: today, tags: {DefaultMoodTags.calm}),
@@ -44,6 +47,7 @@ void main() {
         diaryRepositoryProvider.overrideWithValue(diary),
         checkInRepositoryProvider.overrideWithValue(checkIns),
         checkInReminderProvider.overrideWithValue(reminder),
+        phoneDialerProvider.overrideWithValue(dialer),
         initialSleepTargetProvider.overrideWithValue(
           SleepTarget(const Duration(hours: 7)),
         ),
@@ -221,5 +225,15 @@ void main() {
       expect(reminder.calls.single.settings.enabled, isFalse);
       expect(reminder.calls.single.askPermission, isFalse);
     });
+  });
+
+  testWidgets('설정에서 언제든 상담 번호로 전화를 열 수 있다', (tester) async {
+    await pumpScreen(tester);
+
+    expect(find.text('도움받을 수 있는 곳'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('call.1577-0199')));
+    await tester.pump();
+
+    expect(dialer.dialed, ['1577-0199']);
   });
 }

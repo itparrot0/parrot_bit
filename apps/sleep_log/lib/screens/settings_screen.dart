@@ -5,6 +5,7 @@ import '../app/format.dart';
 import '../data/providers.dart';
 import '../domain/domain.dart';
 import '../widgets/sleep_target_picker.dart';
+import '../widgets/support_contacts.dart';
 
 /// 설정 — 목표 수면시간, 안전 안내 on/off, 생각 돌아보기, 기록 전체 삭제
 /// (docs/screen-flow/sleep_log.md §5).
@@ -46,6 +47,15 @@ class SettingsScreen extends ConsumerWidget {
                       .read(safetyNoticeEnabledProvider.notifier)
                       .set(enabled)
                 : null,
+          ),
+          ListTile(
+            leading: const Icon(Icons.support_agent),
+            title: const Text('도움받을 수 있는 곳'),
+            subtitle: const Text('누르면 전화 앱이 그 번호로 열려요.'),
+          ),
+          const Padding(
+            padding: EdgeInsets.only(left: 60, right: 16),
+            child: SupportContactButtons(),
           ),
           const Divider(height: 32),
           ..._buildCheckIn(context, ref),

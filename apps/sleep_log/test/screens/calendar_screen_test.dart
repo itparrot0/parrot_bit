@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sleep_log/data/phone_dialer.dart';
 import 'package:sleep_log/data/providers.dart';
 import 'package:sleep_log/domain/domain.dart';
 import 'package:sleep_log/screens/calendar_screen.dart';
+
+import '../support/fake_phone_dialer.dart';
 
 void main() {
   const today = DiaryDate(2026, 11, 5);
@@ -94,6 +97,7 @@ void main() {
       SafetyAdvice banner = SafetyAdvice.none,
       bool checkInEnabled = false,
       List<ThoughtCheckIn> checkIns = const [],
+      PhoneDialer? dialer,
     }) async {
       await tester.pumpWidget(
         ProviderScope(
@@ -109,6 +113,7 @@ void main() {
             ),
             checkInsProvider.overrideWith((ref) => Stream.value(checkIns)),
             clockProvider.overrideWithValue(() => DateTime(2026, 11, 5, 9)),
+            phoneDialerProvider.overrideWithValue(dialer ?? FakePhoneDialer()),
           ],
           child: const MaterialApp(home: CalendarScreen()),
         ),
@@ -194,6 +199,36 @@ void main() {
 
       expect(find.textContaining('평소와 다르게 다가온 순간'), findsOneWidget);
       expect(find.textContaining('109'), findsOneWidget);
+    });
+
+    testWidgets('상담 번호를 누르면 전화 앱을 그 번호로 연다', (tester) async {
+      final dialer = FakePhoneDialer();
+      await pumpScreen(
+        tester,
+        entries: Stream.value(const []),
+        banner: SafetyAdvice.supportContact,
+        dialer: dialer,
+      );
+
+      await tester.tap(find.byKey(const Key('call.109')));
+      await tester.tap(find.byKey(const Key('call.1577-0199')));
+      await tester.pump();
+
+      expect(dialer.dialed, ['109', '1577-0199']);
+    });
+
+    testWidgets('전화가 안 되는 기기면 번호를 안내한다', (tester) async {
+      await pumpScreen(
+        tester,
+        entries: Stream.value(const []),
+        banner: SafetyAdvice.supportContact,
+        dialer: FakePhoneDialer(canDial: false),
+      );
+
+      await tester.tap(find.byKey(const Key('call.109')));
+      await tester.pump();
+
+      expect(find.textContaining('다른 전화로 109'), findsOneWidget);
     });
 
     testWidgets('닫으면 사라지고 달력은 그대로다', (tester) async {

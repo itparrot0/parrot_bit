@@ -10,6 +10,7 @@ import 'check_in_reminder.dart';
 import 'check_in_repository.dart';
 import 'diary_repository.dart';
 import 'drift_check_in_repository.dart';
+import 'phone_dialer.dart';
 import 'drift_diary_repository.dart';
 import 'settings_repository.dart';
 
@@ -185,4 +186,9 @@ class CheckInSettingsNotifier extends AsyncNotifier<CheckInSettings> {
 /// 생각 돌아보기 알림. 테스트는 가짜로 바꿔 끼운다.
 final checkInReminderProvider = Provider<CheckInReminder>(
   (ref) => LocalCheckInReminder(),
+);
+
+/// 상담 번호 전화 연결. 테스트는 가짜로 바꿔 끼운다.
+final phoneDialerProvider = Provider<PhoneDialer>(
+  (ref) => const UrlLauncherPhoneDialer(),
 );
