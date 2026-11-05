@@ -9,6 +9,7 @@ import '../platform/billing.dart';
 import '../save/save_repository.dart';
 import 'ad_rewards.dart';
 import 'economy.dart';
+import 'hints.dart';
 import 'products.dart';
 
 /// 앱 전체 Navigator. 가짜 광고가 이 위에 창을 띄운다.
@@ -95,3 +96,13 @@ class AdRewardsNotifier extends Notifier<AdRewards> {
 final billingProvider = Provider<Billing>(
   (ref) => platformBilling(rootNavigatorKey),
 );
+
+/// 첫 실행 안내 진행 (아웃게임 상태).
+final hintsProvider = NotifierProvider<HintsNotifier, Hints>(HintsNotifier.new);
+
+class HintsNotifier extends Notifier<Hints> {
+  @override
+  Hints build() => ref.watch(loadedGroveProvider).requireValue.hints;
+
+  void complete(Hint hint) => state = state.complete(hint);
+}

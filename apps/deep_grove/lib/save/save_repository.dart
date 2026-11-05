@@ -6,6 +6,7 @@ import 'package:core_storage/core_storage.dart';
 import '../domain/board_model.dart';
 import '../economy/ad_rewards.dart';
 import '../economy/economy.dart';
+import '../economy/hints.dart';
 
 /// 저장 한 벌: 보드(인게임) + 창고(아웃게임) + 저장 시각.
 final class GroveSave {
@@ -14,11 +15,13 @@ final class GroveSave {
     required this.economy,
     required this.savedAt,
     this.ads = const AdRewards(),
+    this.hints = const Hints(),
   });
 
   final BoardModel board;
   final Economy economy;
   final AdRewards ads;
+  final Hints hints;
   final DateTime savedAt;
 }
 
@@ -30,11 +33,13 @@ final class LoadedGrove {
     required this.idleGain,
     required this.isNew,
     this.ads = const AdRewards(),
+    this.hints = const Hints(),
   });
 
   final BoardModel board;
   final Economy economy;
   final AdRewards ads;
+  final Hints hints;
 
   /// 자리를 비운 동안 쌓인 양 (자원별, 정수). 비어 있으면 복귀 보상을 띄우지 않는다.
   final Map<Resource, int> idleGain;
@@ -62,6 +67,7 @@ final class SaveRepository {
       'board': save.board.toJson(),
       'economy': save.economy.toJson(),
       'ads': save.ads.toJson(),
+      'hints': save.hints.toJson(),
     }),
   );
 
@@ -104,6 +110,7 @@ final class SaveRepository {
             board: board,
             economy: economy,
             ads: ads,
+            hints: Hints.fromJson(json['hints'], board, theme),
             idleGain: idleGain,
             isNew: false,
           );

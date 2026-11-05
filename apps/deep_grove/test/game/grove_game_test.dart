@@ -45,6 +45,11 @@ class FakeBridge implements GroveBridge {
 
   @override
   void onBoardChanged() => changes++;
+
+  int spawns = 0;
+
+  @override
+  void onSpawned() => spawns++;
 }
 
 Future<(GroveGame, FakeBridge)> pumpGame(

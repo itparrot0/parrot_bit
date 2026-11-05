@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import '../domain/board_model.dart';
 import '../economy/economy.dart';
+import '../economy/hints.dart';
 import '../economy/providers.dart';
 import '../game/grove_game.dart';
 import '../save/save_repository.dart';
@@ -63,6 +64,7 @@ class _BoardViewState extends ConsumerState<_BoardView>
       if (mounted) setState(() {});
     });
     ref.read(analyticsProvider).logEvent('session_start');
+    WidgetsBinding.instance.addPostFrameCallback((_) => _syncHint());
     final gain = widget.loaded.idleGain;
     if (gain.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _welcomeBack(gain));
@@ -158,6 +160,7 @@ class _BoardViewState extends ConsumerState<_BoardView>
               board: _board,
               economy: ref.read(economyProvider),
               ads: ref.read(adRewardsProvider),
+              hints: ref.read(hintsProvider),
               savedAt: _now(),
             ),
           ),
@@ -188,7 +191,22 @@ class _BoardViewState extends ConsumerState<_BoardView>
   }
 
   @override
-  void onBoardChanged() => _save();
+  void onBoardChanged() {
+    _syncHint();
+    _save();
+  }
+
+  @override
+  void onSpawned() =>
+      ref.read(hintsProvider.notifier).complete(Hint.tapGenerator);
+
+  /// 첫 실행 안내를 지금 상태에 맞춘다 (화면 흐름 §5).
+  void _syncHint() {
+    if (!mounted) return;
+    _game.showHint(
+      ref.read(hintsProvider).active(_board, ref.read(economyProvider)),
+    );
+  }
 
   @override
   Future<void> onExpandRequested(ExpandDirection direction) async {
@@ -215,6 +233,7 @@ class _BoardViewState extends ConsumerState<_BoardView>
       analytics.logEvent('theme_cleared', {'theme': _board.theme.id});
     } else {
       _game.applyExpansion(direction);
+      ref.read(hintsProvider.notifier).complete(Hint.firstExpand);
       analytics.logEvent('board_expanded', {'direction': direction.name});
     }
     setState(() {});
@@ -246,6 +265,11 @@ class _BoardViewState extends ConsumerState<_BoardView>
     final now = _now();
     ref.listen(economyProvider, (_, _) {
       _game.refreshHandles();
+      _syncHint();
+      _save();
+    });
+    ref.listen(hintsProvider, (_, _) {
+      _syncHint();
       _save();
     });
     ref.listen(adRewardsProvider, (_, _) => _save());

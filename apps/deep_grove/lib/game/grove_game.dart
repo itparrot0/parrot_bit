@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 
 import '../domain/board_model.dart';
 import '../economy/economy.dart';
+import '../economy/hints.dart';
 import 'components/board_piece_component.dart';
 import 'components/expand_handle_component.dart';
+import 'components/finger_hint_component.dart';
 import 'components/generator_component.dart';
 import 'components/item_component.dart';
 import 'components/producer_component.dart';
@@ -39,6 +41,9 @@ abstract interface class GroveBridge {
 
   /// 보드 상태가 바뀌었다 (저장 시점).
   void onBoardChanged();
+
+  /// 생성기 탭으로 아이템이 생겼다 (첫 실행 안내 1 끝).
+  void onSpawned();
 }
 
 /// 머지 보드 게임. 규칙 판정은 전부 [BoardModel]에 위임하고,
@@ -75,6 +80,11 @@ class GroveGame extends FlameGame {
     Zone.cave: Color(0xFF6B5436),
   };
   final List<Component> _handles = [];
+  final Map<ExpandDirection, ExpandHandleComponent> _handleOf = {};
+
+  /// 지금 띄운 첫 실행 안내와 그 손가락.
+  HintTarget? _hint;
+  FingerHintComponent? _finger;
 
   @override
   Color backgroundColor() => const Color(0xFF171B21);
@@ -166,6 +176,41 @@ class GroveGame extends FlameGame {
     refreshHandles();
   }
 
+  /// 첫 실행 안내를 [target]으로 바꾼다 (null이면 지운다). 같은 안내면 그대로 둔다.
+  void showHint(HintTarget? target) {
+    if (target == _hint && (_finger != null || target == null)) {
+      return;
+    }
+    _hint = target;
+    _placeHint();
+  }
+
+  void _placeHint() {
+    _finger?.removeFromParent();
+    _finger = null;
+    final point = switch (_hint) {
+      null => null,
+      CellHint(:final pos) => board.isInside(pos) ? cellCenter(pos) : null,
+      HandleHint(:final direction) => switch (_handleOf[direction]) {
+        // 라벨(가운데)을 가리지 않게 빈 쪽을 가리킨다: 세로 손잡이는 위, 가로 손잡이는 왼쪽.
+        final h? =>
+          h.position +
+              (h.size.y > h.size.x
+                  ? Vector2(h.size.x / 2, h.size.y * 0.2)
+                  : Vector2(h.size.x * 0.12, h.size.y / 2)),
+        null => null,
+      },
+    };
+    if (point != null) {
+      _finger = FingerHintComponent(target: point);
+      world.add(_finger!);
+    }
+  }
+
+  /// 테스트용: 지금 손가락이 가리키는 안내.
+  @visibleForTesting
+  HintTarget? get visibleHint => _finger == null ? null : _hint;
+
   /// [piece]를 집었다: 그 조각이 보너스를 받는 지대 칸을 옅게 밝힌다 (화면 흐름 §5).
   void showBonusZone(BoardPieceComponent piece) {
     final content = board.contentAt(piece.cell);
@@ -198,6 +243,7 @@ class GroveGame extends FlameGame {
   /// 창고 보유량이 바뀌면 손잡이의 비용·강조를 다시 그린다.
   void refreshHandles() {
     _clear(_handles);
+    _handleOf.clear();
     final boardW = board.columns * kCellSize;
     final boardH = board.rows * kCellSize;
     _addHandle(
@@ -214,6 +260,7 @@ class GroveGame extends FlameGame {
       size: Vector2(boardW, kCellSize - _margin),
       vertical: false,
     );
+    _placeHint();
   }
 
   void _addHandle(
@@ -234,16 +281,15 @@ class GroveGame extends FlameGame {
     final cost = offer.cost.entries
         .map((e) => '${resourceLabel(e.key)} ${e.value}')
         .join(vertical ? '\n' : ' · ');
-    _add(
-      _handles,
-      ExpandHandleComponent(
-        direction: direction,
-        label: vertical ? '$title\n\n$cost' : '$title  $cost',
-        affordable: offer.affordable,
-        position: position,
-        size: size,
-      ),
+    final handle = ExpandHandleComponent(
+      direction: direction,
+      label: vertical ? '$title\n\n$cost' : '$title  $cost',
+      affordable: offer.affordable,
+      position: position,
+      size: size,
     );
+    _handleOf[direction] = handle;
+    _add(_handles, handle);
   }
 
   void _add(List<Component> group, Component c) {
@@ -265,6 +311,7 @@ class GroveGame extends FlameGame {
       return false;
     }
     _addContent(pos, board.contentAt(pos)!, entrance: PieceEntrance.spawn);
+    bridge.onSpawned();
     bridge.onBoardChanged();
     return true;
   }

@@ -3,6 +3,7 @@ import 'package:deep_grove/app.dart';
 import 'package:deep_grove/domain/board_model.dart';
 import 'package:deep_grove/economy/ad_rewards.dart';
 import 'package:deep_grove/economy/economy.dart';
+import 'package:deep_grove/economy/hints.dart';
 import 'package:deep_grove/economy/providers.dart';
 import 'package:deep_grove/game/components/expand_handle_component.dart';
 import 'package:deep_grove/game/grove_game.dart';
@@ -369,6 +370,80 @@ void main() {
       await settle(tester);
       // 숲 거목: 분당 3 × 지대 1.5 × 상품 1.5 = 6.75
       expect(find.textContaining('분당 +6.8'), findsOneWidget);
+    });
+  });
+
+  group('첫 실행 안내', () {
+    testWidgets('처음 열면 손가락이 생성기를 가리키고, 누르면 사라진다 (저장됨)', (tester) async {
+      final store = await pumpApp(tester);
+      final game = gameOf(tester);
+      expect(
+        game.visibleHint,
+        const CellHint(Hint.tapGenerator, (col: 1, row: 3)),
+      );
+      final origin = tester.getTopLeft(find.byType(GameWidget<GroveGame>));
+      final p = game.camera.localToGlobal(game.cellCenter((col: 1, row: 3)));
+      await tester.timedDragFrom(
+        origin + Offset(p.x, p.y),
+        const Offset(2, 0),
+        const Duration(milliseconds: 100),
+      );
+      await settle(tester);
+      expect(game.visibleHint, isNull);
+      final saved = await SaveRepository(store).load(forestCaveTheme, now: t0);
+      expect(saved.hints.isDone(Hint.tapGenerator), isTrue);
+    });
+
+    testWidgets('첫 확장 자원이 모이면 넓히기 손잡이를 가리키고, 확장하면 끝난다', (tester) async {
+      final store = InMemoryKeyValueStore();
+      await SaveRepository(store).write(
+        GroveSave(
+          board: BoardModel(forestCaveTheme),
+          economy: const Economy(
+            theme: forestCaveTheme,
+            amounts: {Resource.wood: 4},
+          ),
+          hints: const Hints().complete(Hint.tapGenerator),
+          savedAt: t0,
+        ),
+      );
+      await pumpApp(tester, store: store);
+      final game = gameOf(tester);
+      expect(game.visibleHint, isNull); // 목재 4 < 5
+
+      // 거목 산출원에서 목재 1을 더 받으면 넓히기를 할 수 있다.
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(GameWidget<GroveGame>)),
+      );
+      container.read(economyProvider.notifier).deposit(Resource.wood, 1);
+      await settle(tester);
+      expect(
+        game.visibleHint,
+        const HandleHint(Hint.firstExpand, ExpandDirection.widen),
+      );
+
+      await tapHandle(tester, ExpandDirection.widen);
+      await tester.tap(find.text('확장'));
+      await settle(tester);
+      expect(game.visibleHint, isNull);
+      expect(container.read(hintsProvider).isDone(Hint.firstExpand), isTrue);
+    });
+
+    testWidgets('이미 놀던 옛 저장에는 안내를 띄우지 않는다', (tester) async {
+      final store = InMemoryKeyValueStore();
+      await saveWith(
+        store,
+        BoardModel(forestCaveTheme)..widen(),
+        const Economy(theme: forestCaveTheme, amounts: {Resource.wood: 30}),
+      );
+      // saveWith 는 hints 를 기본값(빈 목록)으로 쓰므로, 옛 저장처럼 칸을 지운다.
+      final raw = (await store.getString(SaveRepository.key))!;
+      await store.setString(
+        SaveRepository.key,
+        raw.replaceFirst(RegExp(r',"hints":\[[^\]]*\]'), ''),
+      );
+      await pumpApp(tester, store: store);
+      expect(gameOf(tester).visibleHint, isNull);
     });
   });
 }
