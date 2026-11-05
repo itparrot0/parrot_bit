@@ -33,7 +33,7 @@ int _big(String name) {
 const _v3 = PartialOptions(visible: 3);
 
 /// 출시 팩 스테이지 수
-const totalStages = 3000;
+const totalStages = 2000;
 
 /// 1차 구간 (이 안은 2026-11-05 이전 팩과 똑같이 나온다)
 const firstPart = 1000;

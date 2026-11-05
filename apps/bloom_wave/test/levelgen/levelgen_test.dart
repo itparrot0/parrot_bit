@@ -197,11 +197,11 @@ void main() {
     ]);
   });
 
-  test('출시 팩: 3000 스테이지, 모두 3줄 이상, 튜토리얼 1~2는 realtime false, id 중복 없음', () {
+  test('출시 팩: 2000 스테이지, 모두 3줄 이상, 튜토리얼 1~2는 realtime false, id 중복 없음', () {
     final pack = jsonDecode(packText) as List;
     Map<String, dynamic>? opt(int i) =>
         (pack[i] as Map<String, dynamic>)['options'] as Map<String, dynamic>?;
-    expect(pack.length, 3000);
+    expect(pack.length, 2000);
     expect(opt(0)?['realtime'], false);
     expect(opt(1)?['realtime'], false);
     expect(opt(2)?['realtime'], isNull);
@@ -209,7 +209,7 @@ void main() {
       pack.every((l) => ((l as Map)['lanes'] as List).length >= 3),
       isTrue,
     );
-    expect(pack.map((l) => (l as Map)['id']).toSet().length, 3000);
+    expect(pack.map((l) => (l as Map)['id']).toSet().length, 2000);
   });
 
   test('출시 팩 난이도 배치: 6스테이지부터 2~4스테이지마다 어려움(Hard·Super·Mega), 사이는 노말', () {
@@ -234,7 +234,7 @@ void main() {
         reason: '${hard[k - 1]} → ${hard[k]}',
       );
     }
-    expect(3000 - hard.last, lessThanOrEqualTo(3));
+    expect(2000 - hard.last, lessThanOrEqualTo(3));
     // 입문(~30)은 Hard 만, 그 뒤로 세 등급이 모두 나온다
     expect(
       hard.where((n) => n <= 30).every((n) => diff[n - 1] == 'hard'),
@@ -410,7 +410,6 @@ void main() {
       final targets = [
         for (var t = 100; t <= 1000; t += 18) (t, 1, 1000),
         for (var t = 1000; t <= 2000; t += 18) (t, 1001, 2000),
-        for (var t = 1990; t <= 3000; t += 18) (t, 2001, 3000),
       ];
       expect(mystery.length, targets.length);
       for (var k = 0; k < targets.length; k++) {
@@ -444,7 +443,7 @@ void main() {
         }
       }
       expect(mystery.first, 100);
-      // 숨김은 표시만 바꾸므로 규칙·검증과 무관하다 (verify 가 3000개 모두 통과)
+      // 숨김은 표시만 바꾸므로 규칙·검증과 무관하다 (verify 가 2000개 모두 통과)
     },
   );
 
