@@ -25,7 +25,16 @@ class CalendarScreen extends ConsumerWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('슬립로그')),
+      appBar: AppBar(
+        title: const Text('슬립로그'),
+        actions: [
+          IconButton(
+            onPressed: () => context.pushNamed(Routes.report),
+            icon: const Icon(Icons.insights_outlined),
+            tooltip: '리포트',
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(

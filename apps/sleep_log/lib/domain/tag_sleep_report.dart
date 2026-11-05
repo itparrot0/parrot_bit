@@ -16,8 +16,22 @@ abstract final class TagSleepReport {
 
   /// 수면이 기록된 날이 [minimumDays] 이상인가.
   static bool hasEnoughData(Iterable<DiaryEntry> entries) =>
-      entries.where((entry) => entry.sleepDuration != null).length >=
-      minimumDays;
+      sleepDayCount(entries) >= minimumDays;
+
+  /// 수면이 기록된 날의 수.
+  static int sleepDayCount(Iterable<DiaryEntry> entries) =>
+      entries.where((entry) => entry.sleepDuration != null).length;
+
+  /// 수면이 기록된 모든 날의 평균. 태그별 평균을 읽을 기준선이다 — "짜증 5.2시간"
+  /// 만으로는 그게 평소보다 짧은지 알 수 없다. 수면 기록이 없으면 null.
+  static Duration? overallAverage(Iterable<DiaryEntry> entries) {
+    final durations = entries.map((entry) => entry.sleepDuration).nonNulls;
+    if (durations.isEmpty) {
+      return null;
+    }
+    final total = durations.fold(0, (sum, d) => sum + d.inMinutes);
+    return Duration(minutes: total ~/ durations.length);
+  }
 
   /// 태그별 평균 수면시간. **수면이 기록된 날만** 센다.
   ///
