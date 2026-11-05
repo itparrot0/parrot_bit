@@ -78,6 +78,7 @@ abstract class BoardPieceComponent extends PositionComponent
   void onDragStart(DragStartEvent event) {
     super.onDragStart(event);
     _dragging = true;
+    game.showBonusZone(this);
     priority = 100;
     visual.scale = Vector2.all(1.1);
     _showState(PieceVisualState.dragging);
@@ -102,6 +103,7 @@ abstract class BoardPieceComponent extends PositionComponent
       return;
     }
     _dragging = false;
+    game.clearBonusZone();
     onDropped();
   }
 
@@ -116,6 +118,7 @@ abstract class BoardPieceComponent extends PositionComponent
   void onDragCancel(DragCancelEvent event) {
     super.onDragCancel(event);
     _dragging = false;
+    game.clearBonusZone();
     settleTo(game.cellCenter(cell));
   }
 

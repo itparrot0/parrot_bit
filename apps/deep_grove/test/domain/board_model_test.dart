@@ -295,4 +295,42 @@ void main() {
       throwsFormatException,
     );
   });
+
+  group('지대 보너스 표시', () {
+    test('산출원은 자기 체인 지대를, 최고 레벨 바로 아래 아이템도 같은 지대를 알려 준다', () {
+      expect(
+        BoardModel.bonusZoneOf(ProducerContent(Producer(woodChain))),
+        Zone.forest,
+      );
+      expect(
+        BoardModel.bonusZoneOf(ProducerContent(Producer(stoneChain))),
+        Zone.cave,
+      );
+      expect(
+        BoardModel.bonusZoneOf(const ItemContent(Item(stoneChain, 4))),
+        Zone.cave,
+      );
+    });
+
+    test('그 밖의 아이템·생성기는 보너스 지대가 없다', () {
+      expect(
+        BoardModel.bonusZoneOf(const ItemContent(Item(woodChain, 3))),
+        isNull,
+      );
+      expect(BoardModel.bonusZoneOf(GeneratorContent(gen(woodChain))), isNull);
+    });
+
+    test('hasZoneBonus는 산출원이 자기 지대에 있을 때만 true', () {
+      final board = emptyBoard()
+        ..dig()
+        ..placeItem(at(0, 0), const Item(woodChain, 5))
+        ..placeItem(at(0, 4), const Item(woodChain, 5))
+        ..placeItem(at(2, 4), const Item(stoneChain, 5)) // (1,4)는 자갈 생성기 자리
+        ..placeItem(at(2, 0), const Item(woodChain, 4));
+      expect(board.hasZoneBonus(at(0, 0)), isTrue);
+      expect(board.hasZoneBonus(at(0, 4)), isFalse);
+      expect(board.hasZoneBonus(at(2, 4)), isTrue);
+      expect(board.hasZoneBonus(at(2, 0)), isFalse);
+    });
+  });
 }

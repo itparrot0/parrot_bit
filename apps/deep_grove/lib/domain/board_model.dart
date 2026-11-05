@@ -173,6 +173,23 @@ class BoardModel {
     }
   }
 
+  /// [content]를 놓을 때 산출 보너스를 받는 지대 (드래그 중 칸 밝히기용). 없으면 null.
+  ///
+  /// 보너스는 산출원만 받는다. 다만 최고 레벨 바로 아래 아이템은 머지되는 칸에서
+  /// 산출원이 되므로, 그 아이템도 자기 체인 지대를 알려 준다.
+  static Zone? bonusZoneOf(CellContent content) => switch (content) {
+    ProducerContent(:final producer) => producer.chain.homeZone,
+    ItemContent(:final item) when item.level == item.chain.maxLevel - 1 =>
+      item.chain.homeZone,
+    _ => null,
+  };
+
+  /// [pos]의 산출원이 지대 보너스를 받고 있는가.
+  bool hasZoneBonus(CellPos pos) => switch (_cells[pos]) {
+    ProducerContent(:final producer) => zoneOf(pos) == producer.chain.homeZone,
+    _ => false,
+  };
+
   /// 산출원 [producer]가 [pos]에 있을 때 초당 산출량.
   double rateAt(CellPos pos, Producer producer) {
     final base = 1 / theme.secondsPerUnit;

@@ -5,6 +5,7 @@ import 'package:deep_grove/game/components/generator_component.dart';
 import 'package:deep_grove/game/components/item_component.dart';
 import 'package:deep_grove/game/components/producer_component.dart';
 import 'package:deep_grove/game/grove_game.dart';
+import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -159,6 +160,74 @@ void main() {
     expect(generators.map((g) => g.generator.spawnChain).toSet(), {
       woodChain,
       stoneChain,
+    });
+  });
+
+  group('드래그 중 지대 밝히기', () {
+    Future<TestGesture> hold(
+      WidgetTester tester,
+      GroveGame game,
+      CellPos pos,
+    ) async {
+      final start = screenOf(tester, game, game.cellCenter(pos));
+      final gesture = await tester.startGesture(start);
+      for (var i = 1; i <= 5; i++) {
+        await gesture.moveTo(start + Offset(8.0 * i, 0));
+        await tester.pump(const Duration(milliseconds: 16));
+      }
+      return gesture;
+    }
+
+    BoardModel caveBoard() => emptyBoard()
+      ..dig()
+      ..placeItem(at(0, 0), const Item(stoneChain, 5))
+      ..placeItem(at(1, 0), const Item(woodChain, 3));
+
+    testWidgets('광석바위를 들면 동굴 칸만 밝아지고, 놓으면 꺼진다', (tester) async {
+      final (game, _) = await pumpGame(tester, board: caveBoard());
+      final gesture = await hold(tester, game, at(0, 0));
+      expect(game.isLit(at(0, 4)), isTrue);
+      expect(game.isLit(at(2, 4)), isTrue);
+      expect(game.isLit(at(2, 2)), isFalse);
+      await gesture.moveTo(screenOf(tester, game, game.cellCenter(at(2, 4))));
+      await gesture.up();
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(game.isLit(at(0, 4)), isFalse);
+      expect(game.board.hasZoneBonus(at(2, 4)), isTrue);
+    });
+
+    testWidgets('보너스와 상관없는 조각을 들면 아무 칸도 밝아지지 않는다', (tester) async {
+      final (game, _) = await pumpGame(tester, board: caveBoard());
+      final gesture = await hold(tester, game, at(1, 0));
+      for (final pos in [at(0, 0), at(0, 4)]) {
+        expect(game.isLit(pos), isFalse);
+      }
+      await gesture.up();
+      await tester.pump(const Duration(milliseconds: 300));
+    });
+
+    testWidgets('자기 지대의 산출원에만 배율 표시가 붙는다', (tester) async {
+      final board = emptyBoard()
+        ..dig()
+        ..placeItem(at(0, 0), const Item(woodChain, 5))
+        ..placeItem(at(0, 4), const Item(woodChain, 5));
+      final (game, _) = await pumpGame(tester, board: board);
+      await tester.pump(const Duration(milliseconds: 50));
+      String labelsOf(CellPos pos) => game
+          .pieceAt(pos)!
+          .descendants()
+          .whereType<TextComponent>()
+          .map((t) => t.text)
+          .join('|');
+      expect(labelsOf(at(0, 0)), contains('×1.5'));
+      // 스킨이 나중에 붙어도 라벨이 가려지지 않게 위에 그린다.
+      final bonus = game
+          .pieceAt(at(0, 0))!
+          .descendants()
+          .whereType<TextComponent>()
+          .firstWhere((t) => t.text == '×1.5');
+      expect(bonus.priority, greaterThan(0));
+      expect(labelsOf(at(0, 4)), isNot(contains('×1.5')));
     });
   });
 }

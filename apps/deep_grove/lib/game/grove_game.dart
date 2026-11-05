@@ -61,6 +61,19 @@ class GroveGame extends FlameGame {
 
   final Map<CellPos, BoardPieceComponent> _pieces = {};
   final List<Component> _tiles = [];
+  final Map<CellPos, RectangleComponent> _tileAt = {};
+
+  /// 드래그 중 밝힌 지대. 없으면 null.
+  Zone? _highlighted;
+
+  static const Map<Zone, Color> _tileColor = {
+    Zone.forest: Color(0xFF213128),
+    Zone.cave: Color(0xFF30281F),
+  };
+  static const Map<Zone, Color> _tileLit = {
+    Zone.forest: Color(0xFF3C6B4A),
+    Zone.cave: Color(0xFF6B5436),
+  };
   final List<Component> _handles = [];
 
   @override
@@ -122,25 +135,23 @@ class GroveGame extends FlameGame {
   /// 보드 크기가 바뀌면 바닥 타일·손잡이·카메라를 다시 잡는다.
   void relayout() {
     _clear(_tiles);
+    _tileAt.clear();
 
     for (var row = 0; row < board.rows; row++) {
       for (var col = 0; col < board.columns; col++) {
         final pos = (col: col, row: row);
-        _add(
-          _tiles,
-          RectangleComponent(
-            position: cellCenter(pos),
-            size: Vector2.all(kCellSize * 0.94),
-            anchor: Anchor.center,
-            priority: -10,
-            paint: Paint()
-              ..color = board.zoneOf(pos) == Zone.forest
-                  ? const Color(0xFF213128)
-                  : const Color(0xFF30281F),
-          ),
+        final tile = RectangleComponent(
+          position: cellCenter(pos),
+          size: Vector2.all(kCellSize * 0.94),
+          anchor: Anchor.center,
+          priority: -10,
+          paint: Paint(),
         );
+        _tileAt[pos] = tile;
+        _add(_tiles, tile);
       }
     }
+    _paintTiles();
 
     final boardW = board.columns * kCellSize;
     final boardH = board.rows * kCellSize;
@@ -154,6 +165,35 @@ class GroveGame extends FlameGame {
       ..position = Vector2(-_margin, -_margin);
     refreshHandles();
   }
+
+  /// [piece]를 집었다: 그 조각이 보너스를 받는 지대 칸을 옅게 밝힌다 (화면 흐름 §5).
+  void showBonusZone(BoardPieceComponent piece) {
+    final content = board.contentAt(piece.cell);
+    _highlighted = content == null ? null : BoardModel.bonusZoneOf(content);
+    _paintTiles();
+  }
+
+  /// 손에서 놓았다: 밝힌 칸을 되돌린다.
+  void clearBonusZone() {
+    if (_highlighted == null) {
+      return;
+    }
+    _highlighted = null;
+    _paintTiles();
+  }
+
+  void _paintTiles() {
+    _tileAt.forEach((pos, tile) {
+      final zone = board.zoneOf(pos);
+      tile.paint.color = zone == _highlighted
+          ? _tileLit[zone]!
+          : _tileColor[zone]!;
+    });
+  }
+
+  /// 테스트용: 지금 밝혀진 칸인가.
+  @visibleForTesting
+  bool isLit(CellPos pos) => _highlighted == board.zoneOf(pos);
 
   /// 창고 보유량이 바뀌면 손잡이의 비용·강조를 다시 그린다.
   void refreshHandles() {

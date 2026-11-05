@@ -22,7 +22,9 @@ class ProducerComponent extends BoardPieceComponent {
   final Producer producer;
 
   late final TextComponent<TextPaint> _stockLabel;
+  late final TextComponent<TextPaint> _bonusLabel;
   int _shownRipe = -1;
+  bool? _shownBonus;
 
   @override
   int get restingPriority => 8;
@@ -42,9 +44,25 @@ class ProducerComponent extends BoardPieceComponent {
         ),
       ),
       anchor: Anchor.topRight,
+      // 스킨은 상태가 바뀔 때마다 visual 에 다시 붙는다 — 라벨이 그 위에 그려지게 한다.
+      priority: 10,
       position: Vector2(size.x - 4, 2),
     );
     visual.add(_stockLabel);
+    // 자기 지대에 있으면 왼쪽 아래에 배율 표시 (화면 흐름 §5 지대 보너스 표시).
+    _bonusLabel = TextComponent(
+      textRenderer: TextPaint(
+        style: const TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w800,
+          color: Color(0xFFFFE082),
+        ),
+      ),
+      anchor: Anchor.bottomLeft,
+      priority: 10,
+      position: Vector2(8, size.y - 6),
+    );
+    visual.add(_bonusLabel);
   }
 
   @override
@@ -55,12 +73,18 @@ class ProducerComponent extends BoardPieceComponent {
       _shownRipe = ripe;
       _stockLabel.text = ripe > 0 ? '+$ripe' : '';
     }
+    final bonus = game.board.hasZoneBonus(cell);
+    if (bonus != _shownBonus) {
+      _shownBonus = bonus;
+      _bonusLabel.text = bonus ? '×${_multiplierText()}' : '';
+    }
   }
 
   @override
   void refreshSkin() {
     super.refreshSkin();
-    _shownRipe = -1; // 다음 update 에서 쌓인 양 라벨도 다시 그린다.
+    _shownRipe = -1; // 다음 update 에서 쌓인 양·보너스 라벨도 다시 그린다.
+    _shownBonus = null;
   }
 
   @override
@@ -73,5 +97,10 @@ class ProducerComponent extends BoardPieceComponent {
       return;
     }
     super.onDropped();
+  }
+
+  String _multiplierText() {
+    final m = game.board.theme.homeZoneBonus;
+    return m == m.roundToDouble() ? m.toStringAsFixed(0) : '$m';
   }
 }

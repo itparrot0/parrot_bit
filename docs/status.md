@@ -154,7 +154,7 @@ v0.1 원문으로 전면 교체**됐다. 이전 PRD에만 있던 결정들 — �
 
 | | |
 |---|---|
-| 코드 | `apps/deep_grove` — Flutter + Flame + Riverpod. 테스트 73개. `apps/proto_merge`는 이식 후 삭제 |
+| 코드 | `apps/deep_grove` — Flutter + Flame + Riverpod. 테스트 79개. `apps/proto_merge`는 이식 후 삭제 |
 | 문서 | `docs/prd/deep_grove.md` (PRD), `docs/screen-flow/deep_grove.md` (화면 흐름), `docs/design/deep_grove-themes.md` (규칙·컨텐츠·수치), `docs/prd/proto_merge.md` (승격 판정) |
 
 **끝난 것 (2026-11-05)**: 열린 결정 5개 확정 → 이름 Deep Grove → PRD·화면 흐름 → 앱 생성·이식.
@@ -184,7 +184,11 @@ in_app_purchase(Bloom Wave `StoreBilling`과 같은 구조), 웹은 "구매/취�
 알려진 한계: 결제가 "대기(pending)"로 끝나 나중에 승인되면 그 자리에서 지급되지 않는다 — 구매 복원으로 받는다
 (Bloom Wave 와 같음).
 
-**다음 할 일**: PRD "다음 단계" 6번(첫 실행 안내 → 지대 표시 → 그래픽), 실기기 광고·결제 확인, 그리고
+**지대 보너스 표시 (2026-11-05)**: 드래그 중 보너스 지대 칸 밝히기(산출원·최고 레벨 바로 아래 아이템),
+자기 지대 산출원에 "×1.5". 이때 산출원의 "+N" 쌓인 양 라벨이 스킨에 가려 안 보이던 버그도 고쳤다
+(라벨 priority).
+
+**다음 할 일**: PRD "다음 단계" 6번(첫 실행 안내 → 그래픽), 실기기 광고·결제 확인, 그리고
 직접 플레이해서 PRD §10 열린 질문(보드 막힘·탭 제한·경제 수치)에 답한다.
 
 ---
