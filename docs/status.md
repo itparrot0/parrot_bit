@@ -9,7 +9,7 @@
   방치형 수집(`proto_idle_visit`) — 첫 동작판, 플레이 판정 대기 /
   Garden Grow — 프로토타입 동작, 플레이 판정 대기
 - **보류**: 슬립로그
-- **기획 중**: Deep Grove (머지 게임 정식판) — PRD 초안
+- **기획 중**: Deep Grove (머지 게임 정식판) — PRD·화면 흐름 초안
 
 ---
 
@@ -150,22 +150,23 @@ v0.1 원문으로 전면 교체**됐다. 이전 PRD에만 있던 결정들 — �
 4. 디렉터리 리네임: IDE 닫고 `git mv apps/proto_full_bloom apps/proto_garden_grow`
    → pubspec 이름·import·Android namespace 수정.
 
-## 1. Deep Grove (머지 게임) — PRD 초안, 화면 흐름·스캐폴딩 전
+## 1. Deep Grove (머지 게임) — PRD·화면 흐름 초안, 스캐폴딩 전
 
 | | |
 |---|---|
 | 코드 | `apps/proto_merge` (프로토타입, 동작함). `apps/deep_grove`는 아직 없다 |
-| 문서 | `docs/prd/deep_grove.md` (PRD), `docs/design/deep_grove-themes.md` (게임 규칙·컨텐츠), `docs/prd/proto_merge.md` (승격 판정) |
+| 문서 | `docs/prd/deep_grove.md` (PRD), `docs/screen-flow/deep_grove.md` (화면 흐름), `docs/design/deep_grove-themes.md` (게임 규칙·컨텐츠), `docs/prd/proto_merge.md` (승격 판정) |
 
 **끝난 것**: 드래그드롭 머지 조작 검증 → **승격 판정**(2026-08-18). 그래픽 교체 지점
 `lib/game/skins/` 분리. 테마 설계 §1~§4·§7 확정, 열린 결정 6개 중 5개 확정(2026-11-05).
 **이름 Deep Grove / `deep_grove`**, 수익 모델 = 보상형 광고 + 비소모성 IAP(유료 재화·배너·전면 없음),
-PRD 초안 작성(2026-11-05).
+PRD·화면 흐름 초안 작성(2026-11-05).
 
 **다음 할 일**:
 
-1. 화면 흐름 문서 `docs/screen-flow/deep_grove.md`.
-2. `apps/deep_grove` 스캐폴딩 → `lib/domain/`·`lib/game/skins/` 이식(테마 문서 §8 변경 반영) →
+1. ~~화면 흐름 문서~~ ✔ `docs/screen-flow/deep_grove.md` (2026-11-05).
+2. `apps/deep_grove` 스캐폴딩 — **Flutter SDK가 있는 곳에서** (이 클라우드 환경에는 SDK가 없고,
+   SDK 내려받기가 권한 정책에 막혔다). 이어서 → `lib/domain/`·`lib/game/skins/` 이식(테마 문서 §8 변경 반영) →
    `apps/proto_merge` 삭제. PRD "다음 단계" 참고.
 3. PRD §10 열린 질문 — 보드 막힘 해소, 생성기 탭 제한, 경제 수치, IAP 상품.
 

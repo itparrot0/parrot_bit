@@ -153,7 +153,7 @@ v1 컨텐츠 = **첫 테마 하나**(동굴이 있는 숲: 나무·돌 체인 �
 
 1. ~~테마·체인·열린 결정~~ ✔ `docs/design/deep_grove-themes.md`
 2. ~~이름~~ ✔ Deep Grove / `deep_grove` (§9)
-3. 화면 흐름 문서 `docs/screen-flow/deep_grove.md` — 보드 화면, 창고·확장 UI, 복귀 보상 팝업, 상점.
+3. ~~화면 흐름 문서~~ ✔ `docs/screen-flow/deep_grove.md` — 화면 3개(보드·상점·설정) + 보드 위 시트 5개
 4. `apps/deep_grove` 스캐폴딩 (`flutter create --org com.itparrot`, 루트 `workspace:` 등록,
    `resolution: workspace`, 앱 로컬 `analysis_options.yaml` 없이 루트 것 사용).
 5. 이식: `apps/proto_merge/lib/domain/`(+ 테스트) · `lib/game/skins/` → 테마 문서 §8 변경 반영.
