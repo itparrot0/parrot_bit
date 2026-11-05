@@ -33,10 +33,13 @@ int _big(String name) {
 const _v3 = PartialOptions(visible: 3);
 
 /// 출시 팩 스테이지 수
-const totalStages = 2000;
+const totalStages = 3000;
 
 /// 1차 구간 (이 안은 2026-11-05 이전 팩과 똑같이 나온다)
 const firstPart = 1000;
+
+/// 2차 구간 (1001~2000, 고해상도 그림). 2001~3000 은 국기·장난감 그림 (2026-11-05)
+const secondPart = 2000;
 
 /// "?" 물방울 스테이지: [mysteryFrom] 부터 [mysteryEvery] 스테이지마다 (노말이면 가장 가까운 어려움 스테이지)
 const mysteryFrom = 100, mysteryEvery = 18;
@@ -158,7 +161,15 @@ PackConfig makeConfig() {
   final used = tutorial.map((t) => t.art).toSet();
   final names = [
     for (final a in _allArts)
-      if (!used.contains(a.name) && !a.name.startsWith('h_')) a.name,
+      if (!used.contains(a.name) &&
+          !a.name.startsWith('h_') &&
+          !a.name.startsWith('f_') &&
+          !a.name.startsWith('t_'))
+        a.name,
+  ];
+  final worldNames = [
+    for (final a in _allArts)
+      if (a.name.startsWith('f_') || a.name.startsWith('t_')) a.name,
   ];
   final hiresNames = [
     for (final a in _allArts)
@@ -195,12 +206,27 @@ PackConfig makeConfig() {
   while (start2 <= firstPart) {
     start2 += _gap(rng2);
   }
-  for (var p = start2; p <= totalStages; p += _gap(rng2)) {
+  var lastHard2 = 0;
+  for (var p = start2; p <= secondPart; p += _gap(rng2)) {
+    lastHard2 = p;
     tiers[p] = const [
       Difficulty.hard,
       Difficulty.superHard,
       Difficulty.megaHard,
     ][(rng2() * 3).floor()];
+  }
+  // 2001~3000: 또 따로 정한 시드
+  final rng3 = mulberry32(20261106);
+  var start3 = lastHard2 + _gap(rng3);
+  while (start3 <= secondPart) {
+    start3 += _gap(rng3);
+  }
+  for (var p = start3; p <= totalStages; p += _gap(rng3)) {
+    tiers[p] = const [
+      Difficulty.hard,
+      Difficulty.superHard,
+      Difficulty.megaHard,
+    ][(rng3() * 3).floor()];
   }
 
   // 그림 배정 규칙 (2026-11-04):
@@ -237,11 +263,20 @@ PackConfig makeConfig() {
 
   final mystery = {...every(mysteryFrom, mysteryEvery, 1, firstPart, const {})};
   mystery.addAll(
-    every(mysteryFrom, mysteryEvery, firstPart + 1, totalStages, mystery),
+    every(mysteryFrom, mysteryEvery, firstPart + 1, secondPart, mystery),
+  );
+  mystery.addAll(
+    every(mysteryFrom, mysteryEvery, secondPart + 1, totalStages, mystery),
   );
   final sets = {...every(setsFrom, setsEvery, 1, firstPart, mystery)};
   sets.addAll(
-    every(setsFrom, setsEvery, firstPart + 1, totalStages, {
+    every(setsFrom, setsEvery, firstPart + 1, secondPart, {
+      ...mystery,
+      ...sets,
+    }),
+  );
+  sets.addAll(
+    every(setsFrom, setsEvery, secondPart + 1, totalStages, {
       ...mystery,
       ...sets,
     }),
@@ -254,12 +289,26 @@ PackConfig makeConfig() {
   final hiresPool = [...hiresNames]
     ..sort((a, b) => _complexity(a).compareTo(_complexity(b)));
   final allPool = [...pool, ...hiresPool];
+  final worldPool = [...worldNames]
+    ..sort((a, b) => _complexity(a).compareTo(_complexity(b)));
+  final allPool3 = [...allPool, ...worldPool];
   for (var n = tutorial.length + 1; n <= totalStages; n++) {
-    final second = n > firstPart;
-    final r = second ? rng2 : rng;
-    final from = second ? allPool : pool;
+    final third = n > secondPart;
+    final second = n > firstPart && !third;
+    final r = third
+        ? rng3
+        : second
+        ? rng2
+        : rng;
+    final from = third
+        ? allPool3
+        : second
+        ? allPool
+        : pool;
     final tier = tiers[n] ?? Difficulty.normal;
-    final List<String> preferred = second
+    final List<String> preferred = third
+        ? worldPool
+        : second
         ? hiresPool
         : switch (tier) {
             Difficulty.normal when n <= 30 => pool.sublist(0, 60),

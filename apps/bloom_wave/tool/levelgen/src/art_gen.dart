@@ -17,7 +17,9 @@ String familyOf(String name) {
   final i = name.lastIndexOf('_');
   return (name.startsWith('g_') ||
               name.startsWith('c_') ||
-              name.startsWith('h_')) &&
+              name.startsWith('h_') ||
+              name.startsWith('f_') ||
+              name.startsWith('t_')) &&
           i > 1
       ? name.substring(0, i)
       : name;

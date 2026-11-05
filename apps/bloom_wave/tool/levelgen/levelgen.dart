@@ -1,5 +1,6 @@
 // Bloom Wave 레벨 생성기 CLI (apps/bloom_wave 에서 실행)
-//   dart run tool/levelgen/levelgen.dart build tool/levelgen/levels.config.json [--threads N] [--limit N]
+//   dart run tool/levelgen/levelgen.dart build tool/levelgen/levels.config.json [--threads N] [--limit N] [--reuse N]
+//     --reuse N: 이미 만든 out/pack-01.json 의 앞 N개를 그대로 쓰고 나머지만 만든다 (설정 앞부분이 같을 때만)
 //   dart run tool/levelgen/levelgen.dart verify tool/levelgen/out/pack-01.json
 //   dart run tool/levelgen/levelgen.dart art [artDir]          텍스트 아트(src/art_source.dart) → art/*.png, names.json
 //   dart run tool/levelgen/levelgen.dart config [configPath]   levels.config.json 다시 만들기
@@ -38,7 +39,12 @@ Future<void> main(List<String> argv) async {
 
   switch (cmd) {
     case 'build' when file != null:
-      await build(file, threads: flag('threads'), limit: flag('limit'));
+      await build(
+        file,
+        threads: flag('threads'),
+        limit: flag('limit'),
+        reuse: flag('reuse'),
+      );
       exit(0);
     case 'verify' when file != null:
       exit(verify(file) ? 0 : 1);

@@ -5,6 +5,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:bloom_wave/domain/engine.dart';
+import 'package:bloom_wave/domain/generator.dart';
 
 import 'config.dart';
 import 'generate_one.dart';
@@ -88,7 +89,56 @@ List<JobResult> arrange(PackConfig config, List<JobResult> results) {
 
 String _pad(Object v, int w) => '$v'.padLeft(w);
 
-Future<List<Level>> build(String configPath, {int? threads, int? limit}) async {
+/// 이미 만든 팩(out/<pack>.json + report.csv)의 앞 [count]개를 다시 만들지 않고 그대로 가져온다.
+/// 설정 앞부분이 그 팩을 만들 때와 같을 때만 쓴다 (생성은 결정적이라 다시 만들어도 바이트 단위로 같다).
+List<JobResult> _reuse(String out, String pack, int count) {
+  final levels = [
+    for (final j
+        in jsonDecode(File(_join(out, '$pack.json')).readAsStringSync())
+            as List)
+      Level.fromJson(j as Map<String, dynamic>),
+  ];
+  final rows = File(
+    _join(out, 'report.csv'),
+  ).readAsLinesSync().skip(1).toList();
+  if (levels.length < count || rows.length < count) {
+    throw StateError('reuse $count: 기존 팩에 ${levels.length}개뿐');
+  }
+  return [
+    for (var i = 0; i < count; i++)
+      () {
+        final l = levels[i], m = l.meta!;
+        final drops = [for (final lane in l.lanes) ...lane];
+        return JobResult(
+          index: i,
+          level: l,
+          report: GenReport(
+            level: l,
+            colors: l.palette.length,
+            cells: l.cells.where((c) => c != empty).length,
+            drops: drops.length,
+            displacementsApplied: 0,
+            peakSlots: m.peakSlots,
+            avgSlots: m.avgSlots.toDouble(),
+            randomWinRate: m.randomWinRate.toDouble(),
+            solverNodes: m.solverNodes,
+            score: m.score,
+            difficulty: m.difficulty,
+          ),
+          seed: int.parse(rows[i].split(',').last),
+          tried: const [],
+          warnings: const [],
+        );
+      }(),
+  ];
+}
+
+Future<List<Level>> build(
+  String configPath, {
+  int? threads,
+  int? limit,
+  int? reuse,
+}) async {
   final cfgFile = File(configPath).absolute.path;
   final base = File(cfgFile).parent.path;
   final config = PackConfig.fromJson(
@@ -99,8 +149,11 @@ Future<List<Level>> build(String configPath, {int? threads, int? limit}) async {
   final names =
       jsonDecode(File(_join(base, 'art', 'names.json')).readAsStringSync())
           as Map<String, dynamic>;
+  final reused = reuse == null || reuse == 0
+      ? const <JobResult>[]
+      : _reuse(_join(base, 'out'), config.pack, reuse);
   final jobs = [
-    for (var index = 0; index < config.levels.length; index++)
+    for (var index = reused.length; index < config.levels.length; index++)
       () {
         final spec = config.levels[index];
         final n = names[spec.art] as Map<String, dynamic>?;
@@ -129,7 +182,10 @@ Future<List<Level>> build(String configPath, {int? threads, int? limit}) async {
       '${r.report.difficulty.name} score=${r.report.score} (${ms}ms)',
     );
   });
-  final ordered = arrange(config, results);
+  if (reused.isNotEmpty) {
+    stdout.writeln('reused ${reused.length} levels from the previous pack');
+  }
+  final ordered = arrange(config, [...reused, ...results]);
   final levels = [for (final r in ordered) r.level];
 
   final out = _join(base, 'out');
