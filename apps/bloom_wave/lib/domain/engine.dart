@@ -11,6 +11,9 @@
 //  - 개화한 칸은 8방향(남동>남>남서>서>북서>북>북동>동)의 씨앗을 색과 상관없이 발아시킨다.
 //  - 물방울은 발아 칸에만 소모된다. 양이 남으면 슬롯에 남아 다음 틱에 다음 링을 다시 계산한다.
 //  - 슬롯의 어떤 물방울도 더 퍼질 수 없으면 "안정" 상태. 이때 슬롯이 모두 차 있으면 실패.
+//  - set (2026-11-05): 서로 다른 줄의 물방울 2~3개를 묶은 것. 묶인 물방울이 **모두 줄 맨 앞**에 와야 탭할 수 있고,
+//    탭하면 set 전체가 빈 슬롯으로 한꺼번에 들어간다(줄 번호 순). 빈 슬롯이 set 크기보다 적으면 넣을 수 없다.
+//    그래서 안정 상태의 실패 조건은 "넣을 수 있는 물방울이 하나도 없음"이다 (set 이 없으면 예전과 같다).
 
 import 'dart:typed_data';
 
@@ -20,21 +23,29 @@ const int sprout = 1; // 발아 (*)
 const int bloom = 2; // 개화 (@)
 
 class Drop {
-  Drop(this.color, this.amount, {this.hidden = false});
+  Drop(this.color, this.amount, {this.hidden = false, this.set});
   final int color;
   int amount;
 
   /// "?" 물방울 (2026-11-05): 대기열 맨 위(탭할 자리)에 오기 전까지 색·크기를 숨긴다. 표시 전용 — 규칙에는 영향 없음
   final bool hidden;
 
-  Drop copy() => Drop(color, amount, hidden: hidden);
+  /// set 번호 (2026-11-05, 레벨 안에서 같은 번호끼리 묶임). null 이면 혼자
+  final int? set;
 
-  factory Drop.fromJson(Map<String, dynamic> j) =>
-      Drop(j['color'] as int, j['amount'] as int, hidden: j['hidden'] == true);
+  Drop copy() => Drop(color, amount, hidden: hidden, set: set);
+
+  factory Drop.fromJson(Map<String, dynamic> j) => Drop(
+    j['color'] as int,
+    j['amount'] as int,
+    hidden: j['hidden'] == true,
+    set: j['set'] as int?,
+  );
   Map<String, dynamic> toJson() => {
     'color': color,
     'amount': amount,
     if (hidden) 'hidden': true,
+    'set': ?set,
   };
 
   @override
@@ -42,11 +53,13 @@ class Drop {
       other is Drop &&
       other.color == color &&
       other.amount == amount &&
-      other.hidden == hidden;
+      other.hidden == hidden &&
+      other.set == set;
   @override
-  int get hashCode => Object.hash(color, amount, hidden);
+  int get hashCode => Object.hash(color, amount, hidden, set);
   @override
-  String toString() => 'Drop($color:$amount${hidden ? '?' : ''})';
+  String toString() =>
+      'Drop($color:$amount${hidden ? '?' : ''}${set != null ? '#$set' : ''})';
 }
 
 enum Difficulty {
@@ -409,37 +422,82 @@ void _judge(State s) {
     s.status = Status.playing;
     return;
   }
-  final hasEmpty = s.slots.contains(null);
-  // 안정 상태에서 슬롯이 꽉 찼거나, 더 넣을 물방울이 없으면 실패
-  s.status = !hasEmpty || queueLength(s.lanes) == 0
-      ? Status.failed
-      : Status.playing;
+  // 안정 상태에서 넣을 수 있는 물방울이 없으면 실패 (슬롯이 꽉 참 / 대기열이 빔 / set 이 막힘)
+  s.status = _anyDeployable(s) ? Status.playing : Status.failed;
 }
 
+int freeSlots(State s) => s.slots.where((d) => d == null).length;
+
+/// lane 줄 맨 앞 물방울과 함께 들어갈 줄들 (줄 번호 순). 혼자면 [lane].
+/// set 인데 묶인 물방울이 아직 모두 맨 앞이 아니면 null. 줄이 비었어도 null
+List<int>? frontGroup(State s, int lane) {
+  if (lane < 0 || lane >= s.lanes.length || s.lanes[lane].isEmpty) return null;
+  final id = s.lanes[lane].first.set;
+  if (id == null) return [lane];
+  final out = <int>[];
+  for (var l = 0; l < s.lanes.length; l++) {
+    final q = s.lanes[l];
+    for (var k = 0; k < q.length; k++) {
+      if (q[k].set != id) continue;
+      if (k > 0) return null; // 아직 맨 앞이 아닌 짝이 있다
+      out.add(l);
+    }
+  }
+  return out;
+}
+
+/// lane 을 지금 넣을 수 있나 (set 이면 모두 맨 앞 + 빈 슬롯이 set 크기 이상). 웨이브 진행 여부는 보지 않는다
+bool canDeploy(State s, int lane) {
+  final g = frontGroup(s, lane);
+  return g != null && freeSlots(s) >= g.length;
+}
+
+bool _anyDeployable(State s) {
+  for (var l = 0; l < s.lanes.length; l++) {
+    if (canDeploy(s, l)) return true;
+  }
+  return false;
+}
+
+/// 행동 목록. set 은 맨 앞 줄 번호가 가장 작은 줄 하나로만 나온다 (같은 수를 두 번 세지 않게)
 List<Action> legalActions(State s, [Options opt = defaultOptions]) {
   if (s.status != Status.playing) return const [];
   final out = <Action>[];
   final active = isActive(s);
-  if (s.slots.contains(null) && (!active || opt.realtime)) {
+  if (!active || opt.realtime) {
     for (var i = 0; i < s.lanes.length; i++) {
-      if (s.lanes[i].isNotEmpty) out.add(Deploy(i));
+      final g = frontGroup(s, i);
+      if (g != null && g.first == i && freeSlots(s) >= g.length) {
+        out.add(Deploy(i));
+      }
     }
   }
   if (active) out.add(const Tick());
   return out;
 }
 
-/// lane 번째 줄의 맨 앞 물방울을 첫 빈 슬롯으로 옮긴다 (쓸 수 있는지와 무관). 들어간 슬롯 번호를 돌려준다
-int deploy(Level level, State s, [int lane = 0]) {
-  final slot = s.slots.indexOf(null);
-  if (slot < 0) throw StateError('no empty slot');
+/// lane 줄의 맨 앞 물방울(set 이면 묶인 물방울 모두)을 빈 슬롯으로 옮긴다 (쓸 수 있는지와 무관).
+/// 들어간 (슬롯, 줄) 목록을 줄 번호 순으로 돌려준다
+List<(int, int)> deployGroup(Level level, State s, [int lane = 0]) {
   if (lane < 0 || lane >= s.lanes.length || s.lanes[lane].isEmpty) {
     throw StateError('no drop in lane');
   }
-  s.slots[slot] = s.lanes[lane].removeAt(0);
+  final g = frontGroup(s, lane);
+  if (g == null) throw StateError('set is not ready');
+  if (freeSlots(s) < g.length) throw StateError('no empty slot');
+  final out = <(int, int)>[];
+  for (final l in g) {
+    final slot = s.slots.indexOf(null);
+    s.slots[slot] = s.lanes[l].removeAt(0);
+    out.add((slot, l));
+  }
   _judge(s);
-  return slot;
+  return out;
 }
+
+/// lane 줄의 맨 앞을 넣는다 ([deployGroup]). 첫 물방울이 들어간 슬롯 번호를 돌려준다
+int deploy(Level level, State s, [int lane = 0]) =>
+    deployGroup(level, s, lane).first.$1;
 
 /// 한 틱: 슬롯 순서대로 각 물방울이 한 링씩 퍼진다
 TickEvent tick(Level level, State s) {
@@ -540,6 +598,18 @@ void shuffleLanes(State s, int Function(int max) nextInt) {
     for (final l in s.lanes) [for (var n = 0; n < l.length; n++) all[k++]],
   ];
   _judge(s);
+}
+
+/// set 마다 묶인 물방울이 서로 다른 줄에 있나 (한 줄에 둘이면 영영 함께 맨 앞에 올 수 없다 — 섞기 후 확인용)
+bool setsSplit(State s) {
+  final seen = <int, Set<int>>{};
+  for (var l = 0; l < s.lanes.length; l++) {
+    for (final d in s.lanes[l]) {
+      if (d.set == null) continue;
+      if (!(seen[d.set!] ??= <int>{}).add(l)) return false;
+    }
+  }
+  return true;
 }
 
 /// 지금 퍼질 수 없는(같은 색 발아 칸이 없는) 물방울이 든 슬롯 번호들

@@ -1,5 +1,6 @@
 // levelgen verify <pack.json>
-// ①물방울 총량 = 칸 수 ②8방향 덩어리마다 시작 지점 ③솔버 클리어 가능 ④해법 재생 시 클리어. 하나라도 실패하면 종료 코드 1.
+// ①물방울 총량 = 칸 수 ②8방향 덩어리마다 시작 지점 ③솔버 클리어 가능 ④해법 재생 시 클리어
+// ⑤set 은 서로 다른 줄의 2~3개, "?" 와 겹치지 않음. 하나라도 실패하면 종료 코드 1.
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -31,6 +32,22 @@ List<String> checkLevel(
     errs.add('only ${level.lanes.length} queue lanes (min $minLanes)');
   }
   if (level.lanes.any((l) => l.isEmpty)) errs.add('empty queue lane');
+  final setLanes = <int, List<int>>{};
+  for (var l = 0; l < level.lanes.length; l++) {
+    for (final d in level.lanes[l]) {
+      if (d.set == null) continue;
+      (setLanes[d.set!] ??= []).add(l);
+      if (d.hidden) errs.add('set ${d.set} has a hidden drop');
+    }
+  }
+  setLanes.forEach((id, lanes) {
+    if (lanes.length < 2 || lanes.length > 3) {
+      errs.add('set $id has ${lanes.length} drops');
+    }
+    if (lanes.toSet().length != lanes.length) {
+      errs.add('set $id has two drops in one lane');
+    }
+  });
   // 칸 배열 길이가 틀리면 덩어리 검사는 건너뛴다 (범위 밖 접근 방지)
   if (level.cells.length == n) {
     final seen = Uint8List(n);

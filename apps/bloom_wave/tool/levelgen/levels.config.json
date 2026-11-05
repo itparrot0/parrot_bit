@@ -4027,7 +4027,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "sets": true
     },
     {
       "art": "g_mountain_dusk",
@@ -4375,7 +4376,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "g_friend_5",
@@ -4694,7 +4696,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "c_glass2_1",
@@ -4988,7 +4991,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "sets": true
     },
     {
       "art": "grapes",
@@ -5310,7 +5314,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "sets": true
     },
     {
       "art": "g_waterfall_day",
@@ -5686,7 +5691,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "sets": true
     },
     {
       "art": "frog",
@@ -5981,7 +5987,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "sets": true
     },
     {
       "art": "g_robot_8",
@@ -6305,7 +6312,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "sets": true
     },
     {
       "art": "watering_can",
@@ -6602,7 +6610,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "g_tile4_3",
@@ -6897,7 +6906,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "g_ufo_1",
@@ -7272,7 +7282,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "sets": true
     },
     {
       "art": "g_friend_6",
@@ -7593,7 +7604,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "sets": true
     },
     {
       "art": "g_pagoda",
@@ -7888,7 +7900,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "gift",
@@ -8237,7 +8250,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "c_kid_0",
@@ -8585,7 +8599,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "c_animal_koi",
@@ -8853,7 +8868,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "c_kid_5",
@@ -9201,7 +9217,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "sets": true
     },
     {
       "art": "c_kid_21",
@@ -9550,7 +9567,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "sets": true
     },
     {
       "art": "sunflower",
@@ -9818,7 +9836,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "sets": true
     },
     {
       "art": "g_alien_0",
@@ -10088,7 +10107,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "g_fruitbowl_1",
@@ -10517,7 +10537,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "g_igloo",
@@ -10785,7 +10806,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "c_snow_cabin_dusk",
@@ -11107,7 +11129,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "sandcastle",
@@ -11428,7 +11451,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "sets": true
     },
     {
       "art": "g_pal_tiger",
@@ -11722,7 +11746,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "c_kid_24",
@@ -12017,7 +12042,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "sets": true
     },
     {
       "art": "shell",
@@ -12371,7 +12397,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "sets": true
     },
     {
       "art": "c_kid_23",
@@ -12728,7 +12755,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "g_food_onigiri",
@@ -13086,7 +13114,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "g_desert_mist",
@@ -13421,7 +13450,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "sets": true
     },
     {
       "art": "c_kid_25",
@@ -13669,7 +13699,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "g_food_sushi",
@@ -14089,7 +14120,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "sets": true
     },
     {
       "art": "g_ghost_1",
@@ -14451,7 +14483,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "g_friend_10",
@@ -14729,7 +14762,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "sets": true
     },
     {
       "art": "g_lake_dusk",
@@ -15091,7 +15125,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "penguin",
@@ -15398,7 +15433,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "sets": true
     },
     {
       "art": "c_hill_castle_dusk",
@@ -15758,7 +15794,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "sets": true
     },
     {
       "art": "c_kid_12",
@@ -16064,7 +16101,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "sets": true
     },
     {
       "art": "g_friend_4",
@@ -16454,7 +16492,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "sets": true
     },
     {
       "art": "bouquet",
@@ -16760,7 +16799,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "sets": true
     },
     {
       "art": "garden_gate",
@@ -17093,7 +17133,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "c_kid_15",
@@ -17398,7 +17439,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "sandcastle",
@@ -17759,7 +17801,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "g_windmill_1",
@@ -18066,7 +18109,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "sets": true
     },
     {
       "art": "pudding",
@@ -18399,7 +18443,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "sets": true
     },
     {
       "art": "g_city_sunset",
@@ -18706,7 +18751,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "g_pirate_0",
@@ -19041,7 +19087,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "sets": true
     },
     {
       "art": "g_tile4_1",
@@ -19434,7 +19481,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "sets": true
     },
     {
       "art": "g_hills_dawn",
@@ -19712,7 +19760,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "sets": true
     },
     {
       "art": "c_ski_slope_dawn",
@@ -20047,7 +20096,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "sets": true
     },
     {
       "art": "fox",
@@ -20409,7 +20459,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "sets": true
     },
     {
       "art": "g_tent_1",
@@ -20715,7 +20766,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "g_inst_drum",
@@ -21049,7 +21101,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "sets": true
     },
     {
       "art": "cat",
@@ -21439,7 +21492,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "beach_ball",
@@ -21745,7 +21799,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "c_glass0_1",
@@ -22024,7 +22079,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "c_kid_13",
@@ -22442,7 +22498,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "sets": true
     },
     {
       "art": "rabbit",
@@ -22747,7 +22804,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "sets": true
     },
     {
       "art": "c_tulip_farm_night",
@@ -23108,7 +23166,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "sets": true
     },
     {
       "art": "frog",
@@ -23441,7 +23500,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "maple_leaf",
@@ -23691,7 +23751,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "sets": true
     },
     {
       "art": "jellyfish",
@@ -24053,7 +24114,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "sets": true
     },
     {
       "art": "g_island_dusk",
@@ -24444,7 +24506,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "sets": true
     },
     {
       "art": "ladybug",
@@ -24778,7 +24841,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "candy",
@@ -25086,7 +25150,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "sets": true
     },
     {
       "art": "g_friend_18",
@@ -25419,7 +25484,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "sets": true
     },
     {
       "art": "c_kid_10",
@@ -25753,7 +25819,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "g_tile0_0",
@@ -26116,7 +26183,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "megaHard"
+      "difficulty": "megaHard",
+      "sets": true
     },
     {
       "art": "frog",
@@ -26479,7 +26547,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "sets": true
     },
     {
       "art": "bee",
@@ -26702,7 +26771,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "sets": true
     },
     {
       "art": "g_lighthouse_day",
@@ -27093,7 +27163,8 @@
       "options": {
         "visible": 3
       },
-      "difficulty": "superHard"
+      "difficulty": "superHard",
+      "sets": true
     },
     {
       "art": "g_wizard_1",

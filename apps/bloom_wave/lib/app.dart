@@ -36,6 +36,11 @@ class AppServices extends ChangeNotifier {
            levels.indexWhere(
              (l) => l.lanes.any((lane) => lane.any((d) => d.hidden)),
            ) +
+           1,
+       firstSet =
+           levels.indexWhere(
+             (l) => l.lanes.any((lane) => lane.any((d) => d.set != null)),
+           ) +
            1 {
     // 골드 구매 지급 (결제가 나중에 끝나도 여기로 온다)
     billing.onConsumable = (productId, orderId) async {
@@ -70,6 +75,9 @@ class AppServices extends ChangeNotifier {
 
   /// "?" 물방울이 처음 나오는 스테이지 번호 (도움말용, 없으면 0)
   final int firstMystery;
+
+  /// set(묶인 물방울)이 처음 나오는 스테이지 번호 (도움말용, 없으면 0)
+  final int firstSet;
 
   Strings get strings => Strings(save.data.settings.lang);
   String t(String key, [Map<String, Object> vars = const {}]) =>

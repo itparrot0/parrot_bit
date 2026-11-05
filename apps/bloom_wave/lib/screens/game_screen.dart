@@ -155,6 +155,7 @@ class GameScreenState extends State<GameScreen>
     if (n == 1) _intro.add('tut:hold');
     if (n > 1 && n == app.firstSimilar) _intro.add('tut:similar');
     if (n == app.firstMystery) _intro.add('tut:mystery');
+    if (n == app.firstSet) _intro.add('tut:sets');
     // 아이템 해금 스테이지: 처음이면 3개 지급, 튜토리얼(1개 쓰기)을 아직 안 했으면 안내 → 꼭 한 번 쓰게 한다
     for (final def in itemDefs) {
       if (def.unlockStage != n) continue;
@@ -405,8 +406,15 @@ class GameScreenState extends State<GameScreen>
       if (r.fail == TapFail.full) {
         fx.shake();
         app.sfx.deny();
+        final need = e.frontGroup(controller.state, lane)?.length ?? 1;
+        if (need > 1) fx.flash(app.t('setNeedSlots', {'n': need}), C.warn);
       }
       if (r.fail == TapFail.wait) app.sfx.deny();
+      if (r.fail == TapFail.set) {
+        app.sfx.deny();
+        fx.bounceLane(lane);
+        fx.flash(app.t('setWaiting'), C.warn);
+      }
     }
   }
 
@@ -875,7 +883,18 @@ class GameScreenState extends State<GameScreen>
     }
     // 위쪽 그림: 기본은 물방울 하나, 색 안내(hold/similar)는 비슷한 두 색 물방울 견본
     final Widget icon;
-    if (key == 'mystery') {
+    if (key == 'sets') {
+      icon = Container(
+        key: const ValueKey('tutorial-sets-icon'),
+        width: 460,
+        height: 190,
+        decoration: BoxDecoration(
+          color: C.bgDeep,
+          borderRadius: BorderRadius.circular(40),
+        ),
+        child: CustomPaint(painter: _SetPainter()),
+      );
+    } else if (key == 'mystery') {
       icon = SizedBox(
         key: const ValueKey('tutorial-mystery-icon'),
         width: 160,
@@ -1401,6 +1420,30 @@ class _ItemButton extends StatelessWidget {
       ),
     );
   }
+}
+
+/// 안내창 그림: 띠로 이어진 set 물방울 두 개
+class _SetPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final y = size.height / 2;
+    final a = Offset(size.width * 0.3, y), b = Offset(size.width * 0.7, y);
+    final col = setColor(0);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromLTRB(a.dx, y - 22, b.dx, y + 22),
+        const Radius.circular(22),
+      ),
+      Paint()..color = col.withValues(alpha: 0.45),
+    );
+    for (final (p, c) in [(a, const Color(0xFFE5484D)), (b, C.water)]) {
+      drawDrop(canvas, p, 56, c);
+      drawSetMark(canvas, p, 56, col);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _SetPainter old) => false;
 }
 
 /// 안내창 그림: 회색 "?" 물방울

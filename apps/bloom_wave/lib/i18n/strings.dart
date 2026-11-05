@@ -1,6 +1,10 @@
 // 화면 문구 (한국어 / 영어). 키를 바꾸면 두 언어를 함께 바꾼다 — 테스트가 키 짝을 확인한다.
 
 const Map<String, String> ko = {
+  'tutorial_sets':
+      '테두리 색이 같은 물방울은 한 묶음(set)이에요.\n묶인 물방울이 모두 줄 맨 위에 와야 누를 수 있고,\n누르면 한꺼번에 슬롯으로 들어가요.\n빈 슬롯이 묶음 수만큼 있어야 해요.',
+  'setWaiting': '묶인 물방울이 모두 맨 위에 와야 해요',
+  'setNeedSlots': '빈 슬롯이 {n}칸 필요해요',
   'goldShop': '골드 구매',
   'goldShopSub': '구매한 골드는 바로 들어와요',
   'goldUnit': '골드',
@@ -132,6 +136,10 @@ const Map<String, String> ko = {
 };
 
 const Map<String, String> en = {
+  'tutorial_sets':
+      'Drops with the same colored ring are a set.\nYou can tap a set only when all of its drops\nare at the top of their lanes,\nand they all go into the slots together.\nYou need that many free slots.',
+  'setWaiting': 'All drops in the set must be at the top',
+  'setNeedSlots': 'You need {n} free slots',
   'goldShop': 'Buy Gold',
   'goldShopSub': 'Gold is added right away',
   'goldUnit': 'gold',

@@ -7,7 +7,9 @@ import '../economy/items.dart';
 // 틱 간격은 economy/items.dart: 기본 450ms(느림), x2 300ms. 규칙(클리어 가능 여부)은 틱 단위라 바뀌지 않는다.
 // 힌트 기능은 2026-11-04 삭제.
 
-enum TapFail { full, wait, over, empty }
+/// full: 빈 슬롯이 모자람 / wait: 웨이브가 끝나야 함(턴제) / over: 끝난 판 / empty: 빈 줄 /
+/// set: 묶인 물방울이 아직 모두 맨 앞이 아님 (2026-11-05)
+enum TapFail { full, wait, over, empty, set }
 
 class TapResult {
   const TapResult.ok(this.slot, this.drop, this.lane) : fail = null;
@@ -74,9 +76,15 @@ class GameController {
       ? state.lanes[lane].first
       : null;
 
-  /// lane 줄의 맨 앞을 지금 탭할 수 있나 (판단은 엔진의 legalActions 로만)
+  /// lane 줄의 맨 앞을 지금 탭할 수 있나 (판단은 엔진으로만: set 준비·빈 슬롯·턴제 대기)
   bool canTap(int lane) =>
-      legalActions(state, options).any((a) => a is Deploy && a.lane == lane);
+      state.status == Status.playing &&
+      (options.realtime || !isActive(state)) &&
+      canDeploy(state, lane);
+
+  /// lane 줄 맨 앞이 set 이라 아직 넣을 수 없나 (짝이 맨 앞에 오지 않음)
+  bool setWaiting(int lane) =>
+      front(lane) != null && frontGroup(state, lane) == null;
 
   /// lane 줄의 맨 앞 물방울과 같은 색 발아 칸이 있나
   bool usable(int lane) {
@@ -89,17 +97,25 @@ class GameController {
     if (s.status != Status.playing) return const TapResult.failed(TapFail.over);
     if (front(lane) == null) return const TapResult.failed(TapFail.empty);
     if (!canTap(lane)) {
+      if (setWaiting(lane)) return const TapResult.failed(TapFail.set);
+      final g = frontGroup(s, lane)!;
       return TapResult.failed(
-        s.slots.contains(null) ? TapFail.wait : TapFail.full,
+        freeSlots(s) >= g.length ? TapFail.wait : TapFail.full,
       );
     }
     final drop = s.lanes[lane].first.copy();
-    final slot = deploy(level, s, lane);
+    final group = [
+      for (final l in frontGroup(s, lane)!) (l, s.lanes[l].first.copy()),
+    ];
+    final placed = deployGroup(level, s, lane);
     if (occupied > peak) peak = occupied;
     _acc = 0; // 탭한 물방울은 다음 틱부터 함께 퍼진다
-    _on.onDeploy?.call(slot, drop, lane);
+    for (var k = 0; k < placed.length; k++) {
+      _on.onDeploy?.call(placed[k].$1, group[k].$2, placed[k].$2);
+    }
     _afterChange();
-    return TapResult.ok(slot, drop, lane);
+    final mine = placed.firstWhere((p) => p.$2 == lane);
+    return TapResult.ok(mine.$1, drop, lane);
   }
 
   /// 틱 하나 진행 (웨이브가 없으면 아무것도 안 함)
@@ -177,6 +193,7 @@ class GameController {
     for (var k = 0; k < tries; k++) {
       final c = state.clone();
       shuffleLanes(c, nextInt);
+      if (!setsSplit(c)) continue; // set 짝이 한 줄에 겹치면 영영 못 넣는다
       final r = solveFrom(level, c, options, maxNodes);
       if (r.solvable == true) {
         state.lanes = c.lanes;

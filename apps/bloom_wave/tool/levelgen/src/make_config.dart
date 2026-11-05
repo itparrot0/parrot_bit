@@ -36,6 +36,10 @@ const totalStages = 1000;
 /// "?" 물방울 스테이지: [mysteryFrom] 부터 [mysteryEvery] 스테이지마다 (노말이면 가장 가까운 어려움 스테이지)
 const mysteryFrom = 100, mysteryEvery = 18;
 
+/// set 스테이지 (2026-11-05): [setsFrom] 부터 [setsEvery] 스테이지마다 하나 (노말이면 가장 가까운 어려움 스테이지,
+/// "?" 스테이지와는 겹치지 않게)
+const setsFrom = 150, setsEvery = 12;
+
 /// 한 그림을 쓰는 최대 횟수 / 같은 그림 사이 최소 간격 / 같은 유형 사이 최소 간격
 const maxUses = 3, minGap = 100, familyGap = 8;
 
@@ -205,6 +209,25 @@ PackConfig makeConfig() {
     }
   }
 
+  final sets = <int>{};
+  for (var target = setsFrom; target <= totalStages; target += setsEvery) {
+    for (var d = 0; d <= setsEvery; d++) {
+      final cands = [target - d, if (d > 0) target + d];
+      final hit = cands.where(
+        (n) =>
+            n >= setsFrom &&
+            n <= totalStages &&
+            tiers.containsKey(n) &&
+            !mystery.contains(n) &&
+            !sets.contains(n),
+      );
+      if (hit.isNotEmpty) {
+        sets.add(hit.first);
+        break;
+      }
+    }
+  }
+
   final uses = <String, int>{}; // 그림별 사용 횟수 → variant 번호 (id: <그림>-<n>)
   final lastUse = <String, int>{};
   final lastFamily = <String, int>{};
@@ -269,6 +292,7 @@ PackConfig makeConfig() {
         options: _v3,
         difficulty: tier.name,
         mystery: mystery.contains(n),
+        sets: sets.contains(n),
       ),
     );
   }

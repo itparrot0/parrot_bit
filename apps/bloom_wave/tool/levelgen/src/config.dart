@@ -43,6 +43,7 @@ class LevelSpec {
     this.options,
     this.difficulty,
     this.mystery = false,
+    this.sets = false,
   });
 
   /// `art/<art>.png`
@@ -84,6 +85,9 @@ class LevelSpec {
   /// "?" 물방울 스테이지 (2026-11-05): 물방울의 3%(최소 1개)를 맨 위에 오기 전까지 숨긴다
   final bool mystery;
 
+  /// set 스테이지 (2026-11-05): 서로 다른 줄의 물방울 2~3개를 묶은 set 1~3개 (generate_one.dart linkSets)
+  final bool sets;
+
   factory LevelSpec.fromJson(Map<String, dynamic> j) {
     final wr = j['winRange'] as List;
     return LevelSpec(
@@ -106,6 +110,7 @@ class LevelSpec {
           : PartialOptions.fromJson(j['options'] as Map<String, dynamic>),
       difficulty: j['difficulty'] as String?,
       mystery: j['mystery'] == true,
+      sets: j['sets'] == true,
     );
   }
 
@@ -128,6 +133,7 @@ class LevelSpec {
     if (options != null) 'options': options!.toJson(),
     'difficulty': ?difficulty,
     if (mystery) 'mystery': true,
+    if (sets) 'sets': true,
   };
 }
 

@@ -23,6 +23,42 @@ bool showsAsMystery(e.Drop d, int k) => d.hidden && k > 0;
 
 const mysteryColor = Color(0xFF9CA3AF);
 
+/// set 테두리 색 (set 번호 순으로 돌려 쓴다)
+const setColors = [Color(0xFF8E4EC6), Color(0xFF12A594), Color(0xFFF76B15)];
+Color setColor(int id) => setColors[id % setColors.length];
+
+/// set 표시: 물방울 둘레 고리 + 오른쪽 위 고리 배지
+void drawSetMark(Canvas canvas, Offset at, double r, Color color) {
+  canvas.drawCircle(
+    at,
+    r * 1.12,
+    Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = math.max(4, r * 0.12),
+  );
+  final b = at + Offset(r * 0.82, -r * 0.82);
+  final br = math.max(12.0, r * 0.32);
+  canvas.drawCircle(b, br, Paint()..color = color);
+  final link = Paint()
+    ..color = Colors.white
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = math.max(2.5, br * 0.18);
+  for (final dx in [-0.22, 0.22]) {
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromCenter(
+          center: b + Offset(br * dx, 0),
+          width: br * 0.85,
+          height: br * 0.5,
+        ),
+        Radius.circular(br * 0.25),
+      ),
+      link,
+    );
+  }
+}
+
 class GamePainter extends CustomPainter {
   GamePainter(
     this.c,
@@ -322,6 +358,27 @@ class GamePainter extends CustomPainter {
 
   void _lanes(Canvas canvas) {
     final visible = math.max(1, c.options.visible);
+    // 준비된 set (묶인 물방울이 모두 맨 앞): 줄 맨 앞 사이를 띠로 잇는다
+    final st = c.state;
+    for (final li in L.laneIds) {
+      final q = li < st.lanes.length ? st.lanes[li] : const <e.Drop>[];
+      if (q.isEmpty || q.first.set == null) continue;
+      final g = e.frontGroup(st, li);
+      if (g == null || g.length < 2 || g.first != li) continue;
+      final x0 = fx.laneX(g.first), x1 = fx.laneX(g.last);
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(
+          Rect.fromLTRB(
+            x0,
+            L.laneTop - L.frontR * 0.35,
+            x1,
+            L.laneTop + L.frontR * 0.35,
+          ),
+          Radius.circular(L.frontR * 0.35),
+        ),
+        Paint()..color = setColor(q.first.set!).withValues(alpha: 0.45),
+      );
+    }
     for (final li in L.laneIds) {
       final x = fx.laneX(li);
       final h = L.laneBottom - L.laneTop + L.frontR + 30;
@@ -347,11 +404,16 @@ class GamePainter extends CustomPainter {
           at -= Offset(0, fx.laneBounce(li));
           if (fx.pressedLane == li) r *= 1.1;
         }
-        if (showsAsMystery(q[k], k)) {
+        final d = q[k];
+        if (showsAsMystery(d, k)) {
           _mysteryDrop(canvas, at, r);
         } else {
-          _drop(canvas, at, r, q[k], alpha: k == 0 ? 1 : 0.85);
+          // set 맨 앞인데 짝이 아직 맨 앞이 아니면 흐리게 (지금은 못 누름)
+          final waiting =
+              k == 0 && d.set != null && e.frontGroup(st, li) == null;
+          _drop(canvas, at, r, d, alpha: waiting ? 0.5 : (k == 0 ? 1 : 0.85));
         }
+        if (d.set != null) drawSetMark(canvas, at, r, setColor(d.set!));
       }
     }
   }
