@@ -105,15 +105,16 @@ JobResult runJob(Job job) {
   for (var round = 0; round < (want == null ? 1 : 4) && hit == null; round++) {
     if (round > 0 && best != null) {
       final tooEasy = best.r.randomWinRate > target;
+      // 물방울 크기를 비율로 조인다(풀어 준다): 큰 물방울(두 자리 수)에서도 한 번에 충분히 움직이게
       if (tooEasy) {
         starts = 1;
         lanes = math.min(4, lanes + 1);
-        dropMax = math.max(dropMin + 1, dropMax - 1);
-        dropMin = math.max(1, dropMin - 1);
+        dropMax = math.max(dropMin + 1, (dropMax * 0.7).floor());
+        dropMin = math.max(1, (dropMin * 0.7).floor());
         displacements = math.max(displacements, 600);
       } else {
-        dropMin += 1;
-        dropMax += 1;
+        dropMin = (dropMin * 1.3).ceil();
+        dropMax = (dropMax * 1.3).ceil();
         starts += 1;
         lanes = math.max(3, lanes - 1);
       }

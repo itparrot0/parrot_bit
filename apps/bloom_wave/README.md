@@ -47,7 +47,7 @@ flutter run -d chrome           # 브라우저 플레이 테스트 (광고는 �
 flutter build apk --release     # APK (android/key.properties 없으면 디버그 키로 서명)
 flutter build appbundle         # 스토어용 AAB (android/key.properties 필요)
 dart run tool/levelgen/levelgen.dart verify tool/levelgen/out/pack-01.json
-dart run tool/levelgen/levelgen.dart build tool/levelgen/levels.config.json   # 1000 스테이지 약 4분, assets 로 복사
+dart run tool/levelgen/levelgen.dart build tool/levelgen/levels.config.json   # 1000 스테이지 약 10분, assets 로 복사
 ```
 
 ## 출시 전 할 일

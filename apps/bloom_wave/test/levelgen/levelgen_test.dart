@@ -329,4 +329,41 @@ void main() {
       expect(has(p), isTrue, reason: p);
     }
   });
+
+  test(
+    '큰 판 + 두 자리 수 물방울 (2026-11-05): 한 변 32칸·전체 800칸 이하, 본편 물방울 평균 10 이상, 탭 수 상한',
+    () {
+      final pack = jsonDecode(packText) as List;
+      final taps = <int>[];
+      final amounts = <int>[];
+      for (var i = 0; i < pack.length; i++) {
+        final l = pack[i] as Map;
+        final w = l['width'] as int, h = l['height'] as int;
+        expect(w <= 32 && h <= 32, isTrue, reason: '${l['id']} ${w}x$h');
+        expect(
+          (l['cells'] as List).where((c) => c != -1).length,
+          lessThanOrEqualTo(800),
+          reason: '${l['id']}',
+        );
+        if (i < 5) continue; // 튜토리얼은 그대로
+        final drops = [
+          for (final lane in l['lanes'] as List)
+            for (final d in lane as List) (d as Map)['amount'] as int,
+        ];
+        taps.add(drops.length);
+        amounts.addAll(drops);
+      }
+      expect(
+        amounts.reduce((a, b) => a + b) / amounts.length,
+        greaterThanOrEqualTo(10),
+      );
+      expect(
+        amounts.where((a) => a >= 10).length / amounts.length,
+        greaterThan(0.5),
+      );
+      taps.sort();
+      expect(taps[taps.length ~/ 2], lessThanOrEqualTo(30)); // 탭 수 중앙값
+      expect(taps.last, lessThanOrEqualTo(100));
+    },
+  );
 }

@@ -21,6 +21,8 @@ double _complexity(String name) {
   return cells * (1 + 0.25 * a.palette.length);
 }
 
+int _cells(String name) => _src(name).rows.join().replaceAll('.', '').length;
+
 int _big(String name) {
   final a = _src(name);
   return [a.rows.length, ...a.rows.map((r) => r.length)].reduce(math.max);
@@ -37,7 +39,20 @@ const maxUses = 3, minGap = 100, familyGap = 8;
 /// 다음 어려움 스테이지까지 거리: 2~4
 int _gap(double Function() rng) => 2 + (rng() * 3).floor();
 
-/// 등급별 생성 조건. target·range 는 무작위 클리어율 목표 (등급 경계: 30% / 15% / 8%)
+/// 해상도 (2026-11-05): 그림을 정수 배율로 키워 칸 수를 늘린다. 한 변 [boardMaxSide] 칸, 전체 [boardMaxCells] 칸 안에서
+/// 가장 큰 배율(1~3). 칸이 많아지는 만큼 물방울을 크게(두 자리 수) 나눠 탭 수는 오히려 줄인다.
+const boardMaxSide = 32, boardMaxCells = 800;
+
+int _scaleFor(String art) {
+  final big = _big(art), cells = _cells(art);
+  for (var s = 3; s > 1; s--) {
+    if (big * s <= boardMaxSide && cells * s * s <= boardMaxCells) return s;
+  }
+  return 1;
+}
+
+/// 등급별 생성 조건 (2026-11-05: 큰 판 + 두 자리 수 물방울). target·range 는 무작위 클리어율 목표
+/// (등급 경계: 30% / 15% / 8%). 물방울 크기는 "칠할 칸 수"라서, 큰 물방울일수록 탭이 줄고 쉬워진다.
 ({
   int starts,
   int lanes,
@@ -49,37 +64,37 @@ int _gap(double Function() rng) => 2 + (rng() * 3).floor();
 })
 _preset(Difficulty tier, int n, double Function() rng) => switch (tier) {
   Difficulty.normal when n <= 30 => (
-    starts: 2,
+    starts: 3,
     lanes: 3,
-    dropMin: 3,
-    dropMax: 6,
+    dropMin: 10,
+    dropMax: 24,
     displacements: 200,
     target: 0.6,
     range: (0.4, 1),
   ),
   Difficulty.normal => (
-    starts: rng() < 0.5 ? 1 : 2,
+    starts: rng() < 0.5 ? 2 : 3,
     lanes: 3,
-    dropMin: 2,
-    dropMax: 5,
+    dropMin: 12,
+    dropMax: 30,
     displacements: 200,
     target: 0.5,
     range: (0.3, 1),
   ),
   Difficulty.hard => (
-    starts: 1,
+    starts: 2,
     lanes: 3,
-    dropMin: 1,
-    dropMax: 4,
+    dropMin: 8,
+    dropMax: 20,
     displacements: 600,
     target: 0.22,
     range: (0.15, 0.3),
   ),
   Difficulty.superHard => (
-    starts: 1,
+    starts: rng() < 0.5 ? 1 : 2,
     lanes: rng() < 0.5 ? 3 : 4,
-    dropMin: 1,
-    dropMax: 4,
+    dropMin: 6,
+    dropMax: 16,
     displacements: 600,
     target: 0.11,
     range: (0.08, 0.15),
@@ -87,8 +102,8 @@ _preset(Difficulty tier, int n, double Function() rng) => switch (tier) {
   Difficulty.megaHard => (
     starts: 1,
     lanes: 4,
-    dropMin: 1,
-    dropMax: 3,
+    dropMin: 5,
+    dropMax: 14,
     displacements: 600,
     target: 0.04,
     range: (0, 0.08),
@@ -207,11 +222,8 @@ PackConfig makeConfig() {
     lastUse[art] = n;
     lastFamily[familyOf(art)] = n;
     final variant = (uses[art] = (uses[art] ?? 0) + 1);
-    // Mega Hard 는 해상도 2배 그림을 반쯤 섞는다 (칸이 많아져 더 어렵다)
-    final scale =
-        tier == Difficulty.megaHard && _big(art) * 2 <= 24 && rng() < 0.5
-        ? 2
-        : null;
+    final sc = _scaleFor(art);
+    final scale = sc > 1 ? sc : null;
     final p = _preset(tier, n, rng);
     levels.add(
       LevelSpec(
@@ -223,7 +235,7 @@ PackConfig makeConfig() {
         starts: p.starts,
         lanes: p.lanes,
         dropMin: p.dropMin,
-        dropMax: scale != null ? p.dropMax + 1 : p.dropMax,
+        dropMax: p.dropMax,
         displacements: p.displacements,
         targetWinRate: p.target,
         winRange: p.range,
