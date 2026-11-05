@@ -39,6 +39,13 @@ String itemCount(WidgetTester tester, ItemKind k) =>
     (tester.widget<Text>(byKey('item-count-${k.name}'))).data!;
 
 void main() {
+  test('대기열에 남은 물방울 수(+N)를 보여 주지 않는다, 다 빈 줄만 —', () {
+    for (final n in [1, 3, 4, 10, 40]) {
+      expect(laneFooterText(n), isNull);
+    }
+    expect(laneFooterText(0), '—');
+  });
+
   test('색 미리보기는 그 색의 발아 칸만 (씨앗·개화·다른 색은 흐리게)', () {
     expect(previewLit(2, 2, sprout), isTrue);
     expect(previewLit(2, 2, seed), isFalse);

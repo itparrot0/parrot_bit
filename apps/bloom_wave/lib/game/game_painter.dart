@@ -16,6 +16,10 @@ import 'game_layout.dart';
 bool previewLit(int? preview, int colorIndex, int cellState) =>
     preview != null && preview == colorIndex && cellState == e.sprout;
 
+/// 대기열 줄 아래 글자. 남은 물방울 수(+N)는 보여 주지 않는다 (2026-11-05):
+/// 줄이 언제 끝날지, 다음 2개 뒤에 어떤 색이 남았는지 모르게. 다 빈 줄만 '—'
+String? laneFooterText(int remaining) => remaining == 0 ? '—' : null;
+
 class GamePainter extends CustomPainter {
   GamePainter(this.c, this.fx, this.L, {this.skinId = 'basic'})
     : super(repaint: fx);
@@ -278,10 +282,15 @@ class GamePainter extends CustomPainter {
         }
         _drop(canvas, at, r, q[k], alpha: k == 0 ? 1 : 0.85);
       }
-      final extra = q.length - visible;
-      final more = extra > 0 ? '+$extra' : (q.isNotEmpty ? '' : '—');
-      if (more.isNotEmpty) {
-        _centerText(canvas, more, Offset(x, L.laneBottom - 34), 38, C.inkSoft);
+      final footer = laneFooterText(q.length);
+      if (footer != null) {
+        _centerText(
+          canvas,
+          footer,
+          Offset(x, L.laneBottom - 34),
+          38,
+          C.inkSoft,
+        );
       }
     }
   }
