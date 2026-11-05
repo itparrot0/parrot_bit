@@ -27,7 +27,12 @@ const _sample = [0x46A758, 0xF5D90A, 0xE5484D, 0xF19CBB, 0xF76B15, 0x3E9BDB];
 void main() {
   test('칸 애니메이션 견본 PNG · 미리보기 GIF', () async {
     final dir = Directory('assets/anim')..createSync(recursive: true);
-    final sheets = ['seed', 'sprout', for (final s in skins) 'bloom_${s.id}'];
+    final sheets = [
+      'seed',
+      'sprout',
+      for (final s in skins) 'bloom_${s.id}',
+      for (final s in skins) 'full_${s.id}',
+    ];
     if (!onlyPreview) {
       for (final sh in sheets) {
         final n = defaultFrames(sh);
@@ -44,6 +49,7 @@ void main() {
           'seed': {'frameMs': 0},
           'sprout': {'frameMs': defaultFrameMs},
           'bloom': {'frameMs': defaultFrameMs},
+          'full': {'frameMs': 40},
         })}\n',
       );
     }

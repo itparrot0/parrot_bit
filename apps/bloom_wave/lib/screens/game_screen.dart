@@ -196,15 +196,13 @@ class GameScreenState extends State<GameScreen>
       return nl;
     }
     if (old == null) {
-      fx = GameFx(level, nl)..fast = app.save.data.settings.fastFx;
+      fx = GameFx(level, nl);
       fx.syncBoard(controller.state);
     } else {
       // 화면 크기가 바뀌면 연출 상태는 버리고 다시 그린다
       final now = fx.now;
       fx.dispose();
-      fx = GameFx(level, nl)
-        ..fast = app.save.data.settings.fastFx
-        ..now = now;
+      fx = GameFx(level, nl)..now = now;
       fx.syncBoard(controller.state);
     }
     return nl;
@@ -542,12 +540,12 @@ class GameScreenState extends State<GameScreen>
       width: from.width * k,
       height: from.height * k,
     );
-    final sheet = CellSprites.instance.bloomOf(app.save.data.skin.id);
-    fx.startFinale(target, bloomMs: sheet?.durationMs ?? 330);
+    final sheet = CellSprites.instance.fullOf(app.save.data.skin.id);
+    fx.startFinale(target, bloomMs: sheet?.durationMs ?? 400);
     setState(() => finale = true);
     final titleAt = fx.finaleSweepAt + fx.finaleSweepMs + fx.finaleBloomMs;
     fx.after(titleAt, _showFinaleTitle);
-    fx.after(titleAt + (fx.fast ? 700 : 1600), _showClearPanel);
+    fx.after(titleAt + 1600, _showClearPanel);
   }
 
   void _showFinaleTitle() {
@@ -842,10 +840,7 @@ class GameScreenState extends State<GameScreen>
     _Panel.settings => [
       Positioned.fill(
         child: SettingsPanel(
-          onClose: () {
-            fx.fast = app.save.data.settings.fastFx;
-            setState(() => _panel = _Panel.pause);
-          },
+          onClose: () => setState(() => _panel = _Panel.pause),
         ),
       ),
     ],

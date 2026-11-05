@@ -96,10 +96,9 @@ class GameFx extends ChangeNotifier {
   Color msgColor = const Color(0xFF7A736A);
   double msgStart = -1e9;
 
-  bool fast = false;
-
   // ───── 완성 마무리 연출 (2026-11-05) ─────
-  // 보드를 화면 가로에 맞춰 키운 뒤(zoom), 위에서 아래로 한 줄씩 다시 개화 → 만개(톡 커졌다 돌아옴)
+  // 보드를 화면 가로에 맞춰 키운 뒤(zoom), 위에서 아래로 한 줄씩 "개화 → 만개" 애니메이션(full_<스킨> 시트)을 재생한다.
+  // 재생 전 칸은 개화 그대로, 끝난 칸은 만개 모습(마지막 프레임)으로 남는다
   /// 연출 시작 시각 (없으면 null)
   double? finaleStart;
 
@@ -107,8 +106,15 @@ class GameFx extends ChangeNotifier {
   Rect? finaleTarget;
   double finaleZoomMs = 500, finaleSweepAt = 650, finaleSweepMs = 1400;
 
-  /// 칸 하나의 개화 애니메이션 길이 (만개 톡은 그 뒤에)
-  double finaleBloomMs = 330;
+  /// 칸 하나의 만개 애니메이션 길이
+  double finaleBloomMs = 400;
+
+  /// 칸별 만개 애니메이션 시작 시각 (마무리 연출 전에는 아주 작은 값)
+  late final Float64List fullStart = Float64List(level.cells.length)
+    ..fillRange(0, level.cells.length, -1e9);
+
+  /// 칸의 만개가 시작됐나
+  bool fullStarted(int i) => finaleStart != null && now >= fullStart[i];
 
   /// 보드 확대 진행도 0~1 (부드럽게)
   double get finaleZoom {
@@ -122,19 +128,13 @@ class GameFx extends ChangeNotifier {
   double get _rowDelay => finaleSweepMs / math.max(1, level.height);
 
   /// 마지막 줄까지 만개가 끝나는 시각 (연출 시작 기준 ms)
-  double get finaleSweepEnd =>
-      finaleSweepAt + finaleSweepMs + finaleBloomMs + 520;
+  double get finaleSweepEnd => finaleSweepAt + finaleSweepMs + finaleBloomMs;
 
-  /// 마무리 연출 시작: 모든 칸이 위에서 아래로(같은 줄은 왼쪽부터 조금씩) 다시 개화한다
+  /// 마무리 연출 시작: 모든 칸이 위에서 아래로(같은 줄은 왼쪽부터 조금씩) 만개한다
   void startFinale(Rect target, {double? bloomMs}) {
     finaleStart = now;
     finaleTarget = target;
     if (bloomMs != null) finaleBloomMs = bloomMs;
-    if (fast) {
-      finaleZoomMs = 300;
-      finaleSweepAt = 350;
-      finaleSweepMs = 450;
-    }
     streams.clear();
     // 아직 처리 안 된 개화·발아(마지막 틱의 시차)는 지금 끝낸다 — 나중에 시각을 덮어쓰지 않게
     for (final p in _pending) {
@@ -145,7 +145,7 @@ class GameFx extends ChangeNotifier {
       if (level.cells[i] == empty) continue;
       vis[i] = bloom;
       final x = i % level.width, y = i ~/ level.width;
-      animStart[i] = now + finaleSweepAt + y * _rowDelay + x * 4;
+      fullStart[i] = now + finaleSweepAt + y * _rowDelay + x * 4;
     }
   }
 
@@ -213,9 +213,7 @@ class GameFx extends ChangeNotifier {
   void onTick(TickEvent ev, int tickMs) {
     final budget = tickMs * 0.8;
     for (final b in ev.blooms) {
-      final stagger = fast
-          ? 0.0
-          : math.min(40.0, budget / math.max(1, b.cells.length));
+      final stagger = math.min(40.0, budget / math.max(1, b.cells.length));
       final from = layout.slots[b.slot];
       final color = Color(
         0xFF000000 | int.parse(level.palette[b.color].substring(1), radix: 16),
@@ -225,18 +223,14 @@ class GameFx extends ChangeNotifier {
         _pending.add(
           _Pending(now + k * stagger + 70, () => _setCell(i, bloom)),
         );
-        if (!fast) {
-          streams.add(
-            WaterStream(now + k * stagger, from, layout.cellCenter(i), color),
-          );
-        }
+        streams.add(
+          WaterStream(now + k * stagger, from, layout.cellCenter(i), color),
+        );
       }
       slotPulse[b.slot] = now;
     }
     // 전염: 개화와 같은 프레임 (조금 늦게 돋아 보이도록)
-    final sStagger = fast
-        ? 0.0
-        : math.min(24.0, budget / math.max(1, ev.sprouted.length));
+    final sStagger = math.min(24.0, budget / math.max(1, ev.sprouted.length));
     for (var k = 0; k < ev.sprouted.length; k++) {
       final i = ev.sprouted[k];
       _pending.add(
@@ -274,7 +268,6 @@ class GameFx extends ChangeNotifier {
 
   void celebrate(math.Random rng) {
     celebrateStart = now;
-    if (fast) return;
     final colors = [
       for (final h in level.palette)
         Color(0xFF000000 | int.parse(h.substring(1), radix: 16)),
@@ -306,7 +299,7 @@ class GameFx extends ChangeNotifier {
 
   // ---------- 그리기용 계산 ----------
 
-  /// 칸의 크기 배율 (개화 0.6→1.15→1, 클리어 반짝) — 스프라이트가 없을 때의 코드 그리기용
+  /// 칸의 크기 배율 (개화 0.6→1.15→1, 클리어 반짝, 만개) — 스프라이트가 없을 때의 코드 그리기용
   double cellScale(int i) {
     var s = 1.0;
     if (vis[i] == bloom) {
@@ -315,16 +308,18 @@ class GameFx extends ChangeNotifier {
         s = t < 0.5 ? 0.6 + 0.55 * (t / 0.5) : 1.15 - 0.15 * ((t - 0.5) / 0.5);
       }
     }
+    // 시트가 없을 때(코드 그리기): 만개하면 꽃이 조금 더 커진 채로 남는다
+    if (fullStarted(i)) {
+      final t = ((now - fullStart[i]) / finaleBloomMs).clamp(0.0, 1.0);
+      s *= 1 + 0.12 * t;
+    }
     return s * celebrateScale(i);
   }
 
   /// 완성 반짝임 배율 (대각선 순서로 1→1.18→1). 스프라이트로 그릴 때는 이것만 쓴다.
   /// 마무리 연출 중에는 그 칸의 다시 개화가 끝난 뒤 한 번 톡 (만개)
   double celebrateScale(int i) {
-    if (finaleStart != null) {
-      final c = (now - animStart[i] - finaleBloomMs) / 520;
-      return c >= 0 && c < 1 ? 1 + 0.2 * math.sin(c * math.pi) : 1;
-    }
+    if (finaleStart != null) return 1; // 만개는 시트 애니메이션이 맡는다
     final x = i % level.width, y = i ~/ level.width;
     final c = (now - celebrateStart - (x + y) * 35) / 520;
     return c >= 0 && c < 1 ? 1 + 0.18 * math.sin(c * math.pi) : 1;

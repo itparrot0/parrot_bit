@@ -7,5 +7,8 @@
   },
   "bloom": {
     "frameMs": 32.0
+  },
+  "full": {
+    "frameMs": 40
   }
 }

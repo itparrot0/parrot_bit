@@ -16,7 +16,11 @@ const double cellPx = 128;
 const int sproutFrames = 8;
 const int bloomFrames = 8;
 
-int defaultFrames(String sheet) => sheet == 'seed'
+const int fullFrames = 10;
+
+int defaultFrames(String sheet) => sheet.startsWith('full_')
+    ? fullFrames
+    : sheet == 'seed'
     ? 1
     : sheet == 'sprout'
     ? sproutFrames
@@ -76,6 +80,50 @@ void paintCellFrame(
         _white(0.75 * math.min(1, t * 3)),
         sy: sy,
       );
+    }
+    return;
+  }
+  if (sheet.startsWith('full_')) {
+    // full_<스킨> (완성 마무리 연출): 핀 꽃에서 만개로 — 꽃이 1.18배로 커지며 밝아지고,
+    // 둘레에 작은 꽃잎 고리가 돋고, 마지막에 반짝임 네 점이 남는다. 바탕은 그대로(1.0)
+    final skin = sheet.substring(5);
+    if (!light) {
+      drawTile(canvas, _mid, cellPx, _grey(1));
+      return;
+    }
+    final grow = _outBack(t);
+    canvas.save();
+    canvas.translate(64, 64);
+    canvas.scale(1 + 0.18 * grow);
+    drawSkinGlyph(
+      canvas,
+      Offset.zero,
+      cellPx * 0.85,
+      _white(0.5 + 0.2 * t),
+      skin,
+    );
+    canvas.restore();
+    if (t > 0.3) {
+      final u = ((t - 0.3) / 0.7).clamp(0.0, 1.0);
+      for (var k = 0; k < 8; k++) {
+        final a = k * math.pi / 4 + math.pi / 8;
+        canvas.drawCircle(
+          _mid + Offset(math.cos(a), math.sin(a)) * (44 + 6 * (1 - u)),
+          7 * u,
+          Paint()..color = _white(0.65),
+        );
+      }
+    }
+    if (t > 0.6) {
+      final u = (t - 0.6) / 0.4;
+      for (final o in const [
+        Offset(-40, -40),
+        Offset(40, -40),
+        Offset(40, 40),
+        Offset(-40, 40),
+      ]) {
+        canvas.drawCircle(_mid + o, 3 + 3 * u, Paint()..color = _white(0.9));
+      }
     }
     return;
   }

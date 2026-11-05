@@ -210,7 +210,11 @@ class GamePainter extends CustomPainter {
     final cs = L.cellSize;
     final preview = fx.previewColor;
     final sheets = [sprites.seed!, sprites.sprout!, sprites.bloomOf(skinId)!];
-    final batches = [for (final sh in sheets) _Atlas(sh)];
+    final full = sprites.fullOf(skinId)!;
+    // 0 씨앗 · 1 발아 · 2 개화 · 3 만개(완성 마무리 연출)
+    final batches = [
+      for (final sh in [...sheets, full]) _Atlas(sh),
+    ];
     final lit = <int>[];
     for (var i = 0; i < c.level.cells.length; i++) {
       final ci = c.level.cells[i];
@@ -220,9 +224,14 @@ class GamePainter extends CustomPainter {
       final isLit = previewLit(preview, ci, st);
       if (isLit) lit.add(i);
       final alpha = preview != null && !isLit ? 0.22 : 1.0;
-      final sh = sheets[st];
-      final frame = st == e.seed ? 0 : sh.frameAt(fx.now - fx.animStart[i]);
-      batches[st].add(
+      final isFull = st == e.bloom && fx.fullStarted(i);
+      final sh = isFull ? full : sheets[st];
+      final frame = isFull
+          ? sh.frameAt(fx.now - fx.fullStart[i])
+          : st == e.seed
+          ? 0
+          : sh.frameAt(fx.now - fx.animStart[i]);
+      batches[isFull ? 3 : st].add(
         L.cellCenter(i),
         cs * fx.celebrateScale(i) / sh.size,
         frame,

@@ -1,7 +1,8 @@
 // 칸 애니메이션 스프라이트 (씨앗 · 발아 · 스킨별 개화).
 //
 // 파일 규격 (assets/anim/, 자세한 설명은 docs/anim/README.md):
-//   seed.png, sprout.png, bloom_<스킨 id>.png — tint 레이어 (회색조, 게임이 칸 색을 곱한다)
+//   seed.png, sprout.png, bloom_<스킨 id>.png, full_<스킨 id>.png — tint 레이어 (회색조, 게임이 칸 색을 곱한다)
+//   (full_ = 완성 마무리 연출의 "개화 → 만개", 2026-11-05)
 //   같은 이름 + _light.png                      — light 레이어 (선택, 색 없이 그대로 위에 얹는다)
 //   한 프레임 = 정사각형 한 칸, 가로로 이어 붙인다 → 프레임 수 = 가로 / 세로
 //   anim.json — 시트별 프레임 길이 {"sprout": {"frameMs": 32}, ...} (없으면 32ms)
@@ -49,8 +50,12 @@ double frameMsFor(Map<String, dynamic> manifest, String sheet) {
     return v is Map ? v['frameMs'] as num? : null;
   }
 
-  return (read(sheet) ?? (sheet.startsWith('bloom_') ? read('bloom') : null))
-          ?.toDouble() ??
+  final group = sheet.startsWith('bloom_')
+      ? 'bloom'
+      : sheet.startsWith('full_')
+      ? 'full'
+      : null;
+  return (read(sheet) ?? (group != null ? read(group) : null))?.toDouble() ??
       defaultFrameMs;
 }
 
@@ -74,13 +79,23 @@ class CellSprites {
   SpriteSheet? get sprout => _sheets['sprout'];
   SpriteSheet? bloomOf(String skinId) => _sheets['bloom_$skinId'];
 
+  /// 완성 마무리 연출의 "개화 → 만개" 시트
+  SpriteSheet? fullOf(String skinId) => _sheets['full_$skinId'];
+
   /// 이 스킨으로 칸을 그릴 시트가 다 있나
   bool ready(String skinId) =>
-      seed != null && sprout != null && bloomOf(skinId) != null;
+      seed != null &&
+      sprout != null &&
+      bloomOf(skinId) != null &&
+      fullOf(skinId) != null;
 
   /// 씨앗·발아·이 스킨의 개화 시트를 (아직이면) 불러온다
-  Future<void> ensure(String skinId) =>
-      Future.wait([_get('seed'), _get('sprout'), _get('bloom_$skinId')]);
+  Future<void> ensure(String skinId) => Future.wait([
+    _get('seed'),
+    _get('sprout'),
+    _get('bloom_$skinId'),
+    _get('full_$skinId'),
+  ]);
 
   Future<void> _get(String sheet) =>
       _loading.putIfAbsent(sheet, () => _load(sheet));

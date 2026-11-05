@@ -107,14 +107,6 @@ class _SettingsPanelState extends State<SettingsPanel> {
                   ),
                 ),
                 row(
-                  'fastFx',
-                  ToggleSwitch(
-                    key: const ValueKey('toggle-fastfx'),
-                    value: s.fastFx,
-                    onChanged: (v) => app.updateSettings(s.copyWith(fastFx: v)),
-                  ),
-                ),
-                row(
                   'language',
                   Segmented(
                     w: 190,
