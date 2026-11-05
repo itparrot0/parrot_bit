@@ -142,6 +142,34 @@ void main() {
     expect(find.text('기간 돌아보기'), findsOneWidget);
   });
 
+  testWidgets('생활 태그·잠든 시각·개운함은 따로 묶어 보여 준다', (tester) async {
+    tester.view.physicalSize = const Size(800, 4000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await pumpScreen(
+      tester,
+      Stream.value([
+        for (var i = 0; i < 14; i++)
+          DiaryEntry(
+            date: today.addDays(-i),
+            sleep: SleepSession(
+              bedTime: ClockTime(i.isEven ? 23 : 0, 0),
+              wakeTime: ClockTime(7, 0),
+            ),
+            tags: {i < 5 ? DefaultMoodTags.caffeine : DefaultMoodTags.calm},
+            rested: i < 5 ? RestFeeling.unrested : RestFeeling.rested,
+          ),
+      ]),
+    );
+
+    expect(find.text('어제 한 일과 그날 밤의 수면'), findsOneWidget);
+    expect(find.text('커피·카페인'), findsOneWidget);
+    expect(find.text('잠든 시각'), findsOneWidget);
+    expect(find.byKey(const Key('report.bedtime')), findsOneWidget);
+    expect(find.text('개운함별 수면시간'), findsOneWidget);
+    expect(find.text(RestFeeling.unrested.label), findsOneWidget);
+  });
+
   testWidgets('기록을 읽는 동안에는 로딩 표시', (tester) async {
     await tester.pumpWidget(
       ProviderScope(

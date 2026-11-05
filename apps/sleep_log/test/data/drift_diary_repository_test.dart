@@ -42,6 +42,18 @@ void main() {
       expect(loaded.tags, {DefaultMoodTags.calm, DefaultMoodTags.tired});
     });
 
+    test('개운함을 저장하고 읽는다', () async {
+      await repository.save(
+        DiaryEntry(date: day, sleep: overnight, rested: RestFeeling.unrested),
+      );
+
+      expect((await repository.find(day))!.rested, RestFeeling.unrested);
+      expect(
+        (await repository.watchAll().first).single.rested,
+        RestFeeling.unrested,
+      );
+    });
+
     test('기록이 없는 날은 null', () async {
       expect(await repository.find(day), isNull);
     });

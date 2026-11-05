@@ -17,6 +17,10 @@ void main() {
   /// 홈에서 기록 화면을 push한 상태로 띄운다 — 저장·삭제·뒤로가기가 화면을
   /// 닫는지 보려면 돌아갈 화면이 있어야 한다.
   Future<void> openEntry(WidgetTester tester, DiaryDate date) async {
+    // 폼이 길어 기본 800x600에서는 아래쪽 칩이 화면 밖이다.
+    tester.view.physicalSize = const Size(800, 2000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -173,5 +177,33 @@ void main() {
 
     expect(find.text('미래 날짜는 기록할 수 없어요.'), findsOneWidget);
     expect(find.text('저장'), findsNothing);
+  });
+
+  testWidgets('개운함과 생활 태그를 남기면 저장된다', (tester) async {
+    await openEntry(tester, today);
+
+    expect(find.text('어제 하루'), findsOneWidget);
+    await tester.tap(find.text(RestFeeling.unrested.label));
+    await tester.tap(find.text(DefaultMoodTags.caffeine.label));
+    await tester.tap(find.text(DefaultMoodTags.screenAtBed.label));
+    await tester.pump();
+    await tester.tap(find.text('저장'));
+    await tester.pumpAndSettle();
+
+    final entry = await stored(today);
+    expect(entry!.rested, RestFeeling.unrested);
+    expect(entry.tags, {DefaultMoodTags.caffeine, DefaultMoodTags.screenAtBed});
+  });
+
+  testWidgets('개운함만 골라도 저장할 수 있고, 바꾸면 버릴지 묻는다', (tester) async {
+    await openEntry(tester, today);
+
+    await tester.tap(find.text(RestFeeling.rested.label));
+    await tester.pump();
+    expect(saveButton(tester).onPressed, isNotNull);
+
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    expect(find.text('저장하지 않은 내용을 버릴까요?'), findsOneWidget);
   });
 }
