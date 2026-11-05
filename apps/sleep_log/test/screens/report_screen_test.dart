@@ -25,11 +25,15 @@ void main() {
 
   Future<void> pumpScreen(
     WidgetTester tester,
-    Stream<List<DiaryEntry>> entries,
-  ) async {
+    Stream<List<DiaryEntry>> entries, {
+    List<ThoughtCheckIn> checkIns = const [],
+  }) async {
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [diaryEntriesProvider.overrideWith((ref) => entries)],
+        overrides: [
+          diaryEntriesProvider.overrideWith((ref) => entries),
+          checkInsProvider.overrideWith((ref) => Stream.value(checkIns)),
+        ],
         child: const MaterialApp(home: ReportScreen()),
       ),
     );
@@ -88,11 +92,62 @@ void main() {
     expect(find.text('10일'), findsOneWidget);
   });
 
+  testWidgets('생각 돌아보기가 7일 쌓이면 머릿속 속도별 수면을 보여준다', (tester) async {
+    final entries = [
+      for (var i = 0; i < 14; i++) entry(i, hours: i < 4 ? 5 : 7.5),
+    ];
+    await pumpScreen(
+      tester,
+      Stream.value(entries),
+      checkIns: [
+        for (var i = 0; i < 4; i++)
+          ThoughtCheckIn(
+            date: today.addDays(-i),
+            slot: CheckInSlot.morning,
+            pace: MindPace.busy,
+          ),
+        for (var i = 4; i < 8; i++)
+          ThoughtCheckIn(
+            date: today.addDays(-i),
+            slot: CheckInSlot.morning,
+            pace: MindPace.usual,
+          ),
+      ],
+    );
+
+    await tester.scrollUntilVisible(find.text(MindPace.busy.label), 100);
+    expect(find.text('머릿속 속도별 그날의 수면시간'), findsOneWidget);
+    expect(find.text(MindPace.usual.label), findsOneWidget);
+  });
+
+  testWidgets('생각 돌아보기가 적으면 속도별 수면은 보이지 않는다', (tester) async {
+    await pumpScreen(
+      tester,
+      Stream.value([for (var i = 0; i < 14; i++) entry(i, hours: 7)]),
+      checkIns: [
+        ThoughtCheckIn(
+          date: today,
+          slot: CheckInSlot.morning,
+          pace: MindPace.busy,
+        ),
+      ],
+    );
+
+    expect(find.text('머릿속 속도별 그날의 수면시간'), findsNothing);
+  });
+
+  testWidgets('앱바에 기간 돌아보기 버튼이 있다', (tester) async {
+    await pumpScreen(tester, Stream.value(const []));
+
+    expect(find.text('기간 돌아보기'), findsOneWidget);
+  });
+
   testWidgets('기록을 읽는 동안에는 로딩 표시', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
           diaryEntriesProvider.overrideWith((ref) => const Stream.empty()),
+          checkInsProvider.overrideWith((ref) => Stream.value(const [])),
         ],
         child: const MaterialApp(home: ReportScreen()),
       ),

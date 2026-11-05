@@ -91,6 +91,9 @@ void main() {
     Future<void> pumpScreen(
       WidgetTester tester, {
       required Stream<List<DiaryEntry>> entries,
+      SafetyAdvice banner = SafetyAdvice.none,
+      bool checkInEnabled = false,
+      List<ThoughtCheckIn> checkIns = const [],
     }) async {
       await tester.pumpWidget(
         ProviderScope(
@@ -98,6 +101,14 @@ void main() {
             todayProvider.overrideWithValue(today),
             diaryEntriesProvider.overrideWith((ref) => entries),
             sleepTargetProvider.overrideWithValue(target),
+            safetyBannerProvider.overrideWith(() => _FixedBanner(banner)),
+            checkInSettingsProvider.overrideWith(
+              () => _FixedCheckInSettings(
+                CheckInSettings(enabled: checkInEnabled),
+              ),
+            ),
+            checkInsProvider.overrideWith((ref) => Stream.value(checkIns)),
+            clockProvider.overrideWithValue(() => DateTime(2026, 11, 5, 9)),
           ],
           child: const MaterialApp(home: CalendarScreen()),
         ),
@@ -137,10 +148,118 @@ void main() {
       expect(find.text(SleepMark.enough.label), findsOneWidget);
     });
 
-    testWidgets('앱바의 리포트 버튼이 보인다', (tester) async {
+    testWidgets('앱바에 리포트·설정 버튼이 있다', (tester) async {
       await pumpScreen(tester, entries: Stream.value(const []));
 
       expect(find.byTooltip('리포트'), findsOneWidget);
+      expect(find.byTooltip('설정'), findsOneWidget);
+    });
+
+    testWidgets('띄울 안내가 없으면 배너가 없다', (tester) async {
+      await pumpScreen(tester, entries: Stream.value(const []));
+
+      expect(find.byKey(const Key('safetyBanner')), findsNothing);
+    });
+
+    testWidgets('1단계는 수면을 권하고 연락처는 보이지 않는다', (tester) async {
+      await pumpScreen(
+        tester,
+        entries: Stream.value(const []),
+        banner: SafetyAdvice.restSuggestion,
+      );
+
+      expect(find.byKey(const Key('safetyBanner')), findsOneWidget);
+      expect(find.textContaining('일찍 잠자리에'), findsOneWidget);
+      expect(find.text('109'), findsNothing);
+    });
+
+    testWidgets('2단계는 상담 연락처를 보여 준다', (tester) async {
+      await pumpScreen(
+        tester,
+        entries: Stream.value(const []),
+        banner: SafetyAdvice.supportContact,
+      );
+
+      expect(find.text('혹시 도움이 필요하다면'), findsOneWidget);
+      expect(find.textContaining('109'), findsOneWidget);
+      expect(find.textContaining('1577-0199'), findsOneWidget);
+    });
+
+    testWidgets('감각 안내는 그 이유에 맞는 문구와 연락처를 보여 준다', (tester) async {
+      await pumpScreen(
+        tester,
+        entries: Stream.value(const []),
+        banner: SafetyAdvice.senseSupport,
+      );
+
+      expect(find.textContaining('평소와 다르게 다가온 순간'), findsOneWidget);
+      expect(find.textContaining('109'), findsOneWidget);
+    });
+
+    testWidgets('닫으면 사라지고 달력은 그대로다', (tester) async {
+      await pumpScreen(
+        tester,
+        entries: Stream.value(const []),
+        banner: SafetyAdvice.supportContact,
+      );
+
+      await tester.tap(find.byTooltip('닫기'));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('safetyBanner')), findsNothing);
+      expect(find.text('오늘 기록'), findsOneWidget);
+    });
+
+    testWidgets('생각 돌아보기를 켜지 않았으면 버튼이 없다', (tester) async {
+      await pumpScreen(tester, entries: Stream.value(const []));
+
+      expect(find.textContaining('생각 돌아보기'), findsNothing);
+    });
+
+    testWidgets('켰으면 지금 시간대(오전) 버튼이 보인다', (tester) async {
+      await pumpScreen(
+        tester,
+        entries: Stream.value(const []),
+        checkInEnabled: true,
+      );
+
+      expect(find.text('오전의 생각 돌아보기'), findsOneWidget);
+    });
+
+    testWidgets('이미 남긴 시간대면 남겼다고 표시한다', (tester) async {
+      await pumpScreen(
+        tester,
+        entries: Stream.value(const []),
+        checkInEnabled: true,
+        checkIns: [
+          ThoughtCheckIn(
+            date: today,
+            slot: CheckInSlot.morning,
+            pace: MindPace.usual,
+          ),
+        ],
+      );
+
+      expect(find.text('오전의 생각 돌아보기 · 남겼어요'), findsOneWidget);
     });
   });
+}
+
+/// 저장소를 거치지 않고 정해진 안내를 내놓는 배너.
+class _FixedBanner extends SafetyBanner {
+  _FixedBanner(this.advice);
+
+  final SafetyAdvice advice;
+
+  @override
+  Future<SafetyAdvice> build() async => advice;
+}
+
+class _FixedCheckInSettings extends CheckInSettingsNotifier {
+  _FixedCheckInSettings(this.settings);
+
+  final CheckInSettings settings;
+
+  @override
+  Future<CheckInSettings> build() async => settings;
 }

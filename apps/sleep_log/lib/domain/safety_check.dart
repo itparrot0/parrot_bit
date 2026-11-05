@@ -1,6 +1,7 @@
 import 'diary_date.dart';
 import 'diary_entry.dart';
 import 'sleep_mark.dart';
+import 'thought_check_in.dart';
 
 /// 안전 안내 단계 (docs/prd/sleep_log.md §9-2).
 enum SafetyAdvice {
@@ -14,6 +15,15 @@ enum SafetyAdvice {
   /// 2단계 — 충분히 잤는데도 부정이 이어진다. **이 앱의 설명력 밖**이라는
   /// 뜻이고, 그때 상담 연락처를 내미는 것은 참견이 아니라 정직이다.
   supportContact,
+
+  /// 2단계(생각 돌아보기) — 소리·빛·몸의 느낌이 평소와 "여러 번" 달랐다는 답이
+  /// 며칠 이어진다. 이것도 수면으로 설명할 일이 아니라서 [supportContact]와 같은
+  /// 단계로 다루고, 문구만 그 이유에 맞게 다르다. 판정하지 않고 "혼자 감당하기
+  /// 버겁다면"으로만 권한다.
+  senseSupport;
+
+  /// 상담 연락처를 내미는 단계인가. 14일 쉬는 기간을 함께 쓴다.
+  bool get isSupportStage => this == supportContact || this == senseSupport;
 }
 
 /// 안전 안내가 필요한 상태인지 판정한다.
@@ -33,12 +43,22 @@ abstract final class SafetyCheck {
   static const int stage2WindowDays = 14;
   static const int stage2NegativeDays = 7;
 
+  /// 생각 돌아보기 조건 (PRD §3-3). 최근 [senseWindowDays]일 중
+  /// [senseOftenDays]일 이상 "여러 번 있었어요"라고 답했다.
+  static const int senseWindowDays = 7;
+  static const int senseOftenDays = 3;
+
   static SafetyAdvice evaluate({
     required Iterable<DiaryEntry> entries,
     required SleepTarget target,
     required DiaryDate today,
+    Iterable<ThoughtCheckIn> checkIns = const [],
   }) {
-    // 2단계가 성립하면 1단계는 띄우지 않는다 (PRD §9-2).
+    // 2단계가 성립하면 1단계는 띄우지 않는다 (PRD §9-2). 두 2단계가 같이 서면
+    // 사용자가 직접 적은 쪽(감각)을 말한다 — 앱이 추론한 것보다 구체적이다.
+    if (_hasFrequentSenseShifts(checkIns, today)) {
+      return SafetyAdvice.senseSupport;
+    }
     if (_needsSupportContact(entries, target, today)) {
       return SafetyAdvice.supportContact;
     }
@@ -87,6 +107,23 @@ abstract final class SafetyCheck {
         .where((entry) => entry.markWith(target)!.meetsTarget)
         .length;
     return metTarget * 2 > judged.length; // 과반
+  }
+
+  /// 감각이 평소와 "여러 번" 달랐다고 답한 날이 이어진다. 하루에 오전·오후
+  /// 둘 다 그렇게 답해도 하루로 센다.
+  static bool _hasFrequentSenseShifts(
+    Iterable<ThoughtCheckIn> checkIns,
+    DiaryDate today,
+  ) {
+    final from = today.addDays(-(senseWindowDays - 1));
+    final days = {
+      for (final checkIn in checkIns)
+        if (checkIn.senses == SenseShift.often &&
+            !checkIn.date.isBefore(from) &&
+            !checkIn.date.isAfter(today))
+          checkIn.date,
+    };
+    return days.length >= senseOftenDays;
   }
 
   /// [today]를 포함한 최근 [days]일 중 부정 태그가 있는 기록.

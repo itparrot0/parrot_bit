@@ -7,6 +7,8 @@ import 'package:sleep_log/data/providers.dart';
 import 'package:sleep_log/domain/domain.dart';
 import 'package:sleep_log/main.dart';
 
+import 'support/fake_check_in_reminder.dart';
+import 'support/in_memory_check_in_repository.dart';
 import 'support/in_memory_diary_repository.dart';
 
 void main() {
@@ -17,7 +19,11 @@ void main() {
     final container = ProviderContainer(
       overrides: [
         diaryRepositoryProvider.overrideWithValue(InMemoryDiaryRepository()),
+        checkInRepositoryProvider.overrideWithValue(
+          InMemoryCheckInRepository(),
+        ),
         keyValueStoreProvider.overrideWithValue(InMemoryKeyValueStore()),
+        checkInReminderProvider.overrideWithValue(FakeCheckInReminder()),
         todayProvider.overrideWithValue(today),
         initialSleepTargetProvider.overrideWithValue(savedTarget),
       ],
@@ -54,6 +60,8 @@ void main() {
       Routes.entry,
       Routes.report,
       Routes.settings,
+      Routes.checkIn,
+      Routes.review,
     });
   });
 

@@ -8,6 +8,13 @@ final class SettingsRepository {
   SettingsRepository(this._store);
 
   static const String targetMinutesKey = 'sleep_log.target_minutes';
+  static const String safetyNoticeKey = 'sleep_log.safety_notice_enabled';
+  static const String restShownKey = 'sleep_log.safety_rest_last_shown';
+  static const String supportShownKey = 'sleep_log.safety_support_last_shown';
+  static const String checkInEnabledKey = 'sleep_log.check_in_enabled';
+  static const String checkInMorningKey = 'sleep_log.check_in_morning_minute';
+  static const String checkInAfternoonKey =
+      'sleep_log.check_in_afternoon_minute';
 
   final KeyValueStore _store;
 
@@ -31,4 +38,56 @@ final class SettingsRepository {
 
   Future<void> saveTarget(SleepTarget target) =>
       _store.setInt(targetMinutesKey, target.duration.inMinutes);
+
+  /// 안전 안내 배너를 띄울지 (PRD §9-2). **기본 켜짐** — 정한 적이 없으면 true.
+  Future<bool> loadSafetyNoticeEnabled() async =>
+      await _store.getBool(safetyNoticeKey) ?? true;
+
+  Future<void> saveSafetyNoticeEnabled(bool enabled) =>
+      _store.setBool(safetyNoticeKey, enabled);
+
+  /// [advice] 단계 안내를 마지막으로 띄운 날. 띄운 적이 없으면 null.
+  /// 14일 재노출 금지에 쓴다 ([SafetyNoticePolicy]).
+  Future<DiaryDate?> loadLastShown(SafetyAdvice advice) async {
+    final key = _shownKey(advice);
+    if (key == null) {
+      return null;
+    }
+    final raw = await _store.getString(key);
+    return raw == null ? null : DiaryDate.tryParseIso(raw);
+  }
+
+  Future<void> saveLastShown(SafetyAdvice advice, DiaryDate date) async {
+    final key = _shownKey(advice);
+    if (key != null) {
+      await _store.setString(key, date.toIso());
+    }
+  }
+
+  Future<CheckInSettings> loadCheckInSettings() async => CheckInSettings(
+    enabled: await _store.getBool(checkInEnabledKey) ?? false,
+    morningTime: _clock(await _store.getInt(checkInMorningKey)),
+    afternoonTime: _clock(await _store.getInt(checkInAfternoonKey)),
+  );
+
+  Future<void> saveCheckInSettings(CheckInSettings settings) async {
+    await _store.setBool(checkInEnabledKey, settings.enabled);
+    await _store.setInt(checkInMorningKey, settings.morningTime.totalMinutes);
+    await _store.setInt(
+      checkInAfternoonKey,
+      settings.afternoonTime.totalMinutes,
+    );
+  }
+
+  static ClockTime? _clock(int? minutes) =>
+      minutes == null || minutes < 0 || minutes >= 24 * 60
+      ? null
+      : ClockTime(minutes ~/ 60, minutes % 60);
+
+  static String? _shownKey(SafetyAdvice advice) => switch (advice) {
+    SafetyAdvice.restSuggestion => restShownKey,
+    // 2단계 두 가지는 쉬는 기간을 함께 쓰므로 같은 키에 적는다.
+    SafetyAdvice.supportContact || SafetyAdvice.senseSupport => supportShownKey,
+    SafetyAdvice.none => null,
+  };
 }

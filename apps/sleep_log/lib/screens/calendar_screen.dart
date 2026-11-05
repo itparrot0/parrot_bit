@@ -6,10 +6,11 @@ import '../app/router.dart';
 import '../data/providers.dart';
 import '../domain/domain.dart';
 import '../widgets/calendar/month_calendar.dart';
+import '../widgets/safety_banner.dart';
 
 /// 홈 — 월간 달력. 날짜 칸에 z 단계를 표시한다 (PRD §4).
 ///
-/// 구현 예정: 안전 배너(PRD §9-2) 노출.
+/// 안전 배너(PRD §9-2)가 뜨는 유일한 곳이다 — 맨 위, 닫을 수 있게.
 class CalendarScreen extends ConsumerWidget {
   const CalendarScreen({super.key});
 
@@ -18,6 +19,7 @@ class CalendarScreen extends ConsumerWidget {
     final today = ref.watch(todayProvider);
     final entries = ref.watch(diaryEntriesProvider);
     final target = ref.watch(sleepTargetProvider);
+    final banner = ref.watch(safetyBannerProvider).value ?? SafetyAdvice.none;
     final view = CalendarView.from(
       entries: entries.value ?? const [],
       target: target,
@@ -33,12 +35,23 @@ class CalendarScreen extends ConsumerWidget {
             icon: const Icon(Icons.insights_outlined),
             tooltip: '리포트',
           ),
+          IconButton(
+            onPressed: () => context.pushNamed(Routes.settings),
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: '설정',
+          ),
         ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
+              if (banner != SafetyAdvice.none)
+                SafetyBannerCard(
+                  advice: banner,
+                  onDismiss: () =>
+                      ref.read(safetyBannerProvider.notifier).dismiss(),
+                ),
               // 오늘 기록이 없을 때만 (screen-flow §5). 기록을 읽기 전에는
               // 띄우지 않는다 — 떴다가 사라지면 깜박인다.
               if (entries.hasValue && !view.hasTodayEntry)
@@ -53,6 +66,8 @@ class CalendarScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
+              if (ref.watch(checkInSettingsProvider).value?.enabled ?? false)
+                _CheckInButton(today: today),
               MonthCalendar(
                 // 넘길 수 있는 범위가 바뀌면 페이저를 새로 만든다. 가장 오래된
                 // 기록이 바뀔 때만 일어나고, 달력은 원래 이번 달로 열린다.
@@ -71,6 +86,41 @@ class CalendarScreen extends ConsumerWidget {
 
   void _openEntry(BuildContext context, DiaryDate date) {
     context.pushNamed(Routes.entry, pathParameters: {'date': date.toIso()});
+  }
+}
+
+/// 지금 시간대의 생각 돌아보기로 가는 버튼. 기능을 켰을 때만 보인다.
+class _CheckInButton extends ConsumerWidget {
+  const _CheckInButton({required this.today});
+
+  final DiaryDate today;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final slot = CheckInSlot.at(ref.watch(clockProvider)());
+    final done =
+        ref
+            .watch(checkInsProvider)
+            .value
+            ?.any((c) => c.date == today && c.slot == slot) ??
+        false;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+      child: SizedBox(
+        width: double.infinity,
+        child: OutlinedButton.icon(
+          onPressed: () => context.pushNamed(
+            Routes.checkIn,
+            pathParameters: {'date': today.toIso(), 'slot': slot.name},
+          ),
+          icon: Icon(
+            done ? Icons.check_circle_outline : Icons.self_improvement,
+          ),
+          label: Text('${slot.label}의 생각 돌아보기${done ? ' · 남겼어요' : ''}'),
+        ),
+      ),
+    );
   }
 }
 

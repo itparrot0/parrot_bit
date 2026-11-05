@@ -26,4 +26,25 @@ void main() {
 
     expect(await repository.loadTarget(), isNull);
   });
+
+  test('안전 안내는 정한 적이 없으면 켜짐', () async {
+    final repository = SettingsRepository(InMemoryKeyValueStore());
+
+    expect(await repository.loadSafetyNoticeEnabled(), isTrue);
+
+    await repository.saveSafetyNoticeEnabled(false);
+    expect(await repository.loadSafetyNoticeEnabled(), isFalse);
+  });
+
+  test('안내를 마지막으로 띄운 날을 단계별로 저장한다', () async {
+    final repository = SettingsRepository(InMemoryKeyValueStore());
+    const day = DiaryDate(2026, 11, 5);
+
+    expect(await repository.loadLastShown(SafetyAdvice.restSuggestion), isNull);
+
+    await repository.saveLastShown(SafetyAdvice.restSuggestion, day);
+
+    expect(await repository.loadLastShown(SafetyAdvice.restSuggestion), day);
+    expect(await repository.loadLastShown(SafetyAdvice.supportContact), isNull);
+  });
 }

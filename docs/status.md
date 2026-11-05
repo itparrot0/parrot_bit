@@ -7,7 +7,7 @@
 - **마지막 갱신**: 2026-11-05
 - **진행 중**: Bloom Wave — Flutter 전환 완료, 출시 준비 단계 /
   방치형 수집(`proto_idle_visit`) — 첫 동작판, 플레이 판정 대기 /
-  슬립로그 — 온보딩·달력·기록·리포트 동작, 설정·안전 배너 남음 /
+  슬립로그 — v1 기능 전부 동작, 실기기 확인 단계 /
   Garden Grow — 프로토타입 동작, 플레이 판정 대기
 - **보류**: 머지 게임
 
@@ -179,15 +179,15 @@ v0.1 원문으로 전면 교체**됐다. 이전 PRD에만 있던 결정들 — �
 
 ---
 
-## 2. 슬립로그 — 온보딩·달력·기록·리포트 동작, 설정·안전 배너 남음
+## 2. 슬립로그 — v1 기능 전부 동작, 실기기 확인·출시 준비 단계
 
 | | |
 |---|---|
 | 코드 | `apps/sleep_log` |
 | 문서 | `docs/prd/sleep_log.md`, `docs/screen-flow/sleep_log.md` |
-| 마지막 갱신 | 2026-11-05 (리포트) |
+| 마지막 갱신 | 2026-11-05 (기간 돌아보기) |
 
-**끝난 것**: 스캐폴딩 → 도메인 → 달력 위젯 → 저장 계층 → 기록 화면(entry) → 온보딩 → **리포트**. 테스트 151개 통과.
+**끝난 것**: 스캐폴딩 → 도메인 → 달력 위젯 → 저장 계층 → 기록 화면(entry) → 온보딩 → 리포트 → 설정 → 안전 배너 → 생각 돌아보기 → **기간 돌아보기**. 테스트 235개 통과.
 
 - `lib/domain/` — 수면시간 계산(자정 넘김), z 4단계 판정, 감정 태그 팔레트,
   안전 안내 2단계 판정, 태그별 수면 집계. 순수 Dart.
@@ -225,18 +225,64 @@ v0.1 원문으로 전면 교체**됐다. 이전 PRD에만 있던 결정들 — �
   14일 미만이면 "N일 더 기록하면 보여 드려요"와 진행 막대만. 이후 전체 평균을
   기준선으로, 태그별 평균 수면을 짧은 순으로 나열(태그마다 일수 표시). 인과로
   읽히지 않게 "나란히 놓았을 뿐, 원인을 뜻하지는 않아요" 문구를 둔다.
-- 화면은 `settings`만 placeholder.
+- `settings` (2026-11-05): 달력 앱바의 설정 버튼으로 진입.
+  - 목표 수면시간 — 대화상자에서 −/+로 바꾸고, "지난 기록의 z도 다시 계산돼요"를
+    저장 전에 알린다. −/+ 조절기와 z 범례는 온보딩과 같은 위젯
+    (`widgets/sleep_target_picker.dart`).
+  - 마음 돌봄 안내(안전 배너) on/off — 기본 켜짐, `core_storage`에 저장
+    (`safetyNoticeEnabledProvider`).
+  - 모든 기록 지우기 — 확인 후 `deleteAll`. 목표 같은 설정은 남긴다.
+  - 리마인더 알림·데이터 내보내기는 PRD상 Could라 넣지 않았다(동작 안 하는 항목을
+    미리 두지 않는다).
+
+- 안전 배너 (2026-11-05, PRD §9-2): 달력 맨 위, 닫을 수 있는 카드(경고색 없음).
+  - 판정은 `SafetyCheck`, 노출 규칙은 `domain/safety_notice_policy.dart`: 같은
+    단계는 14일 재노출 금지, 2단계를 띄운 뒤 14일은 1단계도 금지. **1단계를 띄운
+    뒤라도 2단계는 띄운다** — 더 무거워진 신호를 1단계의 쉬는 기간이 가리면 안 된다
+    (PRD에 명시되지 않은 부분이라 이렇게 정했다).
+  - `safetyBannerProvider`가 **앱을 열 때 한 번** 정한다 — 기록 저장 직후에 반응하지
+    않게 기록 목록을 watch하지 않는다. 띄우기로 정한 날을 단계별로 `core_storage`에
+    저장한다(닫든 말든 14일 시작). 설정에서 끄면 즉시 사라진다.
+  - 문구는 `widgets/safety_banner.dart`. 2단계는 자살예방상담전화 109,
+    정신건강위기상담전화 1577-0199(2026-11 유효 확인, 출시 전 재확인). 번호는 글자로만
+    보여 준다 — 눌러서 전화 걸기는 url_launcher가 필요해 넣지 않았다.
+
+- 생각 돌아보기 (2026-11-05, PRD §3-3): 오전·오후 자기 관찰 체크인 + 로컬 알림.
+  기본 꺼짐, 설정에서 켜고 시각을 고른다. 묻지 않고 권하는 문구.
+  - 도메인 `domain/thought_check_in.dart`, 저장 `thought_check_ins` 표(**DB schema 2**,
+    `onUpgrade`에서 표 추가 — schema 1 DB에서 여는 테스트 있음).
+  - 화면 `check_in`(`/check-in/:date/:slot`), 달력에 지금 시간대 버튼(켰을 때만).
+  - 알림 `data/check_in_reminder.dart`(flutter_local_notifications, 매일·부정확 예약 —
+    정확한 알람 권한 불필요). 앱 시작마다 다시 잡고, 누르면 오늘 그 시간대로 간다.
+    Android: 부팅 receiver·예약 receiver·core library desugaring 추가.
+    iOS: `AppDelegate.swift`에 알림 센터 delegate 지정(플러그인 README의 General setup).
+  - 리포트에 "머릿속 속도별 그날의 수면시간"(7일 이상일 때).
+  - 안전: 7일 중 3일 감각 "여러 번" → 2단계 배너(`SafetyAdvice.senseSupport`, 수면 기반
+    2단계와 쉬는 기간 공유).
+  - 앱 표시 이름을 PRD §10대로 `슬립로그`로 바꿨다(AndroidManifest label).
+
+- 기간 돌아보기 (2026-11-05, PRD §3-4): 리포트 앱바 → `review` 화면.
+  분석은 `domain/period_review.dart`(3일 이상 연속 흐름, 겹침 흐름, 같은 구간 묶기),
+  편지 100문장은 `domain/developer_letters.dart`. 무작위는 `randomProvider`(테스트는 시드 고정).
+  앱 전체를 한국어 로케일로 설정했다(`flutter_localizations`) — 날짜·시간 선택기가 한국어로 뜬다.
 
 **확인 못 한 것**: 실기기 실행. 이 클라우드 환경에 Android SDK가 없다 —
 로컬에서 `flutter run`으로 DB 파일이 열리고 기록이 남는지 확인 필요.
 
 **다음 할 일** (권하는 순서):
 
-1. **`settings`** — 목표 변경(`savedSleepTargetProvider.notifier.set`, 과거 z가 다시
-   계산된다는 안내), 안전 안내 on/off, 전체 삭제(`DiaryRepository.deleteAll`).
-2. 달력의 안전 배너 (PRD §9-2, `SafetyCheck`).
-3. 기록 저장 이벤트(PRD §8, `core_analytics`) — 저장 여부만, 내용은 담지 않는다.
-4. `router.dart` — `tag_palette`는 v1.x 범위이므로 v1에서는 그대로 둔다.
+1. **실기기 확인** — 로컬 `flutter run`으로 온보딩 → 기록 → 달력 → 리포트 → 설정 흐름,
+   DB 파일 유지(앱 재시작 후 기록이 남는지), 시간 선택기, 배너 문구, **생각 돌아보기
+   알림**(권한 요청, 지정 시각 도착, 눌러서 체크인 열림, 재부팅 후 유지). 처음 빌드라
+   desugaring·receiver 설정이 맞는지도 여기서 확인된다.
+2. 문구 검토 (기획·전문가) — 안전 배너 `widgets/safety_banner.dart`, 체크인 질문
+   `screens/check_in_screen.dart`, 알림 문구 `data/check_in_reminder.dart`, 흐름 문구
+   `domain/period_review.dart`, 편지 100문장 `domain/developer_letters.dart`.
+3. 진단 여부에 따른 안전장치 차등 — PRD §3-3 "열린 질문". 지금은 묻지 않는다.
+4. iOS 실기기에서 알림 확인 (Xcode 빌드는 이 환경에서 못 한다).
+5. 기록 저장 이벤트 (PRD §8, `core_analytics`) — 저장 여부만, 내용은 담지 않는다.
+6. 기록 리마인더 알림, 데이터 내보내기 (Could). 상담 번호 눌러서 전화 걸기(url_launcher).
+7. `router.dart` — `tag_palette`는 v1.x 범위이므로 v1에서는 그대로 둔다.
 
 **남은 확인 사항** (전부 코드 상수·데이터라 구현 중 조정 가능):
 리포트에서 일수가 아주 적은 태그(1~2일)를 숨길지 — 지금은 일수만 보여 주고 다 띄운다,

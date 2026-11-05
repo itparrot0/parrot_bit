@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../app/format.dart';
 import '../data/providers.dart';
 import '../domain/domain.dart';
+import '../widgets/sleep_target_picker.dart';
 
 /// 최초 실행 — 목표 수면시간 설정.
 ///
@@ -15,9 +15,6 @@ import '../domain/domain.dart';
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
-  /// 한 번 누를 때 바뀌는 양.
-  static const Duration step = Duration(minutes: 30);
-
   @override
   ConsumerState<OnboardingScreen> createState() => _OnboardingScreenState();
 }
@@ -25,12 +22,6 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Duration _target = SleepTarget.defaultTarget.duration;
   bool _saving = false;
-
-  bool get _canDecrease =>
-      _target - OnboardingScreen.step >= SleepTarget.minDuration;
-
-  bool get _canIncrease =>
-      _target + OnboardingScreen.step <= SleepTarget.maxDuration;
 
   @override
   Widget build(BuildContext context) {
@@ -50,38 +41,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               style: theme.textTheme.bodyMedium,
             ),
             const SizedBox(height: 40),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton.outlined(
-                  onPressed: _canDecrease
-                      ? () => setState(() => _target -= OnboardingScreen.step)
-                      : null,
-                  icon: const Icon(Icons.remove),
-                  tooltip: '30분 줄이기',
-                ),
-                SizedBox(
-                  width: 180,
-                  child: Text(
-                    formatDuration(_target),
-                    key: const Key('onboarding.target'),
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.headlineMedium,
-                  ),
-                ),
-                IconButton.outlined(
-                  onPressed: _canIncrease
-                      ? () => setState(() => _target += OnboardingScreen.step)
-                      : null,
-                  icon: const Icon(Icons.add),
-                  tooltip: '30분 늘리기',
-                ),
-              ],
+            TargetStepper(
+              value: _target,
+              onChanged: (value) => setState(() => _target = value),
             ),
             const SizedBox(height: 40),
             Text('달력에는 이렇게 표시돼요', style: theme.textTheme.titleSmall),
             const SizedBox(height: 8),
-            _MarkLegend(target: SleepTarget(_target)),
+            MarkLegend(target: SleepTarget(_target)),
           ],
         ),
       ),
@@ -113,56 +80,5 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         context,
       ).showSnackBar(const SnackBar(content: Text('저장하지 못했어요. 다시 시도해 주세요.')));
     }
-  }
-}
-
-/// 고른 목표로 z 네 단계의 경계를 보여 준다.
-///
-/// 판정이 아니라 양을 보여 주는 표시라서(PRD §4) "부족/충분" 같은 평가 말 대신
-/// 시간 범위만 적는다.
-class _MarkLegend extends StatelessWidget {
-  const _MarkLegend({required this.target});
-
-  final SleepTarget target;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final bounds = target.bounds;
-    final rows = [
-      (SleepMark.short, '${formatDuration(bounds.fairFrom)} 미만'),
-      (
-        SleepMark.fair,
-        '${formatDuration(bounds.fairFrom)} ~ ${formatDuration(bounds.enoughFrom)}',
-      ),
-      (
-        SleepMark.enough,
-        '${formatDuration(bounds.enoughFrom)} ~ ${formatDuration(bounds.overAbove)}',
-      ),
-      (SleepMark.over, '${formatDuration(bounds.overAbove)} 초과'),
-    ];
-
-    return Column(
-      children: [
-        for (final (mark, range) in rows)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 72,
-                  child: Text(
-                    mark.label,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
-                ),
-                Text(range, style: theme.textTheme.bodyMedium),
-              ],
-            ),
-          ),
-      ],
-    );
   }
 }
