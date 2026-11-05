@@ -18,6 +18,7 @@ import '../game/game_controller.dart';
 import '../game/game_fx.dart';
 import '../game/game_layout.dart';
 import '../game/game_painter.dart';
+import '../ui/cell_sprites.dart';
 import '../ui/shapes.dart';
 import '../ui/theme.dart';
 import '../ui/widgets.dart';
@@ -87,6 +88,8 @@ class GameScreenState extends State<GameScreen>
     _inited = true;
     app = AppServices.of(context);
     level = app.levels[widget.levelNo - 1];
+    // 칸 애니메이션 시트 (보통 앱 시작 때 이미 불러 둠). 준비 전에는 코드 그리기로 그린다
+    CellSprites.instance.ensure(app.save.data.skin.id);
     controller = GameController(
       level,
       tickMs: app.save.data.x2On ? x2TickMs : baseTickMs,

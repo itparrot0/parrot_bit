@@ -11,6 +11,7 @@ import 'platform/billing.dart';
 import 'platform/haptics.dart';
 import 'platform/sfx.dart';
 import 'save/save_store.dart';
+import 'ui/cell_sprites.dart';
 import 'ui/theme.dart';
 import 'ui/widgets.dart';
 
@@ -36,6 +37,8 @@ Future<void> main() async {
       ? 'ko'
       : 'en';
   final data = await save.load(lang: lang);
+  // 칸 애니메이션 시트는 기다리지 않고 뒤에서 불러 둔다 (준비 전에는 코드 그리기)
+  CellSprites.instance.ensure(data.skin.id);
   final navigatorKey = GlobalKey<NavigatorState>();
 
   final AdProvider provider = _mobile

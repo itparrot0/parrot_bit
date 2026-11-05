@@ -1,9 +1,11 @@
 // 게임 화면의 보드·슬롯·대기열을 한 캔버스에 그린다 (논리 좌표). 입력은 화면 위젯이 받는다.
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
 import '../domain/engine.dart' as e;
+import '../ui/cell_sprites.dart';
 import '../ui/shapes.dart';
 import '../ui/skin_art.dart';
 import '../ui/theme.dart';
@@ -22,14 +24,23 @@ bool showsAsMystery(e.Drop d, int k) => d.hidden && k > 0;
 const mysteryColor = Color(0xFF9CA3AF);
 
 class GamePainter extends CustomPainter {
-  GamePainter(this.c, this.fx, this.L, {this.skinId = 'basic'})
-    : super(repaint: fx);
+  GamePainter(
+    this.c,
+    this.fx,
+    this.L, {
+    this.skinId = 'basic',
+    CellSprites? sprites,
+  }) : sprites = sprites ?? CellSprites.instance,
+       super(repaint: fx);
   final GameController c;
   final GameFx fx;
   final GameLayout L;
 
   /// 개화 칸의 꽃 모양 (장착한 스킨)
   final String skinId;
+
+  /// 칸 애니메이션 시트. 아직 안 불러왔으면 코드 그리기로 그린다
+  final CellSprites sprites;
 
   late final List<Color> _colors = [
     for (final h in c.level.palette) hexColor(h),
@@ -128,6 +139,56 @@ class GamePainter extends CustomPainter {
       RRect.fromRectAndRadius(L.boardOuter, const Radius.circular(36)),
       Paint()..color = C.boardBg,
     );
+    if (sprites.ready(skinId)) {
+      _cellsSprites(canvas);
+    } else {
+      _cellsCode(canvas);
+    }
+    if (fx.dim) canvas.restore();
+  }
+
+  /// 칸을 스프라이트 시트로: 상태별 시트마다 drawRawAtlas 한 번(+ light 레이어 한 번)
+  void _cellsSprites(Canvas canvas) {
+    final cs = L.cellSize;
+    final preview = fx.previewColor;
+    final sheets = [sprites.seed!, sprites.sprout!, sprites.bloomOf(skinId)!];
+    final batches = [for (final sh in sheets) _Atlas(sh)];
+    final lit = <int>[];
+    for (var i = 0; i < c.level.cells.length; i++) {
+      final ci = c.level.cells[i];
+      if (ci == e.empty) continue;
+      final st = fx.vis[i];
+      if (st < e.seed || st > e.bloom) continue;
+      final isLit = previewLit(preview, ci, st);
+      if (isLit) lit.add(i);
+      final alpha = preview != null && !isLit ? 0.22 : 1.0;
+      final sh = sheets[st];
+      final frame = st == e.seed ? 0 : sh.frameAt(fx.now - fx.animStart[i]);
+      batches[st].add(
+        L.cellCenter(i),
+        cs * fx.celebrateScale(i) / sh.size,
+        frame,
+        _colors[ci],
+        alpha,
+      );
+    }
+    final paint = Paint()..filterQuality = FilterQuality.medium;
+    for (final b in batches) {
+      b.draw(canvas, paint);
+    }
+    final glowA = fx.glowAlpha;
+    for (final i in lit) {
+      drawGlow(
+        canvas,
+        L.cellCenter(i),
+        cs * 1.02 * fx.celebrateScale(i),
+        Colors.white.withValues(alpha: glowA),
+      );
+    }
+  }
+
+  /// 시트가 없을 때(불러오는 중·테스트): 예전 코드 그리기
+  void _cellsCode(Canvas canvas) {
     final cs = L.cellSize;
     final preview = fx.previewColor;
     final glowA = fx.glowAlpha;
@@ -183,7 +244,6 @@ class GamePainter extends CustomPainter {
       canvas.restore();
       if (dimmed) canvas.restore();
     }
-    if (fx.dim) canvas.restore();
   }
 
   void _streams(Canvas canvas) {
@@ -318,6 +378,50 @@ class GamePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant GamePainter old) =>
       old.c != c || old.fx != fx || old.skinId != skinId;
+}
+
+/// 한 시트에 그릴 칸들을 모아 drawRawAtlas 로 한 번에. tint 는 칸 색을 곱하고(modulate), light 는 흰색(투명도만)
+class _Atlas {
+  _Atlas(this.sheet);
+  final SpriteSheet sheet;
+  final List<double> _xf = [], _rect = [];
+  final List<int> _tint = [], _light = [];
+
+  void add(Offset center, double scale, int frame, Color color, double alpha) {
+    final half = sheet.size / 2 * scale;
+    _xf.addAll([scale, 0, center.dx - half, center.dy - half]);
+    final x = frame * sheet.size;
+    _rect.addAll([x, 0, x + sheet.size, sheet.size]);
+    final a = (alpha * 255).round();
+    _tint.add(color.withAlpha(a).toARGB32());
+    _light.add(Color.fromARGB(a, 255, 255, 255).toARGB32());
+  }
+
+  void draw(Canvas canvas, Paint paint) {
+    if (_tint.isEmpty) return;
+    final xf = Float32List.fromList(_xf), rect = Float32List.fromList(_rect);
+    canvas.drawRawAtlas(
+      sheet.tint,
+      xf,
+      rect,
+      Int32List.fromList(_tint),
+      BlendMode.modulate,
+      null,
+      paint,
+    );
+    final light = sheet.light;
+    if (light != null) {
+      canvas.drawRawAtlas(
+        light,
+        xf,
+        rect,
+        Int32List.fromList(_light),
+        BlendMode.modulate,
+        null,
+        paint,
+      );
+    }
+  }
 }
 
 /// 레벨 그림(완성 모습) 한 장

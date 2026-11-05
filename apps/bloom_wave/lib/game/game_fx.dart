@@ -255,7 +255,7 @@ class GameFx extends ChangeNotifier {
 
   // ---------- 그리기용 계산 ----------
 
-  /// 칸의 크기 배율 (개화 0.6→1.15→1, 클리어 반짝)
+  /// 칸의 크기 배율 (개화 0.6→1.15→1, 클리어 반짝) — 스프라이트가 없을 때의 코드 그리기용
   double cellScale(int i) {
     var s = 1.0;
     if (vis[i] == bloom) {
@@ -264,10 +264,14 @@ class GameFx extends ChangeNotifier {
         s = t < 0.5 ? 0.6 + 0.55 * (t / 0.5) : 1.15 - 0.15 * ((t - 0.5) / 0.5);
       }
     }
+    return s * celebrateScale(i);
+  }
+
+  /// 완성 반짝임 배율 (대각선 순서로 1→1.18→1). 스프라이트로 그릴 때는 이것만 쓴다
+  double celebrateScale(int i) {
     final x = i % level.width, y = i ~/ level.width;
     final c = (now - celebrateStart - (x + y) * 35) / 520;
-    if (c >= 0 && c < 1) s *= 1 + 0.18 * math.sin(c * math.pi);
-    return s;
+    return c >= 0 && c < 1 ? 1 + 0.18 * math.sin(c * math.pi) : 1;
   }
 
   /// 싹 글자의 세로 배율 (돋는 연출)
