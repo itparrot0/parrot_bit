@@ -5,7 +5,7 @@
 // 프레임 위치는 검정이 아닌 픽셀 덩어리로 자동으로 찾는다. 모든 프레임을 같은 배율로 줄이고 줄기 밑동을 맞춘다.
 // 색 나누기: 분홍(씨앗 꼬투리·꽃잎) → tint 레이어(회색조, 게임이 칸 색을 입힘)
 //           나머지(초록 잎·줄기·노란 꽃술·흰 하이라이트) → light 레이어(그대로)
-// 칸 바탕 타일은 tint 레이어 아래에 깐다. 만드는 파일: assets/anim/seed.png, sprout(_light).png,
+// 칸 바탕 타일은 없다(--tile 이면 깐다). 싹은 밑동에 남긴 껍질로 칸 색을 보인다(--husk, 기본). 만드는 파일: assets/anim/seed.png, sprout(_light).png,
 // bloom_<스킨>(_light).png. anim.json 은 손대지 않는다.
 import 'dart:io';
 import 'dart:math' as math;
@@ -46,7 +46,9 @@ void main(List<String> argv) {
       (ArgParser()
             ..addOption('skin', defaultsTo: 'basic')
             ..addOption('out', defaultsTo: 'assets/anim')
-            ..addFlag('no-seed', help: '씨앗·발아 시트는 그대로 두고 개화만'))
+            ..addFlag('no-seed', help: '씨앗·발아 시트는 그대로 두고 개화만')
+            ..addFlag('tile', help: '칸 바탕 타일(칸 색)을 깐다')
+            ..addFlag('husk', defaultsTo: true, help: '싹 밑동에 꼬투리 껍질(칸 색)을 남긴다'))
           .parse(argv);
   final src = img.decodeImage(File(args.rest.single).readAsBytesSync())!;
   final w = src.width, h = src.height;
@@ -92,8 +94,8 @@ void main(List<String> argv) {
   }
   stdout.writeln('프레임 ${rows.map((r) => r.length).toList()}, 창 $side px');
 
-  /// 한 프레임 → (tint, light) 128×128
-  (img.Image, img.Image) cut((int, int, int, int) f, double tileGrey) {
+  /// 한 프레임 → (tint, light) 그림 부분만 content×content
+  (img.Image, img.Image) cut((int, int, int, int) f) {
     final (x0, _, x1, y1) = f;
     final cx = (x0 + x1) ~/ 2;
     final left = cx - side ~/ 2, top = y1 + bottomPad - side;
@@ -140,22 +142,55 @@ void main(List<String> argv) {
       height: content,
       interpolation: img.Interpolation.average,
     );
-    // 칸 바탕 타일(회색) 위에 tint 를 얹는다
-    final t = img.Image(width: out, height: out, numChannels: 4);
-    final tg = (tileGrey * 255).round();
-    img.fillRect(
-      t,
-      x1: 4,
-      y1: 4,
-      x2: out - 5,
-      y2: out - 5,
-      radius: 22,
-      color: img.ColorRgba8(tg, tg, tg, 255),
-    );
+    return (shrink(tint), shrink(light));
+  }
+
+  double inkSum(img.Image im) {
+    var t = 0.0;
+    for (final p in im) {
+      t += p.a / 255;
+    }
+    return t;
+  }
+
+  /// 128 칸 한 프레임: (바탕 타일) + 껍질(tint, 아래) + 그림 tint / 그림 light
+  (img.Image, img.Image) compose(
+    (img.Image, img.Image) c, {
+    double? tileGrey,
+    img.Image? husk,
+    double huskAlpha = 0,
+  }) {
     const o = (out - content) ~/ 2;
-    img.compositeImage(t, shrink(tint), dstX: o, dstY: o);
+    final t = img.Image(width: out, height: out, numChannels: 4);
+    if (tileGrey != null) {
+      final tg = (tileGrey * 255).round();
+      img.fillRect(
+        t,
+        x1: 4,
+        y1: 4,
+        x2: out - 5,
+        y2: out - 5,
+        radius: 22,
+        color: img.ColorRgba8(tg, tg, tg, 255),
+      );
+    }
+    if (husk != null && huskAlpha > 0) {
+      final hk = husk.clone();
+      if (huskAlpha < 1) {
+        for (final p in hk) {
+          p.a = p.a * huskAlpha;
+        }
+      }
+      img.compositeImage(
+        t,
+        hk,
+        dstX: (out - hk.width) ~/ 2,
+        dstY: o + content - hk.height,
+      );
+    }
+    img.compositeImage(t, c.$1, dstX: o, dstY: o);
     final l = img.Image(width: out, height: out, numChannels: 4);
-    img.compositeImage(l, shrink(light), dstX: o, dstY: o);
+    img.compositeImage(l, c.$2, dstX: o, dstY: o);
     return (t, l);
   }
 
@@ -176,14 +211,52 @@ void main(List<String> argv) {
     stdout.writeln('  $name.png  ${im.width}×${im.height}');
   }
 
-  // 바탕 밝기: 씨앗 0.30 → 싹 0.40 → 꽃 0.50 (꽃이 바탕보다 밝아 보이게)
+  final rawSprout = [for (final f in rows[0]) cut(f)];
+  final rawBloom = [for (final f in rows[1]) cut(f)];
+  final tile = args['tile'] as bool;
+
+  // 칸 색 표시용 껍질 (임시, 2026-11-05): 바탕 타일 없이도 싹이 무슨 색 칸인지 보이도록,
+  // 꼬투리가 아직 남아 있는 마지막 발아 프레임의 분홍(=칸 색) 부분을 줄여 이후 싹 밑동에 남긴다.
+  // 개화하며 봉오리(칸 색)가 나오면 사라진다. 디자이너 원본에 껍질이 그려져 오면 --no-husk.
+  img.Image? husk;
+  var huskFrom = rawSprout.length;
+  if (args['husk'] as bool) {
+    final first = inkSum(rawSprout.first.$1);
+    for (var i = rawSprout.length - 1; i >= 0; i--) {
+      if (inkSum(rawSprout[i].$1) > first * 0.3) {
+        huskFrom = i;
+        break;
+      }
+    }
+    final h0 = rawSprout[huskFrom].$1;
+    husk = img.copyResize(
+      h0,
+      width: (h0.width * 0.8).round(),
+      height: (h0.height * 0.8).round(),
+      interpolation: img.Interpolation.average,
+    );
+    stdout.writeln('껍질: 발아 ${huskFrom + 1}번 프레임의 꼬투리');
+  }
+  const bloomHusk = [1.0, 1.0, 0.6, 0.3]; // 개화 프레임별 껍질 진하기
+
+  // 바탕(--tile): 씨앗 0.30 → 싹 0.40 → 꽃 0.50
   final sprout = [
-    for (var i = 0; i < rows[0].length; i++)
-      cut(rows[0][i], 0.30 + 0.10 * i / (rows[0].length - 1)),
+    for (var i = 0; i < rawSprout.length; i++)
+      compose(
+        rawSprout[i],
+        tileGrey: tile ? 0.30 + 0.10 * i / (rawSprout.length - 1) : null,
+        husk: husk,
+        huskAlpha: i > huskFrom ? 1 : 0,
+      ),
   ];
   final bloom = [
-    for (var i = 0; i < rows[1].length; i++)
-      cut(rows[1][i], 0.40 + 0.10 * i / (rows[1].length - 1)),
+    for (var i = 0; i < rawBloom.length; i++)
+      compose(
+        rawBloom[i],
+        tileGrey: tile ? 0.40 + 0.10 * i / (rawBloom.length - 1) : null,
+        husk: husk,
+        huskAlpha: i < bloomHusk.length ? bloomHusk[i] : 0,
+      ),
   ];
   if (!(args['no-seed'] as bool)) {
     save('seed', sprout.first.$1);
