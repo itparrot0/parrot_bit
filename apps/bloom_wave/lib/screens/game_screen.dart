@@ -1,4 +1,5 @@
-// 게임 화면. 상단 바 / 보드 / 활성 슬롯 / 대기열 / 하단 버튼(힌트·재시작) / 맨 아래 배너 광고.
+// 게임 화면. 상단 바(x2 · 일시정지) / 보드 / 활성 슬롯 / 대기열 / 아이템 칸 / 맨 아래 배너 광고.
+// 힌트는 없고(2026-11-04 삭제), 재시작은 일시정지 메뉴에 있다.
 // 완성하면 Full Bloom 연출 + 골드 지급, 완성 화면에는 [홈] [다음 스테이지]만 있다 (2026-11-04).
 // 실패하면 [다시 하기] [홈]. 일시정지 메뉴에서 설정을 연다 (홈에는 시작 버튼만 있으므로).
 import 'dart:math' as math;
@@ -9,6 +10,8 @@ import 'package:flutter/scheduler.dart';
 import '../app.dart';
 import '../domain/engine.dart' as e;
 import '../economy/gold.dart';
+import '../economy/items.dart';
+import '../save/save_store.dart';
 import '../game/colors.dart';
 import '../game/game_controller.dart';
 import '../game/game_fx.dart';
@@ -58,6 +61,15 @@ class GameScreenState extends State<GameScreen>
   int earned = 0;
   int? _pressPointer;
 
+  /// 튜토리얼에서 꼭 한 번 써야 하는 아이템 (쓰기 전까지 대기열 입력을 막는다)
+  ItemKind? forced;
+
+  /// 즉시 개화: 슬롯을 고르는 중
+  bool picking = false;
+
+  /// x2 남은 시간을 몇 ms마다 저장하나
+  double _x2SaveAcc = 0;
+
   @override
   void initState() {
     super.initState();
@@ -74,10 +86,9 @@ class GameScreenState extends State<GameScreen>
     _inited = true;
     app = AppServices.of(context);
     level = app.levels[widget.levelNo - 1];
-    final s = app.save.data.settings;
     controller = GameController(
       level,
-      tickMs: tickMs[s.tickSpeed.name],
+      tickMs: app.save.data.x2On ? x2TickMs : baseTickMs,
       manual: app.manualTick,
     );
     controller.listen(
@@ -99,11 +110,14 @@ class GameScreenState extends State<GameScreen>
         },
         onReset: () {
           _cancelPress();
+          picking = false;
+          fx.selectable = const [];
           fx.syncBoard(controller.state);
           setState(() {
             _ended = false;
             if (_panel != _Panel.intro) _panel = _Panel.none;
           });
+          if (forced == ItemKind.bloom) _prepBloomTutorial();
         },
         onStatus: (st) {
           if (st != e.Status.playing) _onEnd(st);
@@ -124,15 +138,39 @@ class GameScreenState extends State<GameScreen>
     // 길게 눌러 색 미리보기: 1스테이지에서 안내, 비슷한 색이 처음 나오는 스테이지에서 한 번 더
     if (n == 1) _intro.add('tut:hold');
     if (n > 1 && n == app.firstSimilar) _intro.add('tut:similar');
+    // 아이템 해금 스테이지: 처음이면 3개 지급, 튜토리얼(1개 쓰기)을 아직 안 했으면 안내 → 꼭 한 번 쓰게 한다
+    for (final def in itemDefs) {
+      if (def.unlockStage != n) continue;
+      app.save.unlockItem(def.kind);
+      if (!app.save.data.itemTutorialDone.contains(def.kind)) {
+        _intro.add('item:${def.kind.name}');
+      }
+    }
     _nextIntro();
   }
 
   GameLayout _layoutFor(double top, double bottom) {
     final l = _layout;
-    if (l != null && l.top == top && l.bottom == kH - bottom) return l;
-    final nl = GameLayout(level, safeTop: top, safeBottom: bottom);
+    final slots = controller.state.slots.length;
+    if (l != null &&
+        l.top == top &&
+        l.bottom == kH - bottom &&
+        l.slots.length == slots) {
+      return l;
+    }
+    final nl = GameLayout(
+      level,
+      safeTop: top,
+      safeBottom: bottom,
+      slotCount: slots,
+    );
     final old = _layout;
     _layout = nl;
+    if (old != null && old.top == top && old.bottom == kH - bottom) {
+      // 슬롯 수만 바뀜 (슬롯 추가 아이템·재시작): 연출은 그대로 두고 배치만 바꾼다
+      fx.relayout(nl);
+      return nl;
+    }
     if (old == null) {
       fx = GameFx(level, nl)..fast = app.save.data.settings.fastFx;
       fx.syncBoard(controller.state);
@@ -150,6 +188,7 @@ class GameScreenState extends State<GameScreen>
 
   @override
   void dispose() {
+    app.save.setX2(ms: app.save.data.x2Ms); // x2 남은 시간 저장
     WidgetsBinding.instance.removeObserver(this);
     _ticker.dispose();
     if (_layout != null) fx.dispose();
@@ -170,7 +209,163 @@ class GameScreenState extends State<GameScreen>
     if (_layout == null) return;
     // 게임 진행(틱)을 연출보다 먼저
     controller.update(dt);
+    _spendX2(dt);
     fx.update(dt);
+  }
+
+  // ---------- x2 ----------
+
+  /// x2 를 켜 둔 동안 웨이브가 실제로 진행될 때만 남은 시간을 쓴다
+  void _spendX2(double dt) {
+    final d = app.save.data;
+    if (!d.x2On ||
+        _ended ||
+        _panel != _Panel.none ||
+        controller.paused ||
+        !controller.active) {
+      return;
+    }
+    d.x2Ms -= dt.round();
+    _x2SaveAcc += dt;
+    if (d.x2Ms <= 0) {
+      d.x2Ms = 0;
+      setX2(false);
+      fx.flash(app.t('x2Empty'), C.warn);
+    } else if (_x2SaveAcc >= 5000) {
+      _x2SaveAcc = 0;
+      app.save.setX2(ms: d.x2Ms);
+    }
+  }
+
+  /// x2 켜기/끄기 (테스트도 부른다)
+  void setX2(bool on) {
+    final d = app.save.data;
+    if (on && d.x2Ms <= 0) {
+      app.sfx.deny();
+      fx.flash(app.t('x2Empty'), C.warn);
+      return;
+    }
+    app.save.setX2(ms: d.x2Ms, on: on);
+    controller.tickMs = d.x2On ? x2TickMs : baseTickMs;
+    if (mounted) setState(() {});
+  }
+
+  // ---------- 아이템 ----------
+
+  bool _usable(ItemKind k) => switch (k) {
+    ItemKind.slot => controller.canAddSlot,
+    ItemKind.shuffle => controller.canShuffle,
+    ItemKind.bloom => controller.stuck.isNotEmpty,
+  };
+
+  /// 튜토리얼 아이템을 지금 쓸 수 있으면 대기열은 잠근다 (그 아이템을 먼저 써야 함)
+  bool get lanesLocked => picking || (forced != null && _usable(forced!));
+
+  /// 아이템 칸을 눌렀을 때 (테스트도 부른다)
+  Future<void> useItem(ItemKind k) async {
+    if (_ended || _panel != _Panel.none) return;
+    final d = app.save.data;
+    if (!d.itemsUnlocked.contains(k)) {
+      app.sfx.deny();
+      fx.flash(app.t('itemLocked', {'n': itemDef(k).unlockStage}), C.inkSoft);
+      return;
+    }
+    if (forced != null && forced != k) {
+      app.sfx.deny();
+      return;
+    }
+    if (picking) {
+      // 다시 누르면 고르기 취소
+      setState(() {
+        picking = false;
+        fx.selectable = const [];
+      });
+      return;
+    }
+    if (d.itemCount(k) <= 0) {
+      app.sfx.deny();
+      fx.flash(app.t('itemEmpty'), C.warn);
+      return;
+    }
+    switch (k) {
+      case ItemKind.slot:
+        if (!controller.addSlotItem()) {
+          app.sfx.deny();
+          fx.flash(app.t('itemSlotMax'), C.warn);
+          return;
+        }
+        _cancelPress();
+        setState(() {}); // 새 배치 (슬롯 한 칸 더)
+        await _consume(k);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) fx.slotPulse[controller.state.slots.length - 1] = fx.now;
+        });
+      case ItemKind.shuffle:
+        if (!controller.shuffleItem(app.rng.nextInt)) {
+          app.sfx.deny();
+          fx.flash(app.t('itemShuffleFail'), C.warn);
+          return;
+        }
+        fx.bounceFront();
+        fx.flash(app.t('itemShuffleDone'), C.accentDark);
+        await _consume(k);
+      case ItemKind.bloom:
+        final stuck = controller.stuck;
+        if (stuck.isEmpty) {
+          app.sfx.deny();
+          fx.flash(app.t('itemBloomNone'), C.warn);
+          return;
+        }
+        _cancelPress();
+        setState(() {
+          picking = true;
+          fx.selectable = stuck;
+        });
+    }
+  }
+
+  /// 즉시 개화: 고른 슬롯 (테스트도 부른다)
+  Future<void> pickSlot(int slot) async {
+    if (!picking) return;
+    final ev = controller.bloomItem(slot, app.rng.nextInt);
+    if (ev == null) return;
+    setState(() {
+      picking = false;
+      fx.selectable = const [];
+    });
+    fx.onTick(ev, controller.tickMs);
+    app.sfx.bloom();
+    app.haptics.light();
+    await _consume(ItemKind.bloom);
+  }
+
+  Future<void> _consume(ItemKind k) async {
+    app.sfx.coin();
+    final tutorial = forced == k;
+    await app.save.useItem(k, tutorial: tutorial);
+    if (tutorial) forced = null;
+    app.changed();
+    if (mounted) setState(() {});
+  }
+
+  /// 튜토리얼 안내창을 닫은 뒤: 그 아이템을 한 번 쓰게 한다
+  void _beginForced(ItemKind k) {
+    forced = k;
+    if (k == ItemKind.bloom) _prepBloomTutorial();
+  }
+
+  /// 즉시 개화 튜토리얼: 묶인 물방울이 아직 없으면, 지금 퍼질 수 없는 맨 앞 물방울을 하나 슬롯에 넣어 준다
+  void _prepBloomTutorial() {
+    if (controller.stuck.isNotEmpty) return;
+    final s = controller.state;
+    for (var li = 0; li < s.lanes.length; li++) {
+      final f = controller.front(li);
+      if (f != null && s.sproutCount[f.color] == 0 && s.slots.contains(null)) {
+        controller.tap(li);
+        return;
+      }
+    }
+    // 없으면 플레이하다 묶인 물방울이 생길 때 잠긴다 (lanesLocked)
   }
 
   // ---------- 입력 ----------
@@ -178,6 +373,10 @@ class GameScreenState extends State<GameScreen>
   /// lane 줄의 맨 앞을 넣는다 (테스트도 부른다)
   void tap(int lane) {
     if (_panel != _Panel.none) return;
+    if (lanesLocked) {
+      app.sfx.deny();
+      return;
+    }
     final r = controller.tap(lane);
     if (!r.ok) {
       if (r.fail == TapFail.full) {
@@ -190,7 +389,11 @@ class GameScreenState extends State<GameScreen>
 
   void _pressStart(int lane, int pointer) {
     if (_pressPointer != null) _cancelPress();
-    if (_panel != _Panel.none || controller.front(lane) == null) return;
+    if (_panel != _Panel.none ||
+        lanesLocked ||
+        controller.front(lane) == null) {
+      return;
+    }
     _pressPointer = pointer;
     fx.pressedLane = lane;
     fx.previewColor = controller.front(lane)!.color;
@@ -203,19 +406,6 @@ class GameScreenState extends State<GameScreen>
     fx.previewColor = null;
   }
 
-  void _hint() {
-    if (_ended || _panel != _Panel.none) return;
-    final h = controller.hint();
-    final text = switch (h.action) {
-      HintAction.tap => app.t('hintTap'),
-      HintAction.wait => app.t('hintWait'),
-      null =>
-        h.result.solvable == false ? app.t('hintNone') : app.t('hintSlow'),
-    };
-    fx.flash(text, h.action == HintAction.tap ? C.accentDark : C.ink);
-    if (h.action == HintAction.tap) fx.bounceLane(h.lane);
-  }
-
   void _restart() {
     controller.restart();
   }
@@ -223,7 +413,11 @@ class GameScreenState extends State<GameScreen>
   // ---------- 패널 ----------
 
   void _resume() {
+    final closing = _panel == _Panel.intro ? _introItem : '';
     setState(() => _panel = _Panel.none);
+    if (closing.startsWith('item:')) {
+      _beginForced(ItemKind.values.byName(closing.substring(5)));
+    }
     if (_nextIntro()) return;
     controller.resume();
   }
@@ -243,6 +437,7 @@ class GameScreenState extends State<GameScreen>
     if (_ended) return;
     controller.pause();
     _cancelPress();
+    app.save.setX2(ms: app.save.data.x2Ms);
     setState(() => _panel = _Panel.pause);
   }
 
@@ -314,7 +509,10 @@ class GameScreenState extends State<GameScreen>
         _resume();
       case _Panel.clear:
         _leaveClear(_toHome);
-      case _Panel.fail || _Panel.none:
+      case _Panel.none:
+        // 화면의 뒤로 버튼은 x2 로 바뀌었다: 시스템 뒤로 가기는 일시정지 메뉴(홈은 거기서)
+        _showPause();
+      case _Panel.fail:
         _toHome();
     }
   }
@@ -348,18 +546,19 @@ class GameScreenState extends State<GameScreen>
                       ),
                     ),
                   ),
-                  // 상단 바
+                  // 상단 바: 왼쪽 x2(남은 시간), 오른쪽 일시정지
                   At(
-                    x: 100,
+                    x: 150,
                     y: top + 110,
-                    w: 140,
+                    w: 280,
                     h: 140,
-                    child: CircleButton(
-                      key: const ValueKey('btn-back'),
-                      icon: Icons.chevron_left_rounded,
-                      tooltip: app.t('home'),
-                      onClick: app.sfx.click,
-                      onTap: _toHome,
+                    child: _X2Button(
+                      fx: fx,
+                      data: app.save.data,
+                      onTap: () {
+                        app.sfx.click();
+                        setX2(!app.save.data.x2On);
+                      },
                     ),
                   ),
                   At(
@@ -422,41 +621,59 @@ class GameScreenState extends State<GameScreen>
                         child: const SizedBox.expand(),
                       ),
                     ),
-                  // 하단 버튼 (되돌리기는 2026-11-04 2차 피드백으로 삭제)
-                  At(
-                    x: kW / 2 - 230,
-                    y: L.buttonsY,
-                    w: 440,
-                    h: 140,
-                    child: PillButton(
-                      app.t('hint'),
-                      key: const ValueKey('btn-hint'),
-                      w: 420,
-                      h: 120,
-                      color: C.panel,
-                      textColor: C.ink,
-                      size: 42,
-                      onClick: app.sfx.click,
-                      onTap: _hint,
+                  // 즉시 개화: 고를 수 있는 슬롯 (금빛 고리)
+                  if (picking)
+                    for (final i in fx.selectable)
+                      Positioned(
+                        key: ValueKey('slot-$i'),
+                        left: L.slots[i].dx - L.slotR - 16,
+                        top: L.slots[i].dy - L.slotR - 16,
+                        width: (L.slotR + 16) * 2,
+                        height: (L.slotR + 16) * 2,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => pickSlot(i),
+                        ),
+                      ),
+                  // 튜토리얼·고르기 안내 (슬롯과 대기열 사이)
+                  if (picking || lanesLocked)
+                    At(
+                      x: kW / 2,
+                      y: L.msgY,
+                      h: 70,
+                      child: Label(
+                        app.t(picking ? 'itemBloomPick' : 'itemUseNow'),
+                        key: const ValueKey('item-prompt'),
+                        size: 40,
+                        color: C.accentDark,
+                      ),
                     ),
-                  ),
-                  At(
-                    x: kW / 2 + 230,
-                    y: L.buttonsY,
-                    w: 440,
-                    h: 140,
-                    child: PillButton(
-                      app.t('restart'),
-                      key: const ValueKey('btn-restart'),
-                      w: 420,
-                      h: 120,
-                      color: C.panel,
-                      textColor: C.ink,
-                      size: 42,
-                      onClick: app.sfx.click,
-                      onTap: _restart,
+                  // 하단 아이템 칸 (힌트·재시작 자리, 2026-11-04). 재시작은 일시정지 메뉴에
+                  for (final (i, def) in itemDefs.indexed)
+                    At(
+                      x: kW / 2 + (i - 1) * 330,
+                      y: L.buttonsY,
+                      w: 320,
+                      h: 170,
+                      child: _ItemButton(
+                        key: ValueKey('item-${def.kind.name}'),
+                        def: def,
+                        label: app.t('item_${def.kind.name}'),
+                        lockedLabel: app.t('itemLocked', {
+                          'n': def.unlockStage,
+                        }),
+                        unlocked: app.save.data.itemsUnlocked.contains(
+                          def.kind,
+                        ),
+                        count: app.save.data.itemCount(def.kind),
+                        highlight:
+                            forced == def.kind ||
+                            (picking && def.kind == ItemKind.bloom),
+                        dim: forced != null && forced != def.kind,
+                        onTap: () => useItem(def.kind),
+                        fx: fx,
+                      ),
                     ),
-                  ),
                   ..._panelWidgets(app),
                 ],
               );
@@ -501,7 +718,6 @@ class GameScreenState extends State<GameScreen>
         child: SettingsPanel(
           onClose: () {
             fx.fast = app.save.data.settings.fastFx;
-            controller.tickMs = tickMs[app.save.data.settings.tickSpeed.name]!;
             setState(() => _panel = _Panel.pause);
           },
         ),
@@ -560,6 +776,46 @@ class GameScreenState extends State<GameScreen>
               onTap: _resume,
             ),
           ],
+        ),
+      );
+    }
+    if (kind == 'item') {
+      final k = ItemKind.values.byName(key);
+      return OverlayPanel(
+        key: ValueKey('overlay-item-$key'),
+        w: 920,
+        h: 1000,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(40, 70, 40, 50),
+          child: Column(
+            children: [
+              _ItemIcon(kind: k, size: 170, color: C.accentDark),
+              const SizedBox(height: 30),
+              Label(
+                app.t('itemGot', {'name': app.t('item_$key')}),
+                size: 48,
+                color: C.accentDark,
+              ),
+              const SizedBox(height: 30),
+              Expanded(
+                child: Center(
+                  child: Label(
+                    app.t('itemTut_$key'),
+                    size: 40,
+                    weight: FontWeight.w500,
+                    height: 1.55,
+                  ),
+                ),
+              ),
+              PillButton(
+                app.t('itemTutorialOk'),
+                key: const ValueKey('btn-item-tutorial-ok'),
+                w: 520,
+                onClick: app.sfx.click,
+                onTap: _resume,
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -876,4 +1132,199 @@ class _SwatchPainter extends CustomPainter {
 /// 테스트에서 화면 상태를 들여다볼 때
 extension GameScreenTesting on GameScreenState {
   GameFx get fxForTest => fx;
+}
+
+/// 왼쪽 위 x2 버튼: 켜짐/꺼짐과 남은 시간(분:초). 연출 시계(fx)가 갈 때마다 다시 그린다
+class _X2Button extends StatelessWidget {
+  const _X2Button({required this.fx, required this.data, required this.onTap});
+  final GameFx fx;
+  final SaveData data;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: fx,
+    builder: (context, _) {
+      final on = data.x2On, empty = data.x2Ms <= 0;
+      final sec = (data.x2Ms / 1000).ceil();
+      final time = '${sec ~/ 60}:${(sec % 60).toString().padLeft(2, '0')}';
+      return GestureDetector(
+        key: const ValueKey('btn-x2'),
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Container(
+          width: 250,
+          height: 120,
+          decoration: BoxDecoration(
+            color: empty ? C.bgDeep : (on ? C.gold : C.panel),
+            borderRadius: BorderRadius.circular(60),
+            border: Border.all(color: on ? C.goldDark : C.slotEdge, width: 5),
+            boxShadow: const [
+              BoxShadow(color: Color(0x1F000000), offset: Offset(0, 8)),
+            ],
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 18),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'x2',
+                  style: textStyle(
+                    54,
+                    color: empty ? C.inkSoft : C.ink,
+                    weight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Text(
+                  time,
+                  key: const ValueKey('x2-time'),
+                  style: textStyle(
+                    36,
+                    color: empty ? C.inkSoft : C.ink,
+                    weight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+class _ItemIcon extends StatelessWidget {
+  const _ItemIcon({
+    required this.kind,
+    required this.size,
+    required this.color,
+  });
+  final ItemKind kind;
+  final double size;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) => Icon(
+    switch (kind) {
+      ItemKind.slot => Icons.add_circle_outline_rounded,
+      ItemKind.shuffle => Icons.shuffle_rounded,
+      ItemKind.bloom => Icons.local_florist_rounded,
+    },
+    size: size,
+    color: color,
+  );
+}
+
+/// 하단 아이템 칸 하나: 아이콘·이름·남은 개수. 잠겨 있으면 자물쇠와 해금 스테이지
+class _ItemButton extends StatelessWidget {
+  const _ItemButton({
+    super.key,
+    required this.def,
+    required this.label,
+    required this.lockedLabel,
+    required this.unlocked,
+    required this.count,
+    required this.highlight,
+    required this.dim,
+    required this.onTap,
+    required this.fx,
+  });
+  final GameFx fx;
+  final ItemDef def;
+  final String label, lockedLabel;
+  final bool unlocked, highlight, dim;
+  final int count;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final active = unlocked && count > 0 && !dim;
+    final card = Container(
+      width: 300,
+      height: 150,
+      decoration: BoxDecoration(
+        color: unlocked ? C.panel : C.bgDeep,
+        borderRadius: BorderRadius.circular(36),
+        border: Border.all(
+          color: highlight ? C.gold : C.slotEdge,
+          width: highlight ? 9 : 4,
+        ),
+        boxShadow: const [
+          BoxShadow(color: Color(0x1A000000), offset: Offset(0, 6)),
+        ],
+      ),
+      child: Stack(
+        children: [
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                unlocked
+                    ? _ItemIcon(
+                        kind: def.kind,
+                        size: 64,
+                        color: active ? C.accentDark : C.locked,
+                      )
+                    : const Icon(Icons.lock_rounded, size: 56, color: C.locked),
+                const SizedBox(height: 6),
+                Text(
+                  unlocked ? label : lockedLabel,
+                  style: textStyle(
+                    32,
+                    color: active ? C.ink : C.inkSoft,
+                    weight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (unlocked)
+            Positioned(
+              right: 14,
+              top: 10,
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 2,
+                ),
+                decoration: BoxDecoration(
+                  color: count > 0 ? C.accent : C.locked,
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: Text(
+                  '$count',
+                  key: ValueKey('item-count-${def.kind.name}'),
+                  style: textStyle(
+                    32,
+                    color: Colors.white,
+                    weight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Opacity(
+        opacity: dim ? 0.45 : 1,
+        // 튜토리얼·고르기 중인 아이템은 계속 두근거린다 (연출 시계 fx 를 따라)
+        child: highlight
+            ? AnimatedBuilder(
+                animation: fx,
+                builder: (context, child) => Transform.scale(
+                  scale: 1 + 0.05 * math.sin(fx.now / 160),
+                  child: child,
+                ),
+                child: card,
+              )
+            : card,
+      ),
+    );
+  }
 }

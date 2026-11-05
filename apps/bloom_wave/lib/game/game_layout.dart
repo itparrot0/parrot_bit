@@ -7,7 +7,13 @@ import '../domain/engine.dart';
 import '../ui/theme.dart';
 
 class GameLayout {
-  factory GameLayout(Level level, {double safeTop = 0, double safeBottom = 0}) {
+  /// slotCount: 지금 활성 슬롯 수 (슬롯 추가 아이템으로 늘어난다, 최대 6)
+  factory GameLayout(
+    Level level, {
+    double safeTop = 0,
+    double safeBottom = 0,
+    int? slotCount,
+  }) {
     final top = safeTop;
     final bottom = kH - safeBottom;
     final boardTop = top + 210;
@@ -26,19 +32,22 @@ class GameLayout {
     final boardCenter = Offset(kW / 2, boardTop + outerH / 2);
     final boardBottom = boardTop + outerH;
 
-    const slotR = 78.0;
-    final slotY = boardBottom + 40 + slotR;
+    // 슬롯: 4칸이면 간격 210·반지름 78. 아이템으로 늘면 간격을 줄여 한 줄에 맞춘다 (슬롯 줄의 높이는 그대로)
+    final n = slotCount ?? level.slotCount;
+    final spacing = math.min(210.0, 1000 / n);
+    final slotR = math.min(78.0, spacing * 0.44);
+    final slotY = boardBottom + 40 + 78;
     final slots = [
-      for (var i = 0; i < level.slotCount; i++)
-        Offset(kW / 2 + (i - (level.slotCount - 1) / 2) * 210, slotY),
+      for (var i = 0; i < n; i++)
+        Offset(kW / 2 + (i - (n - 1) / 2) * spacing, slotY),
     ];
 
-    final n = level.lanes.length;
-    final laneW = math.min(240.0, (kW - 120) / n - 24);
-    final gap = math.min(270.0, (kW - 120) / n);
-    final laneTop = slotY + slotR + 210;
+    final lanesN = level.lanes.length;
+    final laneW = math.min(240.0, (kW - 120) / lanesN - 24);
+    final gap = math.min(270.0, (kW - 120) / lanesN);
+    final laneTop = slotY + 78 + 210;
     final laneXs = [
-      for (var i = 0; i < n; i++) kW / 2 + (i - (n - 1) / 2) * gap,
+      for (var i = 0; i < lanesN; i++) kW / 2 + (i - (lanesN - 1) / 2) * gap,
     ];
     final frontR = math.min(84.0, laneW * 0.36);
     return GameLayout._(
@@ -59,7 +68,7 @@ class GameLayout {
       frontR: frontR,
       nextR: frontR * 0.62,
       hitR: frontR + 24,
-      msgY: slotY + slotR + 60,
+      msgY: slotY + 78 + 60,
       buttonsY: bottom - 110,
       width: level.width,
     );

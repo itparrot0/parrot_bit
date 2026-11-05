@@ -371,7 +371,11 @@ State createState(Level level) {
     lanes: [
       for (final l in level.lanes) [for (final d in l) d.copy()],
     ],
-    slots: List<Drop?>.filled(level.slotCount, null),
+    slots: List<Drop?>.filled(
+      level.slotCount,
+      null,
+      growable: true,
+    ), // 아이템으로 늘어날 수 있다
     status: Status.playing,
   );
   _judge(s);
@@ -501,6 +505,90 @@ List<TickEvent> applyAction(
       deploy(level, s, lane);
       return opt.realtime ? const [] : runUntilStable(level, s);
   }
+}
+
+// ───────── 아이템 효과 (2026-11-04) ─────────
+// 규칙을 바꾸는 효과는 여기(엔진)에 둔다. 화면은 결과만 그린다.
+
+/// 활성 슬롯 1칸 추가 (이번 판만). 실패 판정을 다시 한다
+void addSlot(State s) {
+  s.slots.add(null);
+  _judge(s);
+}
+
+/// 대기열의 남은 물방울을 줄과 상관없이 모두 섞어 다시 나눠 담는다 (줄마다 개수는 그대로, 맨 앞 포함)
+void shuffleLanes(State s, int Function(int max) nextInt) {
+  final all = [for (final l in s.lanes) ...l];
+  for (var i = all.length - 1; i > 0; i--) {
+    final j = nextInt(i + 1);
+    final t = all[i];
+    all[i] = all[j];
+    all[j] = t;
+  }
+  var k = 0;
+  s.lanes = [
+    for (final l in s.lanes) [for (var n = 0; n < l.length; n++) all[k++]],
+  ];
+  _judge(s);
+}
+
+/// 지금 퍼질 수 없는(같은 색 발아 칸이 없는) 물방울이 든 슬롯 번호들
+List<int> stuckSlots(State s) => [
+  for (var i = 0; i < s.slots.length; i++)
+    if (s.slots[i] != null &&
+        s.slots[i]!.amount > 0 &&
+        s.sproutCount[s.slots[i]!.color] == 0)
+      i,
+];
+
+/// slot 의 물방울이 바닥날 때까지 같은 색의 아직 피지 않은 칸을 무작위로 골라 즉시 개화시킨다.
+/// 개화한 칸은 보통 규칙대로 8방향 씨앗을 발아시킨다. 물방울 총량 = 칸 수라 늘 칸이 충분하다.
+/// 반환: 개화한 칸 순서와 새로 발아한 칸 (연출용)
+TickEvent forceBloom(
+  Level level,
+  State s,
+  int slot,
+  int Function(int max) nextInt,
+) {
+  final d = s.slots[slot];
+  if (d == null) throw StateError('empty slot');
+  final ev = TickEvent(s.tick);
+  final w = level.width, h = level.height, cells = level.cells;
+  final bloomed = <int>[];
+  while (d.amount > 0) {
+    final cand = [
+      for (var i = 0; i < s.cell.length; i++)
+        if (cells[i] == d.color && (s.cell[i] == seed || s.cell[i] == sprout))
+          i,
+    ];
+    if (cand.isEmpty) break;
+    final i = cand[nextInt(cand.length)];
+    if (s.cell[i] == sprout) s.sproutCount[d.color]--;
+    s.cell[i] = bloom;
+    s.remaining--;
+    d.amount--;
+    bloomed.add(i);
+    final x = i % w, y = i ~/ w;
+    for (final (dx, dy) in dir8) {
+      final nx = x + dx, ny = y + dy;
+      if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+      final j = ny * w + nx;
+      if (s.cell[j] == seed) {
+        s.cell[j] = sprout;
+        s.seq[j] = s.nextSeq++;
+        s.bornTick[j] = s.tick - 1; // 다음 틱 링부터 바로 들어간다
+        s.sproutCount[cells[j]]++;
+        ev.sprouted.add(j);
+      }
+    }
+  }
+  if (bloomed.isNotEmpty) ev.blooms.add(SlotBloom(slot, d.color, bloomed));
+  if (d.amount == 0) {
+    s.slots[slot] = null;
+    ev.emptied.add(slot);
+  }
+  _judge(s);
+  return ev;
 }
 
 /// 실패 상태 메모용 키. 발아 칸의 상대 순서와 "막 발아함" 여부가 이후 결과를 바꾸므로 키에 포함

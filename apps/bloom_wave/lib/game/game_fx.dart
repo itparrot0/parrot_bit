@@ -44,11 +44,25 @@ class GameFx extends ChangeNotifier {
     : vis = Int8List(level.cells.length),
       animStart = Float64List(level.cells.length)
         ..fillRange(0, level.cells.length, -1e9),
-      slotPulse = List.filled(level.slotCount, -1e9),
-      flying = List.filled(level.slotCount, null);
+      slotPulse = List.filled(level.slotCount, -1e9, growable: true),
+      flying = List.filled(level.slotCount, null, growable: true);
 
   final Level level;
-  final GameLayout layout;
+
+  /// 화면 배치. 슬롯이 늘면 [relayout] 으로 바꾼다
+  GameLayout layout;
+
+  /// 슬롯 수가 바뀐 배치로 갈아 끼운다 (슬롯 추가 아이템)
+  void relayout(GameLayout l) {
+    layout = l;
+    while (slotPulse.length < l.slots.length) {
+      slotPulse.add(-1e9);
+      flying.add(null);
+    }
+  }
+
+  /// 즉시 개화 아이템으로 고를 수 있는 슬롯 (고르는 중일 때만)
+  List<int> selectable = const [];
 
   /// 지금 시각 (ms)
   double now = 0;

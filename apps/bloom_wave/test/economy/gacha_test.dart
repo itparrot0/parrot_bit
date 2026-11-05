@@ -118,7 +118,7 @@ void main() {
     }
   });
 
-  group('저장 (schema 4)', () {
+  group('저장 (스킨)', () {
     test('뽑기 결과·장착이 저장되고 다시 읽힌다', () async {
       final kv = MemoryStore();
       final a = SaveStore(kv);
@@ -130,7 +130,7 @@ void main() {
       a.data.skinPieces[s.id] = {0, 1, 2, 3};
       expect(await a.equipSkin(s.id), isTrue);
       final b = await SaveStore(kv).load();
-      expect(jsonDecode(kv.map[saveKey]!)['schema'], 4);
+      expect(jsonDecode(kv.map[saveKey]!)['schema'], saveSchema);
       expect(b.gold, a.data.gold);
       expect(b.skinPieces[r.skin.id], contains(r.piece));
       expect(b.equippedSkin, s.id);

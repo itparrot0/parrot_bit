@@ -5,30 +5,28 @@
 //  - schema 3 (2026-11-04, Flutter 전환): gold(골드 잔액). 지난 스테이지 다시 하기 없음 → unlocked 가 곧 다음 스테이지
 //  - schema 4 (2026-11-04): skins — 스킨별 모은 퍼즐 조각(pieces), 장착한 스킨(equipped).
 //    해금 여부는 따로 저장하지 않고 "조각을 모두 모았나"로 계산한다 (economy/skins.dart)
+//  - schema 5 (2026-11-04): items(아이템 개수·해금·튜토리얼 완료), x2(남은 시간·켜짐). 설정의 웨이브 속도는 x2 로 바뀌어 없앤다
 import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../economy/gacha.dart';
+import '../economy/items.dart';
 import '../economy/skins.dart';
 
 const saveKey = 'bloomwave.save';
-const saveSchema = 4;
-
-enum TickSpeed { normal, slow }
+const saveSchema = 5;
 
 class Settings {
   const Settings({
     this.sound = true,
     this.vibration = true,
-    this.tickSpeed = TickSpeed.normal,
     this.fastFx = false,
     this.lang = 'ko',
   });
   final bool sound;
   final bool vibration;
-  final TickSpeed tickSpeed;
 
   /// 빠른 연출 (애니메이션 축약)
   final bool fastFx;
@@ -39,13 +37,11 @@ class Settings {
   Settings copyWith({
     bool? sound,
     bool? vibration,
-    TickSpeed? tickSpeed,
     bool? fastFx,
     String? lang,
   }) => Settings(
     sound: sound ?? this.sound,
     vibration: vibration ?? this.vibration,
-    tickSpeed: tickSpeed ?? this.tickSpeed,
     fastFx: fastFx ?? this.fastFx,
     lang: lang ?? this.lang,
   );
@@ -53,7 +49,6 @@ class Settings {
   Map<String, dynamic> toJson() => {
     'sound': sound,
     'vibration': vibration,
-    'tickSpeed': tickSpeed.name,
     'fastFx': fastFx,
     'lang': lang,
   };
@@ -68,8 +63,16 @@ class SaveData {
     this.settings = const Settings(),
     Map<String, Set<int>>? skinPieces,
     this.equippedSkin = defaultSkinId,
+    Map<ItemKind, int>? items,
+    Set<ItemKind>? itemsUnlocked,
+    Set<ItemKind>? itemTutorialDone,
+    this.x2Ms = x2InitialMs,
+    this.x2On = false,
   }) : cleared = cleared ?? <String>{},
-       skinPieces = skinPieces ?? <String, Set<int>>{};
+       skinPieces = skinPieces ?? <String, Set<int>>{},
+       items = items ?? {for (final k in ItemKind.values) k: 0},
+       itemsUnlocked = itemsUnlocked ?? <ItemKind>{},
+       itemTutorialDone = itemTutorialDone ?? <ItemKind>{};
 
   /// 다음에 할 스테이지 번호 (1부터). 완성한 스테이지는 다시 열지 않는다
   int unlocked;
@@ -89,6 +92,21 @@ class SaveData {
 
   /// 게임에서 쓰는 꽃 스킨
   String equippedSkin;
+
+  /// 아이템별 남은 개수
+  final Map<ItemKind, int> items;
+
+  /// 해금된 아이템 (해금 스테이지에서 처음 받음)
+  final Set<ItemKind> itemsUnlocked;
+
+  /// 튜토리얼에서 한 번 써 본 아이템
+  final Set<ItemKind> itemTutorialDone;
+
+  /// x2 남은 시간(ms) / 켜 둠
+  int x2Ms;
+  bool x2On;
+
+  int itemCount(ItemKind k) => items[k] ?? 0;
 
   /// 해금된 스킨인가 (기본 스킨이거나 조각을 모두 모음)
   bool isUnlocked(SkinDef s) =>
@@ -114,6 +132,18 @@ class SaveData {
       },
       'equipped': equippedSkin,
     },
+    'items': {
+      'count': {for (final k in ItemKind.values) k.name: itemCount(k)},
+      'unlocked': [
+        for (final k in ItemKind.values)
+          if (itemsUnlocked.contains(k)) k.name,
+      ],
+      'tutorialDone': [
+        for (final k in ItemKind.values)
+          if (itemTutorialDone.contains(k)) k.name,
+      ],
+    },
+    'x2': {'ms': x2Ms, 'on': x2On},
   };
 }
 
@@ -123,12 +153,10 @@ SaveData migrate(Object? raw, {String lang = 'ko'}) {
   if (raw is! Map) return d;
   final s = raw['settings'];
   if (s is Map) {
-    final ts = s['tickSpeed'];
     final l = s['lang'];
     d.settings = Settings(
       sound: s['sound'] is bool ? s['sound'] as bool : true,
       vibration: s['vibration'] is bool ? s['vibration'] as bool : true,
-      tickSpeed: ts == 'slow' ? TickSpeed.slow : TickSpeed.normal,
       fastFx: s['fastFx'] == true,
       lang: l == 'ko' || l == 'en' ? l as String : lang,
     );
@@ -169,6 +197,44 @@ SaveData migrate(Object? raw, {String lang = 'ko'}) {
     }
     final eq = sk['equipped'];
     if (eq is String && skinById(eq) != null) d.equippedSkin = eq;
+  }
+  // schema 4 → 5: 아이템·x2. 해금 스테이지를 이미 지난 저장은 튜토리얼을 마친 것으로 치고 2개씩 준다
+  ItemKind? kindOf(Object? v) =>
+      ItemKind.values.where((k) => k.name == v).firstOrNull;
+  final it = raw['items'];
+  if (it is Map) {
+    final c = it['count'];
+    if (c is Map) {
+      c.forEach((k, v) {
+        final kind = kindOf(k);
+        if (kind != null && v is num && v >= 0) d.items[kind] = v.floor();
+      });
+    }
+    for (final (key, set) in [
+      ('unlocked', d.itemsUnlocked),
+      ('tutorialDone', d.itemTutorialDone),
+    ]) {
+      final list = it[key];
+      if (list is List) {
+        for (final v in list) {
+          final kind = kindOf(v);
+          if (kind != null) set.add(kind);
+        }
+      }
+    }
+  }
+  for (final def in itemDefs) {
+    if (d.unlocked > def.unlockStage && !d.itemsUnlocked.contains(def.kind)) {
+      d.itemsUnlocked.add(def.kind);
+      d.itemTutorialDone.add(def.kind);
+      d.items[def.kind] = itemStartCount - 1;
+    }
+  }
+  final x2 = raw['x2'];
+  if (x2 is Map) {
+    final ms = x2['ms'];
+    if (ms is num && ms >= 0) d.x2Ms = ms.floor();
+    d.x2On = x2['on'] == true && d.x2Ms > 0;
   }
   return d;
 }
@@ -241,6 +307,31 @@ class SaveStore {
     final r = pull(data, rng);
     await save();
     return r;
+  }
+
+  /// 해금 스테이지에 처음 들어왔을 때: 아이템 해금 + [itemStartCount]개 지급 (한 번만). 새로 해금했으면 true
+  Future<bool> unlockItem(ItemKind k) async {
+    if (!data.itemsUnlocked.add(k)) return false;
+    data.items[k] = data.itemCount(k) + itemStartCount;
+    await save();
+    return true;
+  }
+
+  /// 아이템 1개 사용. 없으면 false
+  Future<bool> useItem(ItemKind k, {bool tutorial = false}) async {
+    if (data.itemCount(k) <= 0) return false;
+    data.items[k] = data.itemCount(k) - 1;
+    if (tutorial) data.itemTutorialDone.add(k);
+    await save();
+    return true;
+  }
+
+  /// x2 남은 시간·켜짐 저장
+  Future<void> setX2({int? ms, bool? on}) async {
+    if (ms != null) data.x2Ms = ms < 0 ? 0 : ms;
+    if (on != null) data.x2On = on && data.x2Ms > 0;
+    if (data.x2Ms <= 0) data.x2On = false;
+    await save();
   }
 
   /// 해금된 스킨만 장착할 수 있다

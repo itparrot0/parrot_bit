@@ -2,10 +2,10 @@
 // 규칙은 전부 domain/engine.dart 가 정한다. 여기서는 "언제 tick/deploy 를 부르는가"만 다룬다.
 import '../domain/engine.dart';
 import '../domain/solver.dart';
+import '../economy/items.dart';
 
-/// 틱 간격 (ms). 2026-11-04 플레이 피드백: 150ms는 너무 빨라 기본을 300ms로.
-/// 규칙(클리어 가능 여부)은 틱 단위라 바뀌지 않는다
-const Map<String, int> tickMs = {'normal': 300, 'slow': 450};
+// 틱 간격은 economy/items.dart: 기본 450ms(느림), x2 300ms. 규칙(클리어 가능 여부)은 틱 단위라 바뀌지 않는다.
+// 힌트 기능은 2026-11-04 삭제.
 
 enum TapFail { full, wait, over, empty }
 
@@ -17,17 +17,6 @@ class TapResult {
   final Drop? drop;
   final int lane;
   bool get ok => fail == null;
-}
-
-enum HintAction { tap, wait }
-
-class Hint {
-  const Hint(this.action, this.lane, this.result);
-
-  /// null = 다음 수를 찾지 못함 (result.solvable 로 이유 구분)
-  final HintAction? action;
-  final int lane;
-  final SolveResult result;
 }
 
 /// 화면이 듣는 이벤트. 모두 선택
@@ -53,7 +42,7 @@ class ControllerEvents {
 class GameController {
   GameController(this.level, {int? tickMs, this.manual = false})
     : options = level.options,
-      tickMs = tickMs ?? 300,
+      tickMs = tickMs ?? baseTickMs,
       state = createState(level);
 
   final Level level;
@@ -158,15 +147,60 @@ class GameController {
     _acc = 0;
   }
 
-  /// 힌트: 지금 상태에서 솔버가 찾은 다음 수
-  Hint hint([int maxNodes = 30000]) {
-    final r = solveFrom(level, state, options, maxNodes);
-    final a = r.solution.isEmpty ? null : r.solution.first;
-    return switch (a) {
-      Deploy(:final lane) => Hint(HintAction.tap, lane, r),
-      Tick() => Hint(HintAction.wait, -1, r),
-      null => Hint(null, -1, r),
-    };
+  // ───────── 아이템 (규칙은 엔진, 여기서는 호출과 이벤트) ─────────
+
+  bool get _playing => state.status == Status.playing;
+
+  /// 슬롯 추가를 지금 쓸 수 있나
+  bool get canAddSlot => _playing && state.slots.length < maxSlots;
+
+  /// 활성 슬롯 1칸 추가
+  bool addSlotItem() {
+    if (!canAddSlot) return false;
+    addSlot(state);
+    _afterChange();
+    return true;
+  }
+
+  /// 섞기를 지금 쓸 수 있나 (남은 물방울이 2개 이상)
+  bool get canShuffle => _playing && queueLength(state.lanes) >= 2;
+
+  /// 대기열 섞기. 섞은 뒤에도 완성할 수 있는 배치를 [tries]번 안에서 찾는다
+  /// (솔버가 판정 못 하면(노드 한도) 받아들인다). 못 찾으면 아무것도 바꾸지 않고 false
+  bool shuffleItem(
+    int Function(int max) nextInt, {
+    int tries = 12,
+    int maxNodes = 20000,
+  }) {
+    if (!canShuffle) return false;
+    State? fallback;
+    for (var k = 0; k < tries; k++) {
+      final c = state.clone();
+      shuffleLanes(c, nextInt);
+      final r = solveFrom(level, c, options, maxNodes);
+      if (r.solvable == true) {
+        state.lanes = c.lanes;
+        _afterChange();
+        return true;
+      }
+      if (r.solvable == null) fallback ??= c;
+    }
+    if (fallback == null) return false;
+    state.lanes = fallback.lanes;
+    _afterChange();
+    return true;
+  }
+
+  /// 즉시 개화를 쓸 수 있는 슬롯들 (퍼질 곳이 없어 묶인 물방울)
+  List<int> get stuck => _playing ? stuckSlots(state) : const [];
+
+  /// slot 의 물방울을 즉시 개화. 연출용 이벤트를 돌려준다 (못 쓰면 null)
+  TickEvent? bloomItem(int slot, int Function(int max) nextInt) {
+    if (!stuck.contains(slot)) return null;
+    final ev = forceBloom(level, state, slot, nextInt);
+    _acc = 0;
+    _afterChange();
+    return ev;
   }
 
   void _afterChange() {

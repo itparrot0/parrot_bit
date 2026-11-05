@@ -1,10 +1,9 @@
-// 설정: 사운드, 진동, 웨이브 속도, 빠른 연출, 언어, 광고 제거(인앱 결제), 개인정보처리방침, 버전.
+// 설정: 사운드, 진동, 빠른 연출, 언어, 광고 제거(인앱 결제), 개인정보처리방침, 버전.
 // 홈에는 시작 버튼만 두므로(2026-11-04) 설정은 게임의 일시정지 메뉴에서 연다.
 import 'package:flutter/material.dart';
 
 import '../app.dart';
 import '../platform/billing.dart';
-import '../save/save_store.dart';
 import '../ui/theme.dart';
 import '../ui/widgets.dart';
 
@@ -105,20 +104,6 @@ class _SettingsPanelState extends State<SettingsPanel> {
                     value: s.vibration,
                     onChanged: (v) =>
                         app.updateSettings(s.copyWith(vibration: v)),
-                  ),
-                ),
-                row(
-                  'tickSpeed',
-                  Segmented(
-                    w: 170,
-                    options: [
-                      ('normal', app.t('tickNormal')),
-                      ('slow', app.t('tickSlow')),
-                    ],
-                    value: s.tickSpeed.name,
-                    onChanged: (v) => app.updateSettings(
-                      s.copyWith(tickSpeed: TickSpeed.values.byName(v)),
-                    ),
                   ),
                 ),
                 row(

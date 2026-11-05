@@ -329,7 +329,12 @@ void main() {
     expect(banner.bottom, closeTo(screen.height, 1));
     expect(banner.width, closeTo(screen.width, 1));
     // 하단 버튼·대기열은 배너 위에 있다
-    for (final k in ['btn-hint', 'btn-restart', 'lane-front-0']) {
+    for (final k in [
+      'item-slot',
+      'item-shuffle',
+      'item-bloom',
+      'lane-front-0',
+    ]) {
       expect(
         tester.getRect(byKey(k)).bottom,
         lessThanOrEqualTo(banner.top),

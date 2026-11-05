@@ -11,6 +11,11 @@ import 'game_controller.dart';
 import 'game_fx.dart';
 import 'game_layout.dart';
 
+/// 색 미리보기에서 또렷하게 보일 칸인가: 누른 물방울 색의 "지금 발아한 칸"만 (2026-11-04).
+/// 씨앗·이미 핀 칸·다른 색은 흐리게. 그 색 발아 칸이 없으면 전부 흐려져 "지금은 퍼질 곳이 없다"가 보인다
+bool previewLit(int? preview, int colorIndex, int cellState) =>
+    preview != null && preview == colorIndex && cellState == e.sprout;
+
 class GamePainter extends CustomPainter {
   GamePainter(this.c, this.fx, this.L, {this.skinId = 'basic'})
     : super(repaint: fx);
@@ -92,6 +97,7 @@ class GamePainter extends CustomPainter {
     _board(canvas);
     _streams(canvas);
     _slots(canvas);
+    _selectRings(canvas);
     _lanes(canvas);
     _petals(canvas);
     final a = fx.msgAlpha;
@@ -120,7 +126,9 @@ class GamePainter extends CustomPainter {
       final col = _colors[ci];
       final st = fx.vis[i];
       final center = L.cellCenter(i);
-      final dimmed = preview != null && preview != ci;
+      // 미리보기: 그 색의 "지금 발아한 칸"만 또렷하게 (씨앗·개화 칸과 다른 색은 흐리게)
+      final lit = previewLit(preview, ci, st);
+      final dimmed = preview != null && !lit;
       if (dimmed) {
         canvas.saveLayer(
           null,
@@ -153,7 +161,7 @@ class GamePainter extends CustomPainter {
           skinId,
         );
       }
-      if (preview == ci && st != e.bloom) {
+      if (lit) {
         drawGlow(
           canvas,
           Offset.zero,
@@ -221,6 +229,23 @@ class GamePainter extends CustomPainter {
       if (d == null) continue;
       final (pos, scale) = fx.slotDrop(i);
       _drop(canvas, pos, L.slotR * 0.8 * scale, d, gray: fx.failGray);
+    }
+  }
+
+  /// 즉시 개화 아이템으로 고를 수 있는 슬롯에 금빛 고리 (깜빡임)
+  void _selectRings(Canvas canvas) {
+    if (fx.selectable.isEmpty) return;
+    final a = 0.55 + 0.45 * math.sin(fx.now / 140);
+    for (final i in fx.selectable) {
+      if (i >= L.slots.length) continue;
+      canvas.drawCircle(
+        L.slots[i],
+        L.slotR + 12,
+        Paint()
+          ..color = C.gold.withValues(alpha: a)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 10,
+      );
     }
   }
 
