@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../domain/board_model.dart';
 import '../economy/ad_rewards.dart';
 import '../economy/economy.dart';
+import '../economy/products.dart';
 import '../game/grove_game.dart';
 
 String costText(Cost cost) =>
@@ -113,14 +114,16 @@ Future<void> showStorage(
   required AdRewards Function() ads,
   required DateTime Function() now,
   required Future<void> Function() onBoost,
+  required VoidCallback onOpenShop,
 }) => showModalBottomSheet<void>(
   context: context,
+  isScrollControlled: true,
   builder: (context) => StatefulBuilder(
     builder: (context, setState) {
       final e = economy();
       final a = ads();
       final t = now();
-      final boost = a.rateMultiplier(t);
+      final boost = a.rateMultiplier(t) * e.outputMultiplier;
       final perMinute = <Resource, double>{};
       for (final (pos, producer) in board.producers) {
         perMinute.update(
@@ -157,6 +160,17 @@ Future<void> showStorage(
             )
           else
             const Text('창고가 최대 크기예요.'),
+          if (!e.owns(Product.storagePack))
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  onOpenShop();
+                },
+                child: const Text('상점: 창고 확장팩 (용량 1.5배)'),
+              ),
+            ),
           const Divider(height: AppSpacing.xl),
           if (a.boostActive(t))
             Text(
@@ -213,7 +227,8 @@ class _SheetBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SafeArea(
-    child: Padding(
+    // 내용이 시트 높이를 넘으면(작은 화면·큰 글꼴) 넘치지 않고 스크롤한다.
+    child: SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         mainAxisSize: MainAxisSize.min,

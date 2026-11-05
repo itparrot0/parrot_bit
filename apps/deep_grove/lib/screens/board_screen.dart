@@ -93,7 +93,13 @@ class _BoardViewState extends ConsumerState<_BoardView>
         ref.read(analyticsProvider).logEvent('session_start');
         final gain = ref
             .read(adRewardsProvider)
-            .advanceAway(_board, since, now, freeSpace());
+            .advanceAway(
+              _board,
+              since,
+              now,
+              freeSpace(),
+              baseMultiplier: ref.read(economyProvider).outputMultiplier,
+            );
         if (gain.isNotEmpty) {
           _welcomeBack(gain);
         }
@@ -164,7 +170,9 @@ class _BoardViewState extends ConsumerState<_BoardView>
   Map<Resource, int> freeSpace() => ref.read(economyProvider).freeSpace;
 
   @override
-  double rateMultiplier() => ref.read(adRewardsProvider).rateMultiplier(_now());
+  double rateMultiplier() =>
+      ref.read(adRewardsProvider).rateMultiplier(_now()) *
+      ref.read(economyProvider).outputMultiplier;
 
   @override
   int deposit(Resource resource, int amount) =>
@@ -300,6 +308,7 @@ class _BoardViewState extends ConsumerState<_BoardView>
     ads: () => ref.read(adRewardsProvider),
     now: _now,
     onBoost: _boost,
+    onOpenShop: () => context.goNamed('shop'),
   );
 }
 

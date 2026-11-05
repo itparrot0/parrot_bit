@@ -98,6 +98,7 @@ final class SaveRepository {
             savedAt,
             now,
             economy.freeSpace,
+            baseMultiplier: economy.outputMultiplier,
           );
           return LoadedGrove(
             board: board,

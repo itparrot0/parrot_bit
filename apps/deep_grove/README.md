@@ -12,17 +12,17 @@ lib/
 ├── domain/    순수 Dart 규칙: 보드(머지·스폰·산출·확장) · 테마 데이터 · 저장 형식   ← Flame 없이 테스트
 ├── economy/   창고·확장 진행 (아웃게임, 순수 Dart) + Riverpod 연결
 ├── game/      Flame 보드 · 조각 컴포넌트 · skins/(그래픽 교체 지점)
-├── platform/  보상형 광고 (AdMob, 웹은 가짜 광고)
+├── platform/  보상형 광고 (AdMob) · 결제 (in_app_purchase) — 웹은 가짜 창
 ├── save/      core_storage 에 JSON 스냅샷
 ├── screens/   보드(홈) · 상점 · 설정 + 보드 위 시트
 └── app.dart, main.dart
 ```
 
 **숫자는 `lib/domain/theme.dart`** (확장 비용·창고 용량·산출 속도·생성기 확률표·지대 보너스)와
-`lib/economy/ad_rewards.dart` (광고 하루 상한·가속 시간·배율).
+`lib/economy/ad_rewards.dart` (광고 하루 상한·가속 시간·배율), `lib/economy/products.dart` (상품 배율).
 
 **출시 전**: AdMob 테스트 ID → 실제 ID (`lib/platform/ads.dart`, AndroidManifest `APPLICATION_ID`,
-Info.plist `GADApplicationIdentifier`). 업로드 키 `android/key.properties` (git 제외).
+Info.plist `GADApplicationIdentifier`). 스토어에 비소모성 상품 `storage_pack`·`output_boost` 등록. 업로드 키 `android/key.properties` (git 제외).
 
 ```sh
 flutter pub get        # 저장소 루트에서 1회

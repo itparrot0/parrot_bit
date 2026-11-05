@@ -5,9 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../domain/board_model.dart';
 import '../platform/ads.dart';
+import '../platform/billing.dart';
 import '../save/save_repository.dart';
 import 'ad_rewards.dart';
 import 'economy.dart';
+import 'products.dart';
 
 /// 앱 전체 Navigator. 가짜 광고가 이 위에 창을 띄운다.
 final rootNavigatorKey = GlobalKey<NavigatorState>();
@@ -66,6 +68,8 @@ class EconomyNotifier extends Notifier<Economy> {
   void upgradeStorage() => state = state.upgradeStorage();
 
   void markCleared() => state = state.markCleared();
+
+  void grant(Iterable<Product> products) => state = state.grant(products);
 }
 
 /// 보상형 광고 재생기. 테스트에서 바꿔 끼운다.
@@ -86,3 +90,8 @@ class AdRewardsNotifier extends Notifier<AdRewards> {
 
   void startBoost(DateTime now) => state = state.startBoost(now);
 }
+
+/// 인앱 결제. 테스트에서 바꿔 끼운다.
+final billingProvider = Provider<Billing>(
+  (ref) => platformBilling(rootNavigatorKey),
+);

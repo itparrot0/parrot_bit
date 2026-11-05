@@ -82,13 +82,15 @@ final class AdRewards {
       boostActive(now) ? config.boostMultiplier : 1;
 
   /// [from]~[to] 동안 [board]의 시간을 흘린다. 그중 가속이 걸린 앞부분은 배율을 곱한다.
+  /// [baseMultiplier]는 상품(영구 산출 가속) 배율로, 전 구간에 곱한다.
   /// 새로 익은 양을 돌려준다 (복귀 보상 표시용).
   Map<Resource, int> advanceAway(
     BoardModel board,
     DateTime from,
     DateTime to,
-    Map<Resource, int> freeSpace,
-  ) {
+    Map<Resource, int> freeSpace, {
+    double baseMultiplier = 1,
+  }) {
     final total = max(0, to.difference(from).inMilliseconds) / 1000;
     final until = boostUntil;
     final boosted = until == null
@@ -97,9 +99,13 @@ final class AdRewards {
     final first = board.advanceAway(
       boosted,
       freeSpace,
-      multiplier: config.boostMultiplier,
+      multiplier: config.boostMultiplier * baseMultiplier,
     );
-    final second = board.advanceAway(total - boosted, freeSpace);
+    final second = board.advanceAway(
+      total - boosted,
+      freeSpace,
+      multiplier: baseMultiplier,
+    );
     return {
       for (final r in Resource.values)
         if ((first[r] ?? 0) + (second[r] ?? 0) > 0)

@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import '../domain/board_model.dart';
+import 'products.dart';
 
 /// 확장 방향. 보드 가장자리 손잡이 하나가 하나씩 맡는다 (화면 흐름 §3.2).
 enum ExpandDirection {
@@ -14,7 +15,7 @@ enum ExpandDirection {
   clear,
 }
 
-/// 아웃게임 상태: 창고와 테마 완주 여부. 불변 값 — 바꾸는 메서드는 새 값을 돌려준다.
+/// 아웃게임 상태: 창고, 테마 완주 여부, 산 상품. 불변 값 — 바꾸는 메서드는 새 값을 돌려준다.
 ///
 /// 확장 단계는 따로 들고 있지 않는다. 보드 크기([BoardModel.columns]·
 /// [BoardModel.caveRows])가 곧 확장 단계라서, 두 곳에 두면 어긋날 수 있다.
@@ -24,6 +25,7 @@ final class Economy {
     this.amounts = const {},
     this.storageLevel = 0,
     this.cleared = false,
+    this.owned = const {},
   });
 
   final GroveTheme theme;
@@ -37,10 +39,28 @@ final class Economy {
   /// 테마 완주 확장을 샀는가.
   final bool cleared;
 
+  /// 산 비소모성 상품. 스토어 구매 복원으로 다시 채워질 수 있다.
+  final Set<Product> owned;
+
+  bool owns(Product p) => owned.contains(p);
+
   int amountOf(Resource r) => amounts[r] ?? 0;
 
-  /// 자원별 창고 용량 (모든 자원 같음).
-  int get capacity => theme.storageCapacities[storageLevel];
+  /// 자원별 창고 용량 (모든 자원 같음). 창고 확장팩이 있으면 1.5배(내림).
+  int get capacity {
+    final base = theme.storageCapacities[storageLevel];
+    return owns(Product.storagePack)
+        ? (base * ProductEffects.storagePackMultiplier).floor()
+        : base;
+  }
+
+  /// 상품으로 얻은 산출 배율 (광고 가속과 곱해진다).
+  double get outputMultiplier =>
+      owns(Product.outputBoost) ? ProductEffects.outputBoostMultiplier : 1;
+
+  /// 상품을 지급한다 (구매·복원). 이미 있으면 그대로.
+  Economy grant(Iterable<Product> products) =>
+      _copy(owned: {...owned, ...products});
 
   bool isFull(Resource r) => amountOf(r) >= capacity;
 
@@ -120,11 +140,13 @@ final class Economy {
     Map<Resource, int>? amounts,
     int? storageLevel,
     bool? cleared,
+    Set<Product>? owned,
   }) => Economy(
     theme: theme,
     amounts: amounts ?? this.amounts,
     storageLevel: storageLevel ?? this.storageLevel,
     cleared: cleared ?? this.cleared,
+    owned: owned ?? this.owned,
   );
 
   // ---- 저장 형식 ----
@@ -133,6 +155,7 @@ final class Economy {
     'amounts': {for (final e in amounts.entries) e.key.name: e.value},
     'storageLevel': storageLevel,
     'cleared': cleared,
+    'owned': [for (final p in owned) p.id],
   };
 
   static Economy fromJson(Map<String, Object?> json, GroveTheme theme) {
@@ -146,6 +169,11 @@ final class Economy {
         },
         storageLevel: json['storageLevel']! as int,
         cleared: json['cleared']! as bool,
+        // 'owned'는 나중에 더한 칸이다. 모르는 id는 버린다.
+        owned: {
+          if (json['owned'] case final List<Object?> ids)
+            for (final id in ids.whereType<String>()) ?Product.byId(id),
+        },
       );
     } on TypeError catch (e) {
       throw FormatException('broken economy save: $e');

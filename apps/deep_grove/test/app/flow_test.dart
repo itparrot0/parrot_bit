@@ -6,9 +6,12 @@ import 'package:deep_grove/economy/economy.dart';
 import 'package:deep_grove/economy/providers.dart';
 import 'package:deep_grove/game/components/expand_handle_component.dart';
 import 'package:deep_grove/game/grove_game.dart';
+import 'package:deep_grove/economy/products.dart';
 import 'package:deep_grove/platform/ads.dart';
+import 'package:deep_grove/platform/billing.dart';
 import 'package:deep_grove/save/save_repository.dart';
 import 'package:flame/game.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -42,11 +45,33 @@ class FakeAds implements RewardedAds {
   }
 }
 
+/// 정해 둔 대로 답하는 결제.
+class FakeBilling implements Billing {
+  bool succeeds = true;
+  List<String> restorable = const [];
+  final List<String> bought = [];
+
+  @override
+  Future<Map<String, String>> prices(Set<String> productIds) async => {
+    for (final id in productIds) id: '₩3,300',
+  };
+
+  @override
+  Future<bool> purchase(String productId) async {
+    if (succeeds) bought.add(productId);
+    return succeeds;
+  }
+
+  @override
+  Future<List<String>> restore() async => restorable;
+}
+
 Future<InMemoryKeyValueStore> pumpApp(
   WidgetTester tester, {
   InMemoryKeyValueStore? store,
   DateTime? now,
   FakeAds? ads,
+  FakeBilling? billing,
 }) async {
   final s = store ?? InMemoryKeyValueStore();
   await tester.pumpWidget(
@@ -55,6 +80,7 @@ Future<InMemoryKeyValueStore> pumpApp(
         keyValueStoreProvider.overrideWithValue(s),
         clockProvider.overrideWithValue(() => now ?? t0),
         rewardedAdsProvider.overrideWithValue(ads ?? FakeAds()),
+        billingProvider.overrideWithValue(billing ?? FakeBilling()),
       ],
       child: GroveApp(router: _freshRouter()),
     ),
@@ -214,6 +240,7 @@ void main() {
     await tester.tap(find.byTooltip('설정'));
     await settle(tester);
     expect(find.text('구매 복원'), findsOneWidget);
+    expect(find.text('복원'), findsOneWidget);
   });
 
   group('보상형 광고', () {
@@ -264,6 +291,84 @@ void main() {
       await tester.tapAt(const Offset(10, 10)); // 시트 닫기
       await settle(tester);
       expect(find.text('2배 30분'), findsOneWidget);
+    });
+  });
+
+  group('결제', () {
+    Future<void> openShop(WidgetTester tester) async {
+      await tester.tap(find.byTooltip('상점'));
+      await settle(tester);
+    }
+
+    testWidgets('창고 확장팩을 사면 용량이 45가 되고 구매함으로 바뀐다, 저장된다', (tester) async {
+      final billing = FakeBilling();
+      final store = await pumpApp(tester, billing: billing);
+      await openShop(tester);
+      expect(find.text('₩3,300'), findsNWidgets(2));
+      await tester.tap(
+        find.descendant(
+          of: find.byKey(const ValueKey('product-storage_pack')),
+          matching: find.text('₩3,300'),
+        ),
+      );
+      await settle(tester);
+      expect(billing.bought, ['storage_pack']);
+      expect(find.text('구매함'), findsOneWidget);
+      expect(find.text('창고 확장팩을 받았어요'), findsOneWidget);
+      await tester.pageBack();
+      await settle(tester);
+      expect(find.text('목재 0/45'), findsOneWidget);
+      final saved = await SaveRepository(store).load(forestCaveTheme, now: t0);
+      expect(saved.economy.owned, {Product.storagePack});
+    });
+
+    testWidgets('결제를 취소하면 아무것도 받지 않는다', (tester) async {
+      final billing = FakeBilling()..succeeds = false;
+      await pumpApp(tester, billing: billing);
+      await openShop(tester);
+      await tester.tap(find.text('₩3,300').first);
+      await settle(tester);
+      expect(find.text('구매하지 않았어요'), findsOneWidget);
+      expect(find.text('구매함'), findsNothing);
+    });
+
+    testWidgets('구매 복원: 스토어에 있는 상품을 다시 받는다', (tester) async {
+      final billing = FakeBilling()..restorable = ['output_boost'];
+      await pumpApp(tester, billing: billing);
+      await openShop(tester);
+      await tester.tap(find.text('복원'));
+      await settle(tester);
+      expect(find.text('복원했어요: 영구 산출 가속'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('product-output_boost')),
+          matching: find.text('구매함'),
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('설정에서도 복원, 복원할 게 없으면 그렇게 알려 준다', (tester) async {
+      await pumpApp(tester);
+      await tester.tap(find.byTooltip('설정'));
+      await settle(tester);
+      await tester.tap(find.text('복원'));
+      await settle(tester);
+      expect(find.text('복원할 구매가 없어요'), findsOneWidget);
+    });
+
+    testWidgets('영구 산출 가속이 있으면 창고 시트의 분당 산출이 1.5배', (tester) async {
+      final store = InMemoryKeyValueStore();
+      await saveWith(
+        store,
+        emptyBoard()..placeItem(at(0, 0), const Item(woodChain, 5)),
+        const Economy(theme: forestCaveTheme).grant([Product.outputBoost]),
+      );
+      await pumpApp(tester, store: store);
+      await tester.tap(find.textContaining('목재 0/30'));
+      await settle(tester);
+      // 숲 거목: 분당 3 × 지대 1.5 × 상품 1.5 = 6.75
+      expect(find.textContaining('분당 +6.8'), findsOneWidget);
     });
   });
 }

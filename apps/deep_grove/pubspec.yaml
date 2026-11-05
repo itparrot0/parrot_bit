@@ -17,6 +17,7 @@ dependencies:
   core_storage: ^0.1.0
   core_analytics: ^0.1.0
   google_mobile_ads: ^9.2.0
+  in_app_purchase: ^3.3.1
 
 dev_dependencies:
   flutter_test:

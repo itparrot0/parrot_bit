@@ -9,7 +9,7 @@
   방치형 수집(`proto_idle_visit`) — 첫 동작판, 플레이 판정 대기 /
   Garden Grow — 프로토타입 동작, 플레이 판정 대기
 - **보류**: 슬립로그
-- **개발 중**: Deep Grove (머지 게임 정식판) — 보상형 광고까지, 결제 전
+- **개발 중**: Deep Grove (머지 게임 정식판) — 광고·결제까지, 실기기 확인 전
 
 ---
 
@@ -150,11 +150,11 @@ v0.1 원문으로 전면 교체**됐다. 이전 PRD에만 있던 결정들 — �
 4. 디렉터리 리네임: IDE 닫고 `git mv apps/proto_full_bloom apps/proto_garden_grow`
    → pubspec 이름·import·Android namespace 수정.
 
-## 1. Deep Grove (머지 게임) — v0.1 동작 + 보상형 광고, 결제 전
+## 1. Deep Grove (머지 게임) — v0.1 + 보상형 광고 + 결제, 실기기 확인 전
 
 | | |
 |---|---|
-| 코드 | `apps/deep_grove` — Flutter + Flame + Riverpod. 테스트 63개. `apps/proto_merge`는 이식 후 삭제 |
+| 코드 | `apps/deep_grove` — Flutter + Flame + Riverpod. 테스트 73개. `apps/proto_merge`는 이식 후 삭제 |
 | 문서 | `docs/prd/deep_grove.md` (PRD), `docs/screen-flow/deep_grove.md` (화면 흐름), `docs/design/deep_grove-themes.md` (규칙·컨텐츠·수치), `docs/prd/proto_merge.md` (승격 판정) |
 
 **끝난 것 (2026-11-05)**: 열린 결정 5개 확정 → 이름 Deep Grove → PRD·화면 흐름 → 앱 생성·이식.
@@ -176,7 +176,15 @@ AdMob(**테스트 ID**), 웹은 "끝까지 봄 / 중간에 닫기"를 고르는 
 저장도 읽는다). Bloom Wave 에서 확인한 R8 크래시 규칙(`proguard-rules.pro`)과 `key.properties` 서명도 옮겼다.
 **실기기 광고 재생은 확인하지 못했다** — 로컬 APK 로 확인 필요.
 
-**다음 할 일**: PRD "다음 단계" 6번(IAP → 첫 실행 안내 → 지대 표시 → 그래픽), 실기기 광고 확인, 그리고
+**결제 (2026-11-05)**: 비소모성 2종 — 창고 확장팩(`storage_pack`, 용량 1.5배)·영구 산출 가속
+(`output_boost`, 산출 1.5배, 광고 가속과 곱). 상점에서 구매·복원, 설정에서 복원. 산 상품은 저장의
+`economy.owned`(없는 옛 저장도 읽는다). 결제는 `lib/platform/billing.dart` — Android·iOS 는
+in_app_purchase(Bloom Wave `StoreBilling`과 같은 구조), 웹은 "구매/취소"를 고르는 가짜 결제.
+**스토어 상품 등록·가격·실기기 결제는 아직** — 스토어 연결이 없으면 구매는 실패로 끝나고 게임은 그대로다.
+알려진 한계: 결제가 "대기(pending)"로 끝나 나중에 승인되면 그 자리에서 지급되지 않는다 — 구매 복원으로 받는다
+(Bloom Wave 와 같음).
+
+**다음 할 일**: PRD "다음 단계" 6번(첫 실행 안내 → 지대 표시 → 그래픽), 실기기 광고·결제 확인, 그리고
 직접 플레이해서 PRD §10 열린 질문(보드 막힘·탭 제한·경제 수치)에 답한다.
 
 ---
