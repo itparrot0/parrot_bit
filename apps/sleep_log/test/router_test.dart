@@ -3,11 +3,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sleep_log/app/router.dart';
+import 'package:sleep_log/data/providers.dart';
+import 'package:sleep_log/domain/domain.dart';
 import 'package:sleep_log/main.dart';
 
 void main() {
   testWidgets('앱을 띄우면 달력 화면으로 진입한다', (tester) async {
-    await tester.pumpWidget(const ProviderScope(child: SleepLogApp()));
+    // 실제 DB·설정 저장소는 기기 플러그인이 필요하므로 기록만 비워 끼운다.
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          diaryEntriesProvider.overrideWith((ref) => Stream.value(const [])),
+          sleepTargetProvider.overrideWith(
+            (ref) async => SleepTarget.defaultTarget,
+          ),
+        ],
+        child: const SleepLogApp(),
+      ),
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('슬립로그'), findsOneWidget);
