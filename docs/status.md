@@ -154,7 +154,7 @@ v0.1 원문으로 전면 교체**됐다. 이전 PRD에만 있던 결정들 — �
 
 | | |
 |---|---|
-| 코드 | `apps/deep_grove` — Flutter + Flame + Riverpod. 테스트 96개. `apps/proto_merge`는 이식 후 삭제 |
+| 코드 | `apps/deep_grove` — Flutter + Flame + Riverpod. 테스트 99개. `apps/proto_merge`는 이식 후 삭제 |
 | 문서 | `docs/prd/deep_grove.md` (PRD), `docs/screen-flow/deep_grove.md` (화면 흐름), `docs/design/deep_grove-themes.md` (규칙·컨텐츠·수치), `docs/prd/proto_merge.md` (승격 판정) |
 
 **끝난 것 (2026-11-05)**: 열린 결정 5개 확정 → 이름 Deep Grove → PRD·화면 흐름 → 앱 생성·이식.
@@ -197,7 +197,13 @@ in_app_purchase(Bloom Wave `StoreBilling`과 같은 구조), 웹은 "구매/취�
 저장은 열린 칸 목록(`unlocked`) — 이전 저장(`columns`·`caveRows`)은 직사각형으로 열어 읽는다.
 테마 문서 §5·§7-1·§8, 화면 흐름 §3.2를 고쳤다.
 
-**다음 할 일**: 실제 그래픽(`lib/game/skins/skin_registry.dart`), 실기기 광고·결제 확인, 그리고
+**경제 시뮬레이션 (2026-11-05)**: `tool/economy_sim.dart` — 결과·결론은 `docs/design/deep_grove-economy-sim.md`.
+찾은 것 셋: (1) **창고가 거의 차면 산출이 영구히 멈추는 버그** — 고침(빈 공간을 정수 단위로 나눔).
+(2) **지금 수치는 너무 빠르다** — 첫 테마가 계속 플레이 18분, 생성기 무한 탭 때문에 비용만으로는
+조절이 안 된다. (3) **보드 막힘이 실제로 생긴다** — 숲을 목재 산출원으로 채우면 광석이 필요해질 때
+돌 키울 칸이 없어 영원히 진행 불가. 해소 장치·첫 테마 목표 길이·속도 손잡이(에너지 등)를 정해야 한다.
+
+**다음 할 일**: 위 세 가지 결정 → 시뮬레이터로 수치 맞추기. 그 밖에 실제 그래픽(`lib/game/skins/skin_registry.dart`), 실기기 광고·결제 확인, 그리고
 직접 플레이해서 PRD §10 열린 질문(보드 막힘·탭 제한·경제 수치)에 답한다.
 
 ---

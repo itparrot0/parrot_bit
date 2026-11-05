@@ -269,18 +269,25 @@ class BoardModel {
     if (seconds <= 0) {
       return;
     }
-    final room = <Resource, double>{
-      for (final r in Resource.values) r: (freeSpace[r] ?? 0).toDouble(),
+    // 빈 공간은 "다 익은 양(정수)"으로 나눈다. 소수로 나누면 빈 공간이 산출원 여럿에
+    // 1 미만씩 흩어져 아무것도 거둘 수 없는 채 산출이 멈춘다 (경제 시뮬레이션에서 찾은 버그).
+    // 그래서 산출원은 다음 한 단위가 빈 공간을 넘으면 그 정수에서 멈추고, 이미 쌓인 소수는
+    // 깎지 않는다. 결과: 다 익은 양의 합 ≤ 빈 공간, 그리고 빈 공간만큼은 언제나 거둘 수 있다.
+    final room = <Resource, int>{
+      for (final r in Resource.values) r: freeSpace[r] ?? 0,
     };
-    pending.forEach((r, v) => room[r] = room[r]! - v);
+    for (final (_, producer) in producers) {
+      final r = producer.chain.resource;
+      room[r] = room[r]! - producer.ripe;
+    }
     for (final (pos, producer) in producers) {
       final r = producer.chain.resource;
-      final gain = min(
-        rateAt(pos, producer) * multiplier * seconds,
-        max(0.0, room[r]!),
-      );
-      producer.stock += gain;
-      room[r] = room[r]! - gain;
+      final before = producer.ripe;
+      final cap = (before + max(0, room[r]!)).toDouble();
+      final grown =
+          producer.stock + rateAt(pos, producer) * multiplier * seconds;
+      producer.stock = max(producer.stock, min(grown, cap));
+      room[r] = room[r]! - (producer.ripe - before);
     }
   }
 

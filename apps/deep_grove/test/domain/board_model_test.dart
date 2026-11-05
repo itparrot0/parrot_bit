@@ -216,6 +216,25 @@ void main() {
       expect(board.pending[Resource.wood], closeTo(7, 1e-9));
     });
 
+    test('창고가 거의 차도 빈 공간만큼은 거둘 수 있다 (소수로 흩어져 멈추지 않는다)', () {
+      // 산출원 10개, 빈 공간 3: 예전에는 3이 10개에 0.3씩 흩어져 아무것도 못 거뒀다.
+      final board = emptyBoard();
+      for (final pos in board.unlocked.take(10)) {
+        board.placeItem(pos, const Item(woodChain, 5));
+      }
+      const free = {Resource.wood: 3, Resource.ore: 0};
+      for (var i = 0; i < 1000; i++) {
+        board.advance(0.25, free);
+      }
+      final ripe = board.producers.fold<int>(0, (a, e) => a + e.$2.ripe);
+      expect(ripe, 3);
+      var harvested = 0;
+      for (final (pos, _) in board.producers) {
+        harvested += board.harvest(pos)?.$2 ?? 0;
+      }
+      expect(harvested, 3);
+    });
+
     test('다 익지 않았으면 harvest는 null', () {
       final board = emptyBoard()..placeItem(at(0, 0), const Item(woodChain, 5));
       board.advance(5, plenty);
