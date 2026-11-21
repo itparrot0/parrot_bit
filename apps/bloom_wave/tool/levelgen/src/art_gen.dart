@@ -8,13 +8,21 @@ import 'package:bloom_wave/domain/engine.dart' show dir8;
 import 'package:bloom_wave/domain/generator.dart';
 
 import 'art_complex.dart';
+import 'art_flags.dart';
+import 'art_hires.dart';
 import 'art_source.dart';
+import 'art_toys.dart';
 
 /// 그림 묶음(유형). 같은 묶음끼리는 스테이지 배치에서 너무 가깝게 붙지 않게 한다
 String familyOf(String name) {
   if (_alias.containsKey(name)) return _alias[name]!;
   final i = name.lastIndexOf('_');
-  return (name.startsWith('g_') || name.startsWith('c_')) && i > 1
+  return (name.startsWith('g_') ||
+              name.startsWith('c_') ||
+              name.startsWith('h_') ||
+              name.startsWith('f_') ||
+              name.startsWith('t_')) &&
+          i > 1
       ? name.substring(0, i)
       : name;
 }
@@ -2159,4 +2167,7 @@ List<ArtSource> generatedArts() => [
   ..._characters(),
   ..._illustrations(),
   ...complexArts(),
+  ...hiresArts(),
+  ...flagArts(),
+  ...toyArts(),
 ];
