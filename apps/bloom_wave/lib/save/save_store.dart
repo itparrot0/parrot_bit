@@ -26,37 +26,22 @@ const saveSchema = 8;
 const maxOrders = 100;
 
 class Settings {
-  const Settings({
-    this.sound = true,
-    this.vibration = true,
-    this.fastFx = false,
-    this.lang = 'ko',
-  });
+  const Settings({this.sound = true, this.vibration = true, this.lang = 'ko'});
   final bool sound;
   final bool vibration;
-
-  /// 빠른 연출 (애니메이션 축약)
-  final bool fastFx;
 
   /// 'ko' | 'en'
   final String lang;
 
-  Settings copyWith({
-    bool? sound,
-    bool? vibration,
-    bool? fastFx,
-    String? lang,
-  }) => Settings(
+  Settings copyWith({bool? sound, bool? vibration, String? lang}) => Settings(
     sound: sound ?? this.sound,
     vibration: vibration ?? this.vibration,
-    fastFx: fastFx ?? this.fastFx,
     lang: lang ?? this.lang,
   );
 
   Map<String, dynamic> toJson() => {
     'sound': sound,
     'vibration': vibration,
-    'fastFx': fastFx,
     'lang': lang,
   };
 }
@@ -183,7 +168,6 @@ SaveData migrate(Object? raw, {String lang = 'ko'}) {
     d.settings = Settings(
       sound: s['sound'] is bool ? s['sound'] as bool : true,
       vibration: s['vibration'] is bool ? s['vibration'] as bool : true,
-      fastFx: s['fastFx'] == true,
       lang: l == 'ko' || l == 'en' ? l as String : lang,
     );
   }

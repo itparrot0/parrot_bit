@@ -39,6 +39,7 @@ void main() {
       'seed',
       'sprout',
       for (final s in skins) 'bloom_${s.id}',
+      for (final s in skins) 'full_${s.id}',
     ]) {
       final f = File('assets/anim/$name.png');
       expect(f.existsSync(), isTrue, reason: name);
