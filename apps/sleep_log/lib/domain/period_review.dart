@@ -1,6 +1,7 @@
 import 'diary_date.dart';
 import 'diary_entry.dart';
 import 'mood_tag.dart';
+import 'sleep_habits.dart';
 import 'sleep_mark.dart';
 import 'thought_check_in.dart';
 
@@ -66,6 +67,12 @@ enum PatternKind {
   busyMind('머릿속이 바쁘게 돌아간 날이 이어졌어요', tone: Tone.heavy),
   senseShift('주변이나 몸의 느낌이 평소와 다르게 다가온 날이 이어졌어요', tone: Tone.heavy),
 
+  /// 잠은 목표만큼 잤는데 일어났을 때 덜 풀렸다고 고른 날.
+  restedMismatch('잠은 충분했는데 덜 풀린 날이 이어졌어요', tone: Tone.heavy),
+
+  /// 잠든 시각이 전날보다 [PeriodReview.bedtimeSwing] 넘게 달라진 날.
+  bedtimeSwing('잠든 시각이 하루하루 크게 오르내린 날이 이어졌어요', tone: Tone.heavy),
+
   enoughSleep('목표만큼 푹 잔 날이 이어졌어요', tone: Tone.light),
   goodMood('좋은 기분을 기록한 날이 이어졌어요', tone: Tone.light);
 
@@ -96,6 +103,7 @@ final class PeriodReview {
     required this.checkInCount,
     required this.runs,
     required this.thoughts,
+    required this.bedtime,
   });
 
   /// [range] 안의 기록·체크인을 분석한다.
@@ -142,6 +150,9 @@ final class PeriodReview {
         PatternKind.senseShift => dayCheckIns.any(
           (c) => c.senses == SenseShift.some || c.senses == SenseShift.often,
         ),
+        PatternKind.restedMismatch =>
+          (mark?.meetsTarget ?? false) && entry?.rested == RestFeeling.unrested,
+        PatternKind.bedtimeSwing => _swungFromPreviousDay(byDate, date),
         PatternKind.enoughSleep => mark?.meetsTarget ?? false,
         PatternKind.goodMood =>
           entry?.tags.any((t) => t.group == MoodGroup.positive) ?? false,
@@ -203,6 +214,7 @@ final class PeriodReview {
       checkInCount: checkInsByDate.values.fold(0, (sum, l) => sum + l.length),
       runs: runs,
       thoughts: thoughts,
+      bedtime: BedtimeRegularity.of(byDate.values),
     );
   }
 
@@ -261,7 +273,31 @@ final class PeriodReview {
   /// 기간 안에 적은 생각들 (화면이 섞어서 보여 준다).
   final List<ThoughtPair> thoughts;
 
+  /// 기간 안 잠든 시각의 규칙성. 수면 기록이 적으면 null.
+  final BedtimeRegularity? bedtime;
+
   bool get isEmpty => recordedDays == 0 && checkInCount == 0;
+
+  /// 전날과 잠든 시각이 이만큼 넘게 다르면 "크게 오르내렸다"고 본다.
+  static const Duration bedtimeSwing = Duration(minutes: 90);
+
+  /// [date]와 전날 모두 수면이 있고, 잠든 시각이 [bedtimeSwing] 넘게 달랐다.
+  /// 전날 기록이 없으면 비교할 수 없으므로 아니다.
+  static bool _swungFromPreviousDay(
+    Map<DiaryDate, DiaryEntry> byDate,
+    DiaryDate date,
+  ) {
+    final today = byDate[date]?.sleep?.bedTime;
+    final yesterday = byDate[date.previous]?.sleep?.bedTime;
+    if (today == null || yesterday == null) {
+      return false;
+    }
+    final difference =
+        (BedtimeRegularity.nightMinutes(today) -
+                BedtimeRegularity.nightMinutes(yesterday))
+            .abs();
+    return difference > bedtimeSwing.inMinutes;
+  }
 
   /// 새벽 1시~6시 사이에 잠들었다. 그 전날 밤 23시 취침과 구분한다.
   static bool _isLateBedtime(DiaryEntry? entry) {

@@ -2,6 +2,45 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sleep_log/domain/domain.dart';
 
 void main() {
+  group('생활 태그', () {
+    test('7개이고 기분 팔레트와 따로 센다', () {
+      expect(DefaultMoodTags.lifestyle, hasLength(7));
+      expect(
+        DefaultMoodTags.lifestyle.every((t) => t.group == MoodGroup.lifestyle),
+        isTrue,
+      );
+      expect(
+        DefaultMoodTags.all.any((t) => t.group == MoodGroup.lifestyle),
+        isFalse,
+      );
+    });
+
+    test('id가 기분 태그와 겹치지 않고 byId로 되찾는다', () {
+      final ids = DefaultMoodTags.everything.map((t) => t.id).toSet();
+      expect(ids, hasLength(DefaultMoodTags.everything.length));
+      expect(DefaultMoodTags.byId('caffeine'), DefaultMoodTags.caffeine);
+    });
+
+    test('생활 태그는 부정 기분으로 세지 않는다', () {
+      final entry = DiaryEntry(
+        date: const DiaryDate(2026, 11, 5),
+        tags: {DefaultMoodTags.alcohol, DefaultMoodTags.lateWork},
+      );
+      expect(entry.hasNegativeMood, isFalse);
+      expect(MoodGroup.lifestyle.isMood, isFalse);
+    });
+  });
+
+  test('개운함만 있어도 빈 기록이 아니다', () {
+    expect(
+      DiaryEntry(
+        date: const DiaryDate(2026, 11, 5),
+        rested: RestFeeling.soso,
+      ).isEmpty,
+      isFalse,
+    );
+  });
+
   group('DefaultMoodTags 팔레트', () {
     test('15개이고 묶음마다 5개다', () {
       expect(DefaultMoodTags.all, hasLength(15));

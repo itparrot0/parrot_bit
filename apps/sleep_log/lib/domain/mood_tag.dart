@@ -15,6 +15,15 @@ enum MoodGroup {
   /// **안전 판정에 넣지 않는다.** "피곤"은 바빴다는 뜻일 수도 있어서,
   /// 이걸 부정으로 세면 상담 안내가 엉뚱하게 뜬다.
   physical,
+
+  /// 생활 — 어제 한 일(커피, 운동, 자기 전 휴대폰…). 감정이 아니라 **행동**이라
+  /// 안전 판정에 넣지 않고, 입력 화면에서도 "어제 하루"로 따로 묻는다.
+  /// 리포트에서 "커피 마신 날 평균 수면"처럼 스스로 바꿀 수 있는 것과의 대조가
+  /// 된다 (PRD §3-5).
+  lifestyle;
+
+  /// 기분·몸 묶음인가 (입력 화면의 "지금 상태").
+  bool get isMood => this != lifestyle;
 }
 
 /// 감정 태그 하나.
@@ -139,11 +148,62 @@ abstract final class DefaultMoodTags {
     headache,
   ];
 
+  // 생활 태그 (PRD §3-1 생활). 기분 팔레트(12~16개 제한)와 따로 센다.
+  static const caffeine = MoodTag(
+    id: 'caffeine',
+    label: '커피·카페인',
+    group: MoodGroup.lifestyle,
+  );
+  static const alcohol = MoodTag(
+    id: 'alcohol',
+    label: '술',
+    group: MoodGroup.lifestyle,
+  );
+  static const exercise = MoodTag(
+    id: 'exercise',
+    label: '운동',
+    group: MoodGroup.lifestyle,
+  );
+  static const nap = MoodTag(
+    id: 'nap',
+    label: '낮잠',
+    group: MoodGroup.lifestyle,
+  );
+  static const screenAtBed = MoodTag(
+    id: 'screen_at_bed',
+    label: '자기 전 휴대폰',
+    group: MoodGroup.lifestyle,
+  );
+  static const lateMeal = MoodTag(
+    id: 'late_meal',
+    label: '늦은 야식',
+    group: MoodGroup.lifestyle,
+  );
+  static const lateWork = MoodTag(
+    id: 'late_work',
+    label: '늦게까지 일·공부',
+    group: MoodGroup.lifestyle,
+  );
+
+  /// 생활 태그 7개. 기분 팔레트 [all]과 따로 둔다.
+  static const List<MoodTag> lifestyle = [
+    caffeine,
+    alcohol,
+    exercise,
+    nap,
+    screenAtBed,
+    lateMeal,
+    lateWork,
+  ];
+
+  /// 기분·몸 + 생활 전부. 저장된 id를 되찾을 때 쓴다.
+  static const List<MoodTag> everything = [...all, ...lifestyle];
+
   static List<MoodTag> ofGroup(MoodGroup group) =>
-      all.where((tag) => tag.group == group).toList();
+      everything.where((tag) => tag.group == group).toList();
 
   static MoodTag? byId(String id) {
-    for (final tag in all) {
+    for (final tag in everything) {
       if (tag.id == id) {
         return tag;
       }

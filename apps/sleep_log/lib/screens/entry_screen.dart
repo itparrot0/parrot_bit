@@ -42,6 +42,7 @@ class _EntryScreenState extends ConsumerState<EntryScreen> {
   ClockTime? _bedTime;
   ClockTime? _wakeTime;
   Set<MoodTag> _tags = {};
+  RestFeeling? _rested;
 
   /// 새 기록에서 수면을 처음 넣을 때 쓸 시각 (가장 최근 수면 기록).
   SleepSession? _lastSleep;
@@ -72,6 +73,7 @@ class _EntryScreenState extends ConsumerState<EntryScreen> {
       _bedTime = saved?.sleep?.bedTime;
       _wakeTime = saved?.sleep?.wakeTime;
       _tags = {...?saved?.tags};
+      _rested = saved?.rested;
       _tagOrder = {
         for (final group in MoodGroup.values)
           group: TagOrder.forGroup(group, entries),
@@ -96,7 +98,7 @@ class _EntryScreenState extends ConsumerState<EntryScreen> {
     final date = _date;
     return date == null
         ? null
-        : DiaryEntry(date: date, sleep: _sleep, tags: _tags);
+        : DiaryEntry(date: date, sleep: _sleep, tags: _tags, rested: _rested);
   }
 
   bool get _canSave {
@@ -109,6 +111,7 @@ class _EntryScreenState extends ConsumerState<EntryScreen> {
     final savedSleep = saved?.sleep;
     return _bedTime != savedSleep?.bedTime ||
         _wakeTime != savedSleep?.wakeTime ||
+        _rested != saved?.rested ||
         !_sameTags(_tags, saved?.tags ?? const {});
   }
 
@@ -175,10 +178,38 @@ class _EntryScreenState extends ConsumerState<EntryScreen> {
       children: [
         const _SectionTitle('수면'),
         if (_hasSleep) ..._buildSleepInputs(context) else _buildAddSleep(),
+        const SizedBox(height: 16),
+        const _SectionTitle('일어났을 때'),
+        _buildRested(),
         const Divider(height: 32),
         const _SectionTitle('지금 상태'),
-        for (final group in MoodGroup.values) _buildTagGroup(group),
+        for (final group in MoodGroup.values)
+          if (group.isMood) _buildTagGroup(group),
+        const Divider(height: 32),
+        // 생활은 감정이 아니라 어제 한 일이라 따로 묻는다 (PRD §3-1).
+        const _SectionTitle('어제 하루'),
+        _buildTagGroup(MoodGroup.lifestyle),
       ],
+    );
+  }
+
+  /// 개운함 — 하나만 고르고, 다시 누르면 풀린다. 수면 시각 없이도 남길 수 있다.
+  Widget _buildRested() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 4,
+        children: [
+          for (final feeling in RestFeeling.values)
+            ChoiceChip(
+              label: Text(feeling.label),
+              selected: _rested == feeling,
+              onSelected: (picked) =>
+                  setState(() => _rested = picked ? feeling : null),
+            ),
+        ],
+      ),
     );
   }
 

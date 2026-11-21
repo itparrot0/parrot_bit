@@ -191,6 +191,47 @@ void main() {
     });
   });
 
+  group('습관 흐름', () {
+    test('잠은 충분했는데 덜 풀린 날이 이어지면 알려 준다', () {
+      final r = review([
+        for (var d = 1; d <= 3; d++)
+          DiaryEntry(
+            date: DiaryDate(2026, 11, d),
+            sleep: SleepSession(
+              bedTime: ClockTime(23, 0),
+              wakeTime: ClockTime(7, 0),
+            ),
+            rested: RestFeeling.unrested,
+          ),
+      ]);
+
+      expect(
+        r.runs.map((run) => run.kind),
+        contains(PatternKind.restedMismatch),
+      );
+    });
+
+    test('잠든 시각이 전날보다 90분 넘게 달라진 날이 3일 이어지면 알려 준다', () {
+      // 23시 → 1시(+120) → 22시30분(-150) → 1시(+150)
+      final r = review([
+        entry(1, hours: 7, bedHour: 23),
+        entry(2, hours: 7, bedHour: 1),
+        entry(3, hours: 7, bedHour: 22),
+        entry(4, hours: 7, bedHour: 1),
+      ]);
+
+      final swing = r.runs.where((run) => run.kind == PatternKind.bedtimeSwing);
+      expect(swing.single.range.from, const DiaryDate(2026, 11, 2));
+      expect(swing.single.range.to, const DiaryDate(2026, 11, 4));
+    });
+
+    test('기간의 잠든 시각 규칙성을 낸다', () {
+      final r = review([for (var d = 1; d <= 5; d++) entry(d, hours: 7)]);
+      expect(r.bedtime!.averageBedtime, ClockTime(23, 0));
+      expect(r.bedtime!.level, BedtimeSpread.steady);
+    });
+  });
+
   group('묶음', () {
     test('겹침이 덮는 개별 흐름은 빼고, 같은 구간은 한 묶음으로', () {
       final r = review(

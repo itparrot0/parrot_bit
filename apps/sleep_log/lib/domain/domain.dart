@@ -13,6 +13,7 @@ export 'pace_sleep_report.dart';
 export 'period_review.dart';
 export 'safety_check.dart';
 export 'safety_notice_policy.dart';
+export 'sleep_habits.dart';
 export 'sleep_mark.dart';
 export 'sleep_session.dart';
 export 'tag_order.dart';

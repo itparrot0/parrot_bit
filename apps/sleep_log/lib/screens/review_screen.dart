@@ -74,6 +74,16 @@ class _ReviewScreenState extends ConsumerState<ReviewScreen> {
           const _Empty()
         else ...[
           _Summary(review: review),
+          if (review.bedtime case final bedtime?)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(
+                '잠든 시각은 평균 ${bedtime.averageBedtime}, '
+                '${bedtime.level.description}',
+                key: const Key('review.bedtime'),
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
           const SizedBox(height: 24),
           _Runs(groups: review.groups),
           const SizedBox(height: 24),

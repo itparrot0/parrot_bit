@@ -16,6 +16,9 @@ class DiaryEntries extends Table {
   IntColumn get bedMinute => integer().nullable()();
   IntColumn get wakeMinute => integer().nullable()();
 
+  /// `RestFeeling.name`. 답하지 않았으면 null. (schema 3)
+  TextColumn get rested => text().nullable()();
+
   @override
   Set<Column<Object>> get primaryKey => {date};
 
@@ -74,15 +77,18 @@ class ThoughtCheckIns extends Table {
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
 
-  /// 1: 기록·태그. 2: 생각 돌아보기 체크인 표 추가.
+  /// 1: 기록·태그. 2: 생각 돌아보기 체크인 표 추가. 3: 개운함 열 추가.
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onUpgrade: (migrator, from, to) async {
       if (from < 2) {
         await migrator.createTable(thoughtCheckIns);
+      }
+      if (from < 3) {
+        await migrator.addColumn(diaryEntries, diaryEntries.rested);
       }
     },
     beforeOpen: (details) async {

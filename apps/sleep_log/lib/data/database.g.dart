@@ -40,8 +40,17 @@ class $DiaryEntriesTable extends DiaryEntries
     type: DriftSqlType.int,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _restedMeta = const VerificationMeta('rested');
   @override
-  List<GeneratedColumn> get $columns => [date, bedMinute, wakeMinute];
+  late final GeneratedColumn<String> rested = GeneratedColumn<String>(
+    'rested',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [date, bedMinute, wakeMinute, rested];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -74,6 +83,12 @@ class $DiaryEntriesTable extends DiaryEntries
         wakeMinute.isAcceptableOrUnknown(data['wake_minute']!, _wakeMinuteMeta),
       );
     }
+    if (data.containsKey('rested')) {
+      context.handle(
+        _restedMeta,
+        rested.isAcceptableOrUnknown(data['rested']!, _restedMeta),
+      );
+    }
     return context;
   }
 
@@ -95,6 +110,10 @@ class $DiaryEntriesTable extends DiaryEntries
         DriftSqlType.int,
         data['${effectivePrefix}wake_minute'],
       ),
+      rested: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}rested'],
+      ),
     );
   }
 
@@ -111,7 +130,15 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
   /// 남긴 날이 있기 때문이다 (docs/screen-flow/sleep_log.md §5).
   final int? bedMinute;
   final int? wakeMinute;
-  const DiaryEntryRow({required this.date, this.bedMinute, this.wakeMinute});
+
+  /// `RestFeeling.name`. 답하지 않았으면 null. (schema 3)
+  final String? rested;
+  const DiaryEntryRow({
+    required this.date,
+    this.bedMinute,
+    this.wakeMinute,
+    this.rested,
+  });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -121,6 +148,9 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
     }
     if (!nullToAbsent || wakeMinute != null) {
       map['wake_minute'] = Variable<int>(wakeMinute);
+    }
+    if (!nullToAbsent || rested != null) {
+      map['rested'] = Variable<String>(rested);
     }
     return map;
   }
@@ -134,6 +164,9 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
       wakeMinute: wakeMinute == null && nullToAbsent
           ? const Value.absent()
           : Value(wakeMinute),
+      rested: rested == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rested),
     );
   }
 
@@ -146,6 +179,7 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
       date: serializer.fromJson<String>(json['date']),
       bedMinute: serializer.fromJson<int?>(json['bedMinute']),
       wakeMinute: serializer.fromJson<int?>(json['wakeMinute']),
+      rested: serializer.fromJson<String?>(json['rested']),
     );
   }
   @override
@@ -155,6 +189,7 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
       'date': serializer.toJson<String>(date),
       'bedMinute': serializer.toJson<int?>(bedMinute),
       'wakeMinute': serializer.toJson<int?>(wakeMinute),
+      'rested': serializer.toJson<String?>(rested),
     };
   }
 
@@ -162,10 +197,12 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
     String? date,
     Value<int?> bedMinute = const Value.absent(),
     Value<int?> wakeMinute = const Value.absent(),
+    Value<String?> rested = const Value.absent(),
   }) => DiaryEntryRow(
     date: date ?? this.date,
     bedMinute: bedMinute.present ? bedMinute.value : this.bedMinute,
     wakeMinute: wakeMinute.present ? wakeMinute.value : this.wakeMinute,
+    rested: rested.present ? rested.value : this.rested,
   );
   DiaryEntryRow copyWithCompanion(DiaryEntriesCompanion data) {
     return DiaryEntryRow(
@@ -174,6 +211,7 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
       wakeMinute: data.wakeMinute.present
           ? data.wakeMinute.value
           : this.wakeMinute,
+      rested: data.rested.present ? data.rested.value : this.rested,
     );
   }
 
@@ -182,49 +220,56 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
     return (StringBuffer('DiaryEntryRow(')
           ..write('date: $date, ')
           ..write('bedMinute: $bedMinute, ')
-          ..write('wakeMinute: $wakeMinute')
+          ..write('wakeMinute: $wakeMinute, ')
+          ..write('rested: $rested')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(date, bedMinute, wakeMinute);
+  int get hashCode => Object.hash(date, bedMinute, wakeMinute, rested);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is DiaryEntryRow &&
           other.date == this.date &&
           other.bedMinute == this.bedMinute &&
-          other.wakeMinute == this.wakeMinute);
+          other.wakeMinute == this.wakeMinute &&
+          other.rested == this.rested);
 }
 
 class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
   final Value<String> date;
   final Value<int?> bedMinute;
   final Value<int?> wakeMinute;
+  final Value<String?> rested;
   final Value<int> rowid;
   const DiaryEntriesCompanion({
     this.date = const Value.absent(),
     this.bedMinute = const Value.absent(),
     this.wakeMinute = const Value.absent(),
+    this.rested = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   DiaryEntriesCompanion.insert({
     required String date,
     this.bedMinute = const Value.absent(),
     this.wakeMinute = const Value.absent(),
+    this.rested = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : date = Value(date);
   static Insertable<DiaryEntryRow> custom({
     Expression<String>? date,
     Expression<int>? bedMinute,
     Expression<int>? wakeMinute,
+    Expression<String>? rested,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (date != null) 'date': date,
       if (bedMinute != null) 'bed_minute': bedMinute,
       if (wakeMinute != null) 'wake_minute': wakeMinute,
+      if (rested != null) 'rested': rested,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -233,12 +278,14 @@ class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
     Value<String>? date,
     Value<int?>? bedMinute,
     Value<int?>? wakeMinute,
+    Value<String?>? rested,
     Value<int>? rowid,
   }) {
     return DiaryEntriesCompanion(
       date: date ?? this.date,
       bedMinute: bedMinute ?? this.bedMinute,
       wakeMinute: wakeMinute ?? this.wakeMinute,
+      rested: rested ?? this.rested,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -255,6 +302,9 @@ class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
     if (wakeMinute.present) {
       map['wake_minute'] = Variable<int>(wakeMinute.value);
     }
+    if (rested.present) {
+      map['rested'] = Variable<String>(rested.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -267,6 +317,7 @@ class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
           ..write('date: $date, ')
           ..write('bedMinute: $bedMinute, ')
           ..write('wakeMinute: $wakeMinute, ')
+          ..write('rested: $rested, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -935,6 +986,7 @@ typedef $$DiaryEntriesTableCreateCompanionBuilder =
       required String date,
       Value<int?> bedMinute,
       Value<int?> wakeMinute,
+      Value<String?> rested,
       Value<int> rowid,
     });
 typedef $$DiaryEntriesTableUpdateCompanionBuilder =
@@ -942,6 +994,7 @@ typedef $$DiaryEntriesTableUpdateCompanionBuilder =
       Value<String> date,
       Value<int?> bedMinute,
       Value<int?> wakeMinute,
+      Value<String?> rested,
       Value<int> rowid,
     });
 
@@ -989,6 +1042,11 @@ class $$DiaryEntriesTableFilterComposer
 
   ColumnFilters<int> get wakeMinute => $composableBuilder(
     column: $table.wakeMinute,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get rested => $composableBuilder(
+    column: $table.rested,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1041,6 +1099,11 @@ class $$DiaryEntriesTableOrderingComposer
     column: $table.wakeMinute,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get rested => $composableBuilder(
+    column: $table.rested,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$DiaryEntriesTableAnnotationComposer
@@ -1062,6 +1125,9 @@ class $$DiaryEntriesTableAnnotationComposer
     column: $table.wakeMinute,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get rested =>
+      $composableBuilder(column: $table.rested, builder: (column) => column);
 
   Expression<T> entryTagsRefs<T extends Object>(
     Expression<T> Function($$EntryTagsTableAnnotationComposer a) f,
@@ -1120,11 +1186,13 @@ class $$DiaryEntriesTableTableManager
                 Value<String> date = const Value.absent(),
                 Value<int?> bedMinute = const Value.absent(),
                 Value<int?> wakeMinute = const Value.absent(),
+                Value<String?> rested = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => DiaryEntriesCompanion(
                 date: date,
                 bedMinute: bedMinute,
                 wakeMinute: wakeMinute,
+                rested: rested,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -1132,11 +1200,13 @@ class $$DiaryEntriesTableTableManager
                 required String date,
                 Value<int?> bedMinute = const Value.absent(),
                 Value<int?> wakeMinute = const Value.absent(),
+                Value<String?> rested = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => DiaryEntriesCompanion.insert(
                 date: date,
                 bedMinute: bedMinute,
                 wakeMinute: wakeMinute,
+                rested: rested,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

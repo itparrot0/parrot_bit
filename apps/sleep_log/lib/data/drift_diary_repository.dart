@@ -54,6 +54,7 @@ final class DriftDiaryRepository implements DiaryRepository {
               date: key,
               bedMinute: Value(entry.sleep?.bedTime.totalMinutes),
               wakeMinute: Value(entry.sleep?.wakeTime.totalMinutes),
+              rested: Value(entry.rested?.name),
             ),
           );
       await (_db.delete(_db.entryTags)..where((t) => t.date.equals(key))).go();
@@ -112,6 +113,7 @@ final class DriftDiaryRepository implements DiaryRepository {
       date: date,
       sleep: _toSleep(row.bedMinute, row.wakeMinute),
       tags: {...tagIds.map(DefaultMoodTags.byId).nonNulls},
+      rested: RestFeeling.tryParse(row.rested),
     );
   }
 

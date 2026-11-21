@@ -98,28 +98,43 @@ class _Report extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final stats = TagSleepReport.build(entries);
+    final moodStats = [
+      for (final stat in stats)
+        if (stat.tag.group.isMood) stat,
+    ];
+    final lifestyleStats = [
+      for (final stat in stats)
+        if (!stat.tag.group.isMood) stat,
+    ];
     final paceStats = PaceSleepReport.build(
       entries,
       ref.watch(checkInsProvider).value ?? const [],
     );
+    final restStats = RestSleepReport.build(entries);
+    // 습관은 바뀌므로 최근 기록으로 본다.
+    final recent = entries.length <= _recentDays
+        ? entries
+        : entries.sublist(entries.length - _recentDays);
+    final bedtime = BedtimeRegularity.of(recent);
     final overall = TagSleepReport.overallAverage(entries)!;
     final days = TagSleepReport.sleepDayCount(entries);
+
+    ListTile row(String title, String count, Duration average) => ListTile(
+      title: Text(title),
+      subtitle: Text(count),
+      trailing: Text(
+        formatDuration(average),
+        style: theme.textTheme.titleMedium,
+      ),
+    );
 
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: 16),
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text('태그를 붙인 날의 평균 수면시간', style: theme.textTheme.titleMedium),
-        ),
-        const SizedBox(height: 4),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            '수면을 기록한 $days일 기준이에요. '
-            '함께 기록된 것을 나란히 놓았을 뿐, 원인을 뜻하지는 않아요.',
-            style: theme.textTheme.bodySmall,
-          ),
+        _Heading(
+          '태그를 붙인 날의 평균 수면시간',
+          '수면을 기록한 $days일 기준이에요. '
+              '함께 기록된 것을 나란히 놓았을 뿐, 원인을 뜻하지는 않아요.',
         ),
         const SizedBox(height: 12),
         ListTile(
@@ -131,47 +146,79 @@ class _Report extends ConsumerWidget {
           ),
         ),
         const Divider(),
-        if (stats.isEmpty)
+        if (moodStats.isEmpty)
           const Padding(
             padding: EdgeInsets.all(16),
-            child: Text('수면과 함께 태그를 붙인 날이 아직 없어요.'),
+            child: Text('수면과 함께 기분 태그를 붙인 날이 아직 없어요.'),
           )
         else
-          for (final stat in stats)
-            ListTile(
-              title: Text(stat.tag.label),
-              subtitle: Text('${stat.dayCount}일'),
-              trailing: Text(
-                formatDuration(stat.averageSleep),
-                style: theme.textTheme.titleMedium,
-              ),
+          for (final stat in moodStats)
+            row(stat.tag.label, '${stat.dayCount}일', stat.averageSleep),
+        if (lifestyleStats.isNotEmpty) ...[
+          const Divider(height: 32),
+          const _Heading(
+            '어제 한 일과 그날 밤의 수면',
+            '생활 태그를 붙인 날의 평균이에요. 스스로 바꿔 볼 수 있는 것들이에요.',
+          ),
+          for (final stat in lifestyleStats)
+            row(stat.tag.label, '${stat.dayCount}일', stat.averageSleep),
+        ],
+        if (bedtime != null) ...[
+          const Divider(height: 32),
+          _Heading('잠든 시각', '최근 ${bedtime.dayCount}일 기준이에요.'),
+          ListTile(
+            key: const Key('report.bedtime'),
+            title: Text(bedtime.level.description),
+            subtitle: Text('보통 ${formatDuration(bedtime.spread)} 정도 앞뒤로 움직였어요'),
+            trailing: Text(
+              '평균 ${bedtime.averageBedtime}',
+              style: theme.textTheme.titleMedium,
             ),
+          ),
+        ],
+        if (RestSleepReport.hasEnoughData(restStats)) ...[
+          const Divider(height: 32),
+          const _Heading('개운함별 수면시간', '일어났을 때 고른 느낌과 그날의 잠을 나란히 놓았어요.'),
+          for (final stat in restStats)
+            row(stat.feeling.label, '${stat.dayCount}일', stat.averageSleep),
+        ],
         // 생각 돌아보기를 쓰는 사람에게만, 충분히 쌓였을 때만 (PRD §3-3).
         if (PaceSleepReport.hasEnoughData(paceStats)) ...[
           const Divider(height: 32),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text('머릿속 속도별 그날의 수면시간', style: theme.textTheme.titleMedium),
-          ),
-          const SizedBox(height: 4),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              '생각 돌아보기에서 고른 속도와 그날 아침까지의 잠을 나란히 놓았어요.',
-              style: theme.textTheme.bodySmall,
-            ),
+          const _Heading(
+            '머릿속 속도별 그날의 수면시간',
+            '생각 돌아보기에서 고른 속도와 그날 아침까지의 잠을 나란히 놓았어요.',
           ),
           for (final stat in paceStats)
-            ListTile(
-              title: Text(stat.pace.label),
-              subtitle: Text('${stat.dayCount}일'),
-              trailing: Text(
-                formatDuration(stat.averageSleep),
-                style: theme.textTheme.titleMedium,
-              ),
-            ),
+            row(stat.pace.label, '${stat.dayCount}일', stat.averageSleep),
         ],
       ],
+    );
+  }
+
+  /// 잠든 시각 규칙성을 볼 최근 기록 수.
+  static const int _recentDays = 14;
+}
+
+class _Heading extends StatelessWidget {
+  const _Heading(this.title, this.subtitle);
+
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: theme.textTheme.titleMedium),
+          const SizedBox(height: 4),
+          Text(subtitle, style: theme.textTheme.bodySmall),
+        ],
+      ),
     );
   }
 }

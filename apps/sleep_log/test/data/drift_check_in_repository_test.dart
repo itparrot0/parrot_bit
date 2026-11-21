@@ -153,4 +153,51 @@ void main() {
       reason: '기존 기록이 보존돼야 한다',
     );
   });
+
+  test('schema 2 DB를 열면 개운함 열이 생기고 기존 기록·체크인은 남는다', () async {
+    final legacy = AppDatabase(
+      NativeDatabase.memory(
+        setup: (raw) {
+          raw
+            ..execute(
+              'CREATE TABLE diary_entries (date TEXT NOT NULL PRIMARY KEY, '
+              'bed_minute INTEGER NULL, wake_minute INTEGER NULL, '
+              'CHECK ((bed_minute IS NULL) = (wake_minute IS NULL)))',
+            )
+            ..execute(
+              'CREATE TABLE entry_tags (date TEXT NOT NULL REFERENCES '
+              'diary_entries (date) ON DELETE CASCADE, tag_id TEXT NOT NULL, '
+              'PRIMARY KEY (date, tag_id))',
+            )
+            ..execute(
+              'CREATE TABLE thought_check_ins (date TEXT NOT NULL, '
+              'slot TEXT NOT NULL, pace TEXT NULL, senses TEXT NULL, '
+              'thought TEXT NULL, reframe TEXT NULL, PRIMARY KEY (date, slot))',
+            )
+            ..execute(
+              "INSERT INTO diary_entries (date, bed_minute, wake_minute) "
+              "VALUES ('2026-11-04', 0, 420)",
+            )
+            ..execute(
+              "INSERT INTO thought_check_ins (date, slot, pace) "
+              "VALUES ('2026-11-04', 'morning', 'busy')",
+            )
+            ..execute('PRAGMA user_version = 2');
+        },
+      ),
+    );
+    addTearDown(legacy.close);
+
+    final diary = DriftDiaryRepository(legacy);
+    expect((await diary.find(day.previous))!.rested, isNull);
+    expect(
+      await DriftCheckInRepository(
+        legacy,
+      ).find(day.previous, CheckInSlot.morning),
+      isNotNull,
+    );
+
+    await diary.save(DiaryEntry(date: day, rested: RestFeeling.rested));
+    expect((await diary.find(day))!.rested, RestFeeling.rested);
+  });
 }
